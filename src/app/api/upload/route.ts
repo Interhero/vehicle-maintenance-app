@@ -27,11 +27,16 @@ export async function POST(request: Request) {
         auth.setCredentials({ access_token: accessToken });
         const drive = google.drive({ version: 'v3', auth });
 
-        // 1. Upload the file to the user's root Drive folder
-        const fileMetadata = {
+        // 1. Upload the file to the user's Drive
+        const fileMetadata: any = {
             name: `Vehicle_Receipt_${Date.now()}_${file.name}`,
             mimeType: file.type,
         };
+
+        // If the user specified a specific folder ID in their environment variables, save it there instead of the root
+        if (process.env.GOOGLE_DRIVE_FOLDER_ID) {
+            fileMetadata.parents = [process.env.GOOGLE_DRIVE_FOLDER_ID];
+        }
 
         const media = {
             mimeType: file.type,
