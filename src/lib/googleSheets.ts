@@ -19,20 +19,7 @@ export async function resolveSpreadsheetId(accessToken: string): Promise<string>
     auth.setCredentials({ access_token: accessToken });
     const drive = google.drive({ version: 'v3', auth });
 
-    const adminSheetId = process.env.GOOGLE_SPREADSHEET_ID;
-
-    // 1. Try to read the master admin sheet first
-    if (adminSheetId) {
-        try {
-            await sheets.spreadsheets.get({ spreadsheetId: adminSheetId, fields: 'spreadsheetId' });
-            console.log("Admin sheet access granted.");
-            return adminSheetId;
-        } catch (err: any) {
-            console.log("Admin sheet access denied or not found. Falling back to personal isolation.");
-        }
-    }
-
-    // 2. Stranger Mode: Search their personal Google Drive for the Database File
+    // 1. Search their personal Google Drive for the Database File
     const FILE_NAME = "Vehicle Maintenance App Data";
     const searchRes = await drive.files.list({
         q: `name='${FILE_NAME}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`,
@@ -43,6 +30,21 @@ export async function resolveSpreadsheetId(accessToken: string): Promise<string>
     if (searchRes.data.files && searchRes.data.files.length > 0) {
         console.log("Found existing personal database for user.");
         return searchRes.data.files[0].id!;
+    }
+
+    // 2. Legacy Fallback (Only use if they don't have a personal DB yet, and they somehow own the original environment variable sheet)
+    const adminSheetId = process.env.GOOGLE_SPREADSHEET_ID;
+    if (adminSheetId) {
+        try {
+            // We check ownership to ensure strangers aren't latching onto a shared/public file.
+            const fileMeta = await drive.files.get({ fileId: adminSheetId, fields: 'ownedByMe' });
+            if (fileMeta.data.ownedByMe) {
+                console.log("Admin sheet ownership verified.");
+                return adminSheetId;
+            }
+        } catch (err: any) {
+            console.log("Admin sheet bypassed.");
+        }
     }
 
     // 3. Auto-Provisioning: Create the file if it doesn't exist
