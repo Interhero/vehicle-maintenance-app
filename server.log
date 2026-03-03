@@ -7681,3 +7681,309 @@ Error fetching vehicles: Error: Request had invalid authentication credentials. 
  GET / 200 in 84ms (compile: 5ms, render: 78ms)
  GET /vehicle/Honda%20City%20WXE7539 200 in 53ms (compile: 4ms, render: 49ms)
  GET /vehicle/Honda%20City%20WXE7539 200 in 28ms (compile: 4ms, render: 24ms)
+ GET /api/auth/session 200 in 1064ms (compile: 714ms, render: 350ms)
+Found existing personal database for user.
+Found existing personal database for user.
+Fetching from range: 'Maintainance Record'!A2:AB
+Raw Sheets Data rows count: 3
+First Row Data Layout: ["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "]
+Raw Last Row: ["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]
+Last 5 rows for dashboard rendering: [["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "],["03/03/2026, 03:29:33","Yamaha Y16ZR VKB6835","Spark Plug Replacement","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","","15"],["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]]
+ GET /api/records 200 in 4.9s (compile: 3.4s, render: 1540ms)
+ GET /api/vehicles 200 in 4.9s (compile: 3.5s, render: 1444ms)
+ GET /api/auth/session 200 in 49ms (compile: 14ms, render: 36ms)
+Found existing personal database for user.
+Found existing personal database for user.
+ GET /api/vehicles 200 in 1141ms (compile: 13ms, render: 1128ms)
+Fetching from range: 'Maintainance Record'!A2:AB
+Raw Sheets Data rows count: 3
+First Row Data Layout: ["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "]
+Raw Last Row: ["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]
+Last 5 rows for dashboard rendering: [["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "],["03/03/2026, 03:29:33","Yamaha Y16ZR VKB6835","Spark Plug Replacement","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","","15"],["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]]
+ GET /api/records 200 in 1728ms (compile: 5ms, render: 1723ms)
+ GET / 200 in 245ms (compile: 7ms, render: 238ms)
+ GET /api/auth/session 200 in 42ms (compile: 12ms, render: 30ms)
+ GET /api/auth/session 200 in 14ms (compile: 4ms, render: 11ms)
+Found existing personal database for user.
+Found existing personal database for user.
+Fetching from range: 'Maintainance Record'!A2:AB
+ GET /api/vehicles 200 in 1445ms (compile: 14ms, render: 1431ms)
+Raw Sheets Data rows count: 3
+First Row Data Layout: ["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "]
+Raw Last Row: ["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]
+Last 5 rows for dashboard rendering: [["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "],["03/03/2026, 03:29:33","Yamaha Y16ZR VKB6835","Spark Plug Replacement","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","","15"],["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]]
+ GET /api/records 200 in 1556ms (compile: 7ms, render: 1549ms)
+Found existing personal database for user.
+Found existing personal database for user.
+ GET /api/vehicles 200 in 1352ms (compile: 4ms, render: 1348ms)
+Fetching from range: 'Maintainance Record'!A2:AB
+Raw Sheets Data rows count: 3
+First Row Data Layout: ["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "]
+Raw Last Row: ["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]
+Last 5 rows for dashboard rendering: [["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "],["03/03/2026, 03:29:33","Yamaha Y16ZR VKB6835","Spark Plug Replacement","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","","15"],["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]]
+ GET /api/records 200 in 1914ms (compile: 3ms, render: 1911ms)
+ GET /api/auth/csrf 200 in 20ms (compile: 11ms, render: 9ms)
+ POST /api/auth/signout 200 in 38ms (compile: 2ms, render: 36ms)
+ GET /api/auth/session 200 in 10ms (compile: 3ms, render: 7ms)
+ GET / 200 in 62ms (compile: 4ms, render: 58ms)
+ GET / 200 in 101ms (compile: 4ms, render: 97ms)
+ GET / 200 in 44ms (compile: 7ms, render: 37ms)
+ GET /api/auth/session 200 in 15ms (compile: 3ms, render: 12ms)
+ GET /api/auth/session 200 in 25ms (compile: 1965µs, render: 23ms)
+ GET /api/auth/providers 200 in 44ms (compile: 9ms, render: 35ms)
+ GET /api/auth/csrf 200 in 24ms (compile: 2ms, render: 22ms)
+ POST /api/auth/signin/google 200 in 103ms (compile: 2ms, render: 101ms)
+ GET /api/auth/callback/google?state=G38e-cW_K62oTP9MqfGaaCn6AFvd-1Q5fs2-IVf1aNw&iss=https://accounts.google.com&code=4/0AfrIepAli_PNohwZV2z3R6eyR3IahPy-Bk1BTQOzW8lQgJ_KsVXAZr7jGDcRE7UAtB_yZg&scope=email%20profile%20https://www.googleapis.com/auth/drive.file%20https://www.googleapis.com/auth/spreadsheets%20https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email%20openid&authuser=0&prompt=consent 302 in 356ms (compile: 8ms, render: 348ms)
+ GET / 200 in 38ms (compile: 3ms, render: 35ms)
+ GET /api/auth/session 200 in 30ms (compile: 3ms, render: 27ms)
+ GET /api/auth/session 200 in 32ms (compile: 3ms, render: 28ms)
+Found existing personal database for user.
+Found existing personal database for user.
+Fetching from range: 'Maintainance Record'!A2:AB
+Raw Sheets Data rows count: 3
+First Row Data Layout: ["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "]
+Raw Last Row: ["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]
+Last 5 rows for dashboard rendering: [["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "],["03/03/2026, 03:29:33","Yamaha Y16ZR VKB6835","Spark Plug Replacement","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","","15"],["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]]
+ GET /api/records 200 in 1191ms (compile: 5ms, render: 1186ms)
+ GET /api/vehicles 200 in 1565ms (compile: 13ms, render: 1552ms)
+Found existing personal database for user.
+Found existing personal database for user.
+Fetching from range: 'Maintainance Record'!A2:AB
+Raw Sheets Data rows count: 3
+First Row Data Layout: ["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "]
+Raw Last Row: ["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]
+Last 5 rows for dashboard rendering: [["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "],["03/03/2026, 03:29:33","Yamaha Y16ZR VKB6835","Spark Plug Replacement","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","","15"],["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]]
+ GET /api/records 200 in 1282ms (compile: 5ms, render: 1278ms)
+ GET /api/vehicles 200 in 1084ms (compile: 2ms, render: 1081ms)
+⨯ TypeError: (void 0) is not a function or its return value is not iterable
+    at MigratePage (src\app\migrate\page.tsx:9:42)
+   7 | export default function MigratePage() {
+   8 |     const { data: session, status } = useSession();
+>  9 |     const [loading, setLoading] = useState(false);
+     |                                          ^
+  10 |     const [result, setResult] = useState<any>(null);
+  11 |
+  12 |     const handleMigrate = async () => { {
+  digest: '772735971'
+}
+ GET /migrate 500 in 2.9s (compile: 2.8s, render: 97ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 138ms
+ GET /migrate 200 in 330ms (compile: 177ms, render: 154ms)
+ GET /api/auth/session 200 in 52ms (compile: 15ms, render: 36ms)
+ GET /api/auth/session 200 in 31ms (compile: 3ms, render: 28ms)
+Found existing personal database for user.
+Found existing personal database for user.
+Fetching from range: 'Maintainance Record'!A2:AB
+Raw Sheets Data rows count: 3
+First Row Data Layout: ["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "]
+Raw Last Row: ["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]
+Last 5 rows for dashboard rendering: [["03/03/2026, 03:28:48","Yamaha Y16ZR VKB6835","Radiator Coolant Bleeding","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","Radiator Coolant bleeding as engine kept overheating "],["03/03/2026, 03:29:33","Yamaha Y16ZR VKB6835","Spark Plug Replacement","03/03/2026","45441","","","Nadzrie ( E ) Yamaha LC135/150i Workshop","","","","","15"],["03/03/2026, 04:17:51","Honda City WXE7539","Engine Oil","03/03/2026","158279","7000","165279","Wawasan Sepakat","Semi Synthetic / Shell HX7-40","","","","150","https://drive.google.com/open?id=1_P8mwZ0UWz8gL3hR_Q5m8SsCsMbcvln5"]]
+ GET /api/records 200 in 1644ms (compile: 4ms, render: 1641ms)
+ GET /api/vehicles 200 in 1660ms (compile: 16ms, render: 1644ms)
+Fetching legacy data from: 1RA3-36TzHqmncT0420k3hsjmbJ59grwt58UG3oN7Bqg
+Found 45 rows to migrate.
+Appending transformed data to: 19P34NYnhEkRg6_tjvD0lVTH9gmqZr1XhzOLHSGUe5Og
+ POST /api/admin/migrate 200 in 2.2s (compile: 665ms, render: 1515ms)
+✓ Compiled in 61ms
+ GET / 200 in 845ms (compile: 560ms, render: 286ms)
+ GET / 200 in 863ms (compile: 600ms, render: 264ms)
+ GET /record/new 200 in 842ms (compile: 448ms, render: 394ms)
+ GET /record/new 200 in 263ms (compile: 18ms, render: 245ms)
+ GET / 200 in 301ms (compile: 41ms, render: 260ms)
+ GET / 200 in 288ms (compile: 45ms, render: 243ms)
+ GET /record/new 200 in 296ms (compile: 6ms, render: 290ms)
+ GET / 200 in 296ms (compile: 82ms, render: 214ms)
+ GET / 200 in 296ms (compile: 101ms, render: 195ms)
+ GET / 200 in 245ms (compile: 4ms, render: 241ms)
+ GET / 200 in 224ms (compile: 8ms, render: 216ms)
+ GET / 200 in 215ms (compile: 24ms, render: 191ms)
+ GET /record/new 200 in 217ms (compile: 5ms, render: 212ms)
+ GET / 200 in 179ms (compile: 16ms, render: 163ms)
+ GET /record/new 200 in 167ms (compile: 5ms, render: 162ms)
+ GET / 200 in 183ms (compile: 26ms, render: 158ms)
+ GET / 200 in 177ms (compile: 21ms, render: 156ms)
+ GET /record/new 200 in 191ms (compile: 7ms, render: 185ms)
+ GET / 200 in 207ms (compile: 24ms, render: 183ms)
+ GET / 200 in 208ms (compile: 39ms, render: 169ms)
+ GET / 200 in 223ms (compile: 5ms, render: 218ms)
+ GET / 200 in 205ms (compile: 6ms, render: 199ms)
+ GET /record/new 200 in 205ms (compile: 4ms, render: 200ms)
+ GET / 200 in 205ms (compile: 21ms, render: 184ms)
+ GET / 200 in 175ms (compile: 18ms, render: 156ms)
+ GET /record/new 200 in 183ms (compile: 20ms, render: 163ms)
+ GET / 200 in 177ms (compile: 4ms, render: 173ms)
+ GET / 200 in 223ms (compile: 4ms, render: 219ms)
+ GET /record/new 200 in 266ms (compile: 4ms, render: 262ms)
+ GET / 200 in 266ms (compile: 20ms, render: 246ms)
+ GET / 200 in 314ms (compile: 4ms, render: 310ms)
+ GET / 200 in 862ms (compile: 6ms, render: 856ms)
+ GET / 200 in 865ms (compile: 6ms, render: 859ms)
+ GET /record/new 200 in 843ms (compile: 7ms, render: 836ms)
+ GET / 200 in 841ms (compile: 32ms, render: 809ms)
+ GET / 200 in 835ms (compile: 41ms, render: 793ms)
+ GET /record/new 200 in 774ms (compile: 9ms, render: 765ms)
+ GET / 200 in 793ms (compile: 35ms, render: 758ms)
+ GET / 200 in 796ms (compile: 32ms, render: 764ms)
+ GET /record/new 200 in 702ms (compile: 38ms, render: 664ms)
+ GET / 200 in 722ms (compile: 267ms, render: 455ms)
+ GET / 200 in 715ms (compile: 518ms, render: 198ms)
+ GET / 200 in 231ms (compile: 6ms, render: 224ms)
+ GET / 200 in 229ms (compile: 6ms, render: 223ms)
+ GET /record/new 200 in 223ms (compile: 4ms, render: 218ms)
+ GET / 200 in 201ms (compile: 18ms, render: 183ms)
+ GET / 200 in 203ms (compile: 4ms, render: 199ms)
+ GET /record/new 200 in 172ms (compile: 3ms, render: 169ms)
+ GET / 200 in 178ms (compile: 16ms, render: 162ms)
+ GET / 200 in 180ms (compile: 4ms, render: 176ms)
+ GET /record/new 200 in 248ms (compile: 5ms, render: 243ms)
+ GET / 200 in 250ms (compile: 40ms, render: 211ms)
+ GET / 200 in 251ms (compile: 23ms, render: 228ms)
+ GET / 200 in 284ms (compile: 4ms, render: 280ms)
+ GET / 200 in 354ms (compile: 5ms, render: 349ms)
+ GET / 200 in 366ms (compile: 7ms, render: 359ms)
+ GET /record/new 200 in 367ms (compile: 31ms, render: 335ms)
+ GET / 200 in 344ms (compile: 38ms, render: 306ms)
+ GET / 200 in 308ms (compile: 8ms, render: 299ms)
+ GET /record/new 200 in 297ms (compile: 10ms, render: 287ms)
+ GET / 200 in 313ms (compile: 40ms, render: 272ms)
+ GET / 200 in 279ms (compile: 35ms, render: 244ms)
+ GET / 200 in 277ms (compile: 36ms, render: 242ms)
+ GET /record/new 200 in 282ms (compile: 9ms, render: 274ms)
+ GET / 200 in 239ms (compile: 7ms, render: 232ms)
+ GET / 200 in 251ms (compile: 4ms, render: 247ms)
+ GET / 200 in 256ms (compile: 7ms, render: 248ms)
+ GET /record/new 200 in 271ms (compile: 7ms, render: 264ms)
+ GET / 200 in 271ms (compile: 28ms, render: 243ms)
+ GET / 200 in 235ms (compile: 8ms, render: 227ms)
+ GET /record/new 200 in 261ms (compile: 7ms, render: 255ms)
+ GET / 200 in 303ms (compile: 23ms, render: 280ms)
+ GET / 200 in 305ms (compile: 7ms, render: 298ms)
+ GET /record/new 200 in 321ms (compile: 4ms, render: 317ms)
+ GET / 200 in 384ms (compile: 23ms, render: 361ms)
+ GET / 200 in 392ms (compile: 28ms, render: 364ms)
+ GET / 200 in 429ms (compile: 9ms, render: 420ms)
+ GET / 200 in 397ms (compile: 9ms, render: 388ms)
+ GET /record/new 200 in 352ms (compile: 14ms, render: 338ms)
+ GET / 200 in 350ms (compile: 53ms, render: 297ms)
+ GET / 200 in 280ms (compile: 9ms, render: 271ms)
+ GET /record/new 200 in 242ms (compile: 10ms, render: 232ms)
+ GET / 200 in 258ms (compile: 42ms, render: 216ms)
+ GET / 200 in 224ms (compile: 8ms, render: 217ms)
+ GET /record/new 200 in 196ms (compile: 7ms, render: 190ms)
+ GET / 200 in 215ms (compile: 36ms, render: 179ms)
+ GET / 200 in 212ms (compile: 27ms, render: 185ms)
+ GET / 200 in 163ms (compile: 4ms, render: 160ms)
+ GET / 200 in 162ms (compile: 4ms, render: 158ms)
+ GET /record/new 200 in 145ms (compile: 4ms, render: 141ms)
+ GET / 200 in 147ms (compile: 21ms, render: 125ms)
+ GET / 200 in 130ms (compile: 18ms, render: 112ms)
+ GET /record/new 200 in 121ms (compile: 4ms, render: 117ms)
+ GET / 200 in 120ms (compile: 23ms, render: 98ms)
+ GET / 200 in 102ms (compile: 18ms, render: 84ms)
+ GET /record/new 200 in 88ms (compile: 3ms, render: 85ms)
+ GET / 200 in 106ms (compile: 5ms, render: 101ms)
+ GET /record/new 200 in 121ms (compile: 4ms, render: 117ms)
+ GET / 200 in 99ms (compile: 5ms, render: 94ms)
+ GET /record/new 200 in 84ms (compile: 4ms, render: 80ms)
+ GET / 200 in 118ms (compile: 21ms, render: 97ms)
+ GET /record/new 200 in 103ms (compile: 4ms, render: 99ms)
+ GET / 200 in 115ms (compile: 3ms, render: 111ms)
+ GET / 200 in 134ms (compile: 22ms, render: 112ms)
+ GET /record/new 200 in 136ms (compile: 5ms, render: 131ms)
+ GET /record/new 200 in 127ms (compile: 3ms, render: 124ms)
+ GET / 200 in 155ms (compile: 21ms, render: 134ms)
+ GET /record/new 200 in 164ms (compile: 3ms, render: 161ms)
+ GET / 200 in 145ms (compile: 3ms, render: 142ms)
+ GET /record/new 200 in 174ms (compile: 4ms, render: 170ms)
+ GET / 200 in 175ms (compile: 31ms, render: 144ms)
+ GET /record/new 200 in 123ms (compile: 6ms, render: 116ms)
+ GET / 200 in 147ms (compile: 30ms, render: 117ms)
+ GET /record/new 200 in 170ms (compile: 5ms, render: 165ms)
+ GET / 200 in 149ms (compile: 5ms, render: 144ms)
+ GET /record/new 200 in 172ms (compile: 7ms, render: 165ms)
+ GET / 200 in 172ms (compile: 31ms, render: 141ms)
+ GET /record/new 200 in 146ms (compile: 6ms, render: 140ms)
+ GET / 200 in 168ms (compile: 31ms, render: 137ms)
+ GET /record/new 200 in 140ms (compile: 5ms, render: 134ms)
+ GET / 200 in 135ms (compile: 4ms, render: 131ms)
+ GET /record/new 200 in 170ms (compile: 4ms, render: 166ms)
+ GET / 200 in 149ms (compile: 5ms, render: 144ms)
+ GET /record/new 200 in 149ms (compile: 5ms, render: 143ms)
+ GET / 200 in 164ms (compile: 31ms, render: 133ms)
+ GET /record/new 200 in 115ms (compile: 5ms, render: 109ms)
+ GET / 200 in 94ms (compile: 3ms, render: 91ms)
+ GET /record/new 200 in 50ms (compile: 7ms, render: 42ms)
+ GET / 200 in 26ms (compile: 4ms, render: 22ms)
+✓ Compiled in 591ms
+Error fetching vehicles: Error: Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+    at async resolveSpreadsheetId (src\lib\googleSheets.ts:24:23)
+    at async fetchVehicles (src\lib\googleSheets.ts:263:31)
+    at async GET (src\app\api\vehicles\route.ts:13:26)
+  22 |     // 1. Search their personal Google Drive for the Database File
+  23 |     const FILE_NAME = "Vehicle Maintenance App Data";
+> 24 |     const searchRes = await drive.files.list({
+     |                       ^
+  25 |         q: `name='${FILE_NAME}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`,
+  26 |         spaces: 'drive',
+  27 |         fields: 'files(id, name)', {
+  config: [Object],
+  response: [Response],
+  code: 401,
+  status: 401,
+  error: undefined,
+  [cause]: [Object]
+}
+ GET /api/vehicles 200 in 5.6s (compile: 5.0s, render: 683ms)
+✓ Compiled in 1281ms
+✓ Compiled in 288ms
+✓ Compiled in 455ms
+ GET / 200 in 2.7s (compile: 1786ms, render: 923ms)
+ GET /record/new 200 in 2.7s (compile: 1980ms, render: 749ms)
+ GET / 200 in 2.8s (compile: 902ms, render: 1921ms)
+✓ Compiled in 66ms
+✓ Compiled in 64ms
+✓ Compiled in 54ms
+✓ Compiled in 501ms
+✓ Compiled in 376ms
+Error fetching vehicles: Error: Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+    at async resolveSpreadsheetId (src\lib\googleSheets.ts:24:23)
+    at async fetchVehicles (src\lib\googleSheets.ts:263:31)
+    at async GET (src\app\api\vehicles\route.ts:13:26)
+  22 |     // 1. Search their personal Google Drive for the Database File
+  23 |     const FILE_NAME = "Vehicle Maintenance App Data";
+> 24 |     const searchRes = await drive.files.list({
+     |                       ^
+  25 |         q: `name='${FILE_NAME}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`,
+  26 |         spaces: 'drive',
+  27 |         fields: 'files(id, name)', {
+  config: [Object],
+  response: [Response],
+  code: 401,
+  status: 401,
+  error: undefined,
+  [cause]: [Object]
+}
+ GET /api/vehicles 200 in 1931ms (compile: 182ms, render: 1750ms)
+✓ Compiled in 343ms
+Error fetching vehicles: Error: Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+    at async resolveSpreadsheetId (src\lib\googleSheets.ts:24:23)
+    at async fetchVehicles (src\lib\googleSheets.ts:263:31)
+    at async GET (src\app\api\vehicles\route.ts:13:26)
+  22 |     // 1. Search their personal Google Drive for the Database File
+  23 |     const FILE_NAME = "Vehicle Maintenance App Data";
+> 24 |     const searchRes = await drive.files.list({
+     |                       ^
+  25 |         q: `name='${FILE_NAME}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`,
+  26 |         spaces: 'drive',
+  27 |         fields: 'files(id, name)', {
+  config: [Object],
+  response: [Response],
+  code: 401,
+  status: 401,
+  error: undefined,
+  [cause]: [Object]
+}
+ GET /api/vehicles 200 in 412ms (compile: 7ms, render: 405ms)
+✓ Compiled in 47ms
+✓ Compiled in 256ms
