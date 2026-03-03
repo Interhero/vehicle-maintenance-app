@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -31,11 +32,39 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme') || 'system';
+                  var root = document.documentElement;
+                  root.classList.remove('light', 'dark');
+                  if (theme === 'dark') {
+                    root.classList.add('dark');
+                  } else if (theme === 'light') {
+                    root.classList.add('light');
+                  } else if (theme === 'system') {
+                    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                      root.classList.add('dark');
+                    } else {
+                      root.classList.add('light');
+                    }
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

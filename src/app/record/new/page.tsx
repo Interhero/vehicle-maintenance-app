@@ -1,9 +1,10 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Car, Wrench } from "lucide-react";
+import { AnimatedLoader } from "@/components/AnimatedLoader";
 
 export default function NewRecord() {
     const { data: session, status } = useSession();
@@ -11,6 +12,9 @@ export default function NewRecord() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
+
+    const [dynamicVehicles, setDynamicVehicles] = useState<any[]>([]);
+    const [vehiclesLoading, setVehiclesLoading] = useState(true);
 
     const [formData, setFormData] = useState({
         vehicleType: "",
@@ -32,6 +36,22 @@ export default function NewRecord() {
         partModel: "",
         locationMatrix: "", // Storing "Front Left", "Back Right", etc.
     });
+
+    useEffect(() => {
+        if (session && (session as any).accessToken) {
+            fetch("/api/vehicles", {
+                headers: { "Authorization": `Bearer ${(session as any).accessToken}` }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.vehicles) setDynamicVehicles(data.vehicles);
+                })
+                .catch(console.error)
+                .finally(() => setVehiclesLoading(false));
+        } else if (status !== "loading") {
+            setVehiclesLoading(false);
+        }
+    }, [session, status]);
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
@@ -121,28 +141,29 @@ export default function NewRecord() {
 
     if (status === "loading") {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-                <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
+            <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-colors">
+                <AnimatedLoader />
+                <p className="mt-4 text-sm font-medium text-zinc-500 dark:text-zinc-400 animate-pulse">Initializing Form...</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-zinc-100 p-4 sm:p-8">
+        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
             <div className="max-w-3xl mx-auto space-y-8">
-                <header className="flex items-center gap-4 glass-panel p-6 rounded-2xl border border-zinc-800 bg-zinc-900/50">
-                    <button onClick={() => router.back()} className="text-zinc-400 hover:text-white transition-colors">
+                <header className="flex items-center gap-4 glass-panel p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm dark:shadow-none">
+                    <button onClick={() => router.back()} className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors">
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <div>
                         <h1 className="text-2xl font-bold">New Maintenance Record</h1>
-                        <p className="text-sm text-zinc-400">Add a new log to your Google Sheet</p>
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400">Add a new log to your Google Sheet</p>
                     </div>
                 </header>
 
-                {error && <div className="p-4 bg-rose-500/10 border border-rose-500/50 rounded-xl text-rose-400">{error}</div>}
+                {error && <div className="p-4 bg-rose-500/10 border border-rose-500/50 rounded-xl text-rose-600 dark:text-rose-400">{error}</div>}
 
-                <form onSubmit={handleSubmit} className="space-y-8 glass-panel p-6 sm:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/30">
+                <form onSubmit={handleSubmit} className="space-y-8 glass-panel p-6 sm:p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 shadow-md dark:shadow-none">
 
                     <div className="space-y-4">
                         <h2 className="text-lg font-semibold border-b border-zinc-800 pb-2 flex items-center gap-2 text-blue-400">
@@ -151,16 +172,20 @@ export default function NewRecord() {
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <label className="space-y-2">
-                                <span className="text-sm font-medium text-zinc-300">Vehicle Type *</span>
-                                <select required name="vehicleType" value={formData.vehicleType} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
-                                    <option value="" disabled>Select vehicle...</option>
-                                    <option value="Honda City WXE7539">Honda City WXE7539</option>
-                                    <option value="Yamaha Y16ZR VKB6835">Yamaha Y16ZR VKB6835</option>
+                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Vehicle Type *</span>
+                                <select required name="vehicleType" value={formData.vehicleType} onChange={handleChange} disabled={vehiclesLoading || dynamicVehicles.length === 0} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all disabled:opacity-50">
+                                    <option value="" disabled>{vehiclesLoading ? "Loading vehicles..." : "Select vehicle..."}</option>
+                                    {dynamicVehicles.map((v, i) => (
+                                        <option key={i} value={v.name}>{v.name}</option>
+                                    ))}
                                 </select>
+                                {!vehiclesLoading && dynamicVehicles.length === 0 && (
+                                    <p className="text-xs text-rose-400 mt-1">No vehicles found. Set one up on the Dashboard first.</p>
+                                )}
                             </label>
 
                             <label className="space-y-2">
-                                <span className="text-sm font-medium text-zinc-300">Current Mileage (KM) *</span>
+                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Current Mileage (KM) *</span>
                                 <input required type="number" name="lastMileage" value={formData.lastMileage} onChange={handleChange} min="0" className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="e.g. 158279" />
                             </label>
                         </div>
@@ -173,8 +198,8 @@ export default function NewRecord() {
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <label className="space-y-2">
-                                <span className="text-sm font-medium text-zinc-300">What was done? *</span>
-                                <select required name="serviceType" value={formData.serviceType} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
+                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">What was done? *</span>
+                                <select required name="serviceType" value={formData.serviceType} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
                                     <option value="" disabled>Select primary service...</option>
                                     <option value="Engine Oil">Engine Oil</option>
                                     <option value="Engine Oil Filter">Engine Oil Filter</option>
@@ -190,8 +215,8 @@ export default function NewRecord() {
                             {/* Conditional text input if 'Other' is selected */}
                             {formData.serviceType === "Other" && (
                                 <label className="space-y-2">
-                                    <span className="text-sm font-medium text-zinc-300">Specify Other Service *</span>
-                                    <input required type="text" name="otherServiceType" value={formData.otherServiceType} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Changed spark plugs" />
+                                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Specify Other Service *</span>
+                                    <input required type="text" name="otherServiceType" value={formData.otherServiceType} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Changed spark plugs" />
                                 </label>
                             )}
 
@@ -199,8 +224,8 @@ export default function NewRecord() {
                             {["Other", "Brake Pads", "Tire"].includes(formData.serviceType) && (
                                 <>
                                     <label className="space-y-2">
-                                        <span className="text-sm font-medium text-zinc-300">Location Matrix (Optional)</span>
-                                        <select name="locationMatrix" value={formData.locationMatrix} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
+                                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location Matrix (Optional)</span>
+                                        <select name="locationMatrix" value={formData.locationMatrix} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
                                             <option value="">N/A</option>
                                             <option value="Front Left">Front Left</option>
                                             <option value="Front Right">Front Right</option>
@@ -211,13 +236,13 @@ export default function NewRecord() {
                                         </select>
                                     </label>
                                     <label className="space-y-2">
-                                        <span className="text-sm font-medium text-zinc-300">Brand of Part</span>
-                                        <input type="text" name="partBrand" value={formData.partBrand} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Michelin" />
+                                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Brand of Part</span>
+                                        <input type="text" name="partBrand" value={formData.partBrand} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Michelin" />
                                     </label>
                                     {formData.serviceType === "Other" && (
                                         <label className="space-y-2">
-                                            <span className="text-sm font-medium text-zinc-300">Model Name of Part</span>
-                                            <input type="text" name="partModel" value={formData.partModel} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Pilot Sport 5" />
+                                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Model Name of Part</span>
+                                            <input type="text" name="partModel" value={formData.partModel} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Pilot Sport 5" />
                                         </label>
                                     )}
                                 </>
@@ -226,18 +251,18 @@ export default function NewRecord() {
                             {/* Oil & Battery grouping conditionals */}
                             {["Engine Oil", "Engine Oil Filter", "Transition Oil", "Transmition Oil Filter", "Battery"].includes(formData.serviceType) && (
                                 <label className="space-y-2">
-                                    <span className="text-sm font-medium text-zinc-300">Brand / Type</span>
-                                    <input type="text" name="partBrand" value={formData.partBrand} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="Fully Synthetic / YTX4L-BS..." />
+                                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Brand / Type</span>
+                                    <input type="text" name="partBrand" value={formData.partBrand} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="Fully Synthetic / YTX4L-BS..." />
                                 </label>
                             )}
 
                             <label className="space-y-2">
-                                <span className="text-sm font-medium text-zinc-300">Date Done *</span>
-                                <input required type="date" name="dateDone" value={formData.dateDone} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" />
+                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Date Done *</span>
+                                <input required type="date" name="dateDone" value={formData.dateDone} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" />
                             </label>
 
-                            <div className="space-y-2 border border-zinc-800 p-4 rounded-xl bg-zinc-900/20">
-                                <span className="text-sm font-medium text-zinc-300">Where it was done? *</span>
+                            <div className="space-y-2 border border-zinc-200 dark:border-zinc-800 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/20">
+                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Where it was done? *</span>
                                 <div className="flex gap-4 mt-2">
                                     <label className="flex items-center gap-2 text-zinc-400 cursor-pointer hover:text-white transition-colors">
                                         <input type="radio" name="locationType" value="Self" checked={formData.locationType === "Self"} onChange={handleChange} className="accent-emerald-500" />
@@ -249,13 +274,13 @@ export default function NewRecord() {
                                     </label>
                                 </div>
                                 {formData.locationType === "Other" && (
-                                    <input required type="text" name="workshop" value={formData.workshop} onChange={handleChange} className="mt-3 w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm" placeholder="Enter workshop name..." />
+                                    <input required type="text" name="workshop" value={formData.workshop} onChange={handleChange} className="mt-3 w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm" placeholder="Enter workshop name..." />
                                 )}
                             </div>
 
                             <label className="space-y-2">
-                                <span className="text-sm font-medium text-zinc-300">General Notes / Details</span>
-                                <input type="text" name="details" value={formData.details} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="Any extra specific details..." />
+                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">General Notes / Details</span>
+                                <input type="text" name="details" value={formData.details} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="Any extra specific details..." />
                             </label>
                         </div>
                     </div>
@@ -268,8 +293,8 @@ export default function NewRecord() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-4">
                                 <label className="space-y-2">
-                                    <span className="text-sm font-medium text-zinc-300">Next Due Interval (KM)</span>
-                                    <select name="nextInterval" value={formData.nextInterval} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all">
+                                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Next Due Interval (KM)</span>
+                                    <select name="nextInterval" value={formData.nextInterval} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all">
                                         <option value="" disabled>Select interval...</option>
                                         <option value="None">None</option>
                                         <option value="3000">3000</option>
@@ -281,20 +306,20 @@ export default function NewRecord() {
                                 </label>
                                 {formData.nextInterval === "Other" && (
                                     <label className="space-y-2 block">
-                                        <span className="text-sm font-medium text-zinc-300">Specify Custom Interval</span>
-                                        <input type="number" name="otherNextInterval" value={formData.otherNextInterval} onChange={handleChange} min="0" className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" placeholder="e.g. 15000" />
+                                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Specify Custom Interval</span>
+                                        <input type="number" name="otherNextInterval" value={formData.otherNextInterval} onChange={handleChange} min="0" className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" placeholder="e.g. 15000" />
                                     </label>
                                 )}
                             </div>
 
                             <label className="space-y-2">
-                                <span className="text-sm font-medium text-zinc-300">Calculated Next Due Service (KM)</span>
-                                <input readOnly type="number" name="nextServiceCalculated" value={formData.nextServiceCalculated} className="w-full bg-zinc-800/20 border border-zinc-800 rounded-xl p-3.5 text-zinc-500 cursor-not-allowed" placeholder="Auto-calculated" />
+                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Calculated Next Due Service (KM)</span>
+                                <input readOnly type="number" name="nextServiceCalculated" value={formData.nextServiceCalculated} className="w-full bg-zinc-100 dark:bg-zinc-800/20 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3.5 text-zinc-500 cursor-not-allowed" placeholder="Auto-calculated" />
                             </label>
 
                             <label className="space-y-2">
-                                <span className="text-sm font-medium text-zinc-300">Total Cost (RM)</span>
-                                <input type="number" step="0.01" name="cost" value={formData.cost} onChange={handleChange} min="0" className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" placeholder="e.g. 150" />
+                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Total Cost (RM)</span>
+                                <input type="number" step="0.01" name="cost" value={formData.cost} onChange={handleChange} min="0" className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" placeholder="e.g. 150" />
                             </label>
 
                             <label className="space-y-2">
@@ -302,7 +327,7 @@ export default function NewRecord() {
                                     Receipt Web Link
                                     <span className="text-[10px] text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded">Optional</span>
                                 </span>
-                                <input type="url" name="receipt" value={formData.receipt} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-zinc-600" placeholder="https://drive.google.com/..." />
+                                <input type="url" name="receipt" value={formData.receipt} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-zinc-600" placeholder="https://drive.google.com/..." />
                             </label>
 
                             <label className="space-y-2 relative group">
@@ -310,7 +335,7 @@ export default function NewRecord() {
                                     Upload Receipt Image
                                     <span className="text-[10px] text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded font-bold tracking-wide">NEW</span>
                                 </span>
-                                <div className="relative w-full overflow-hidden bg-zinc-900/50 border border-zinc-700/50 border-dashed rounded-xl transition-all hover:bg-zinc-800/50 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent">
+                                <div className="relative w-full overflow-hidden bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-300 dark:border-zinc-700/50 border-dashed rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800/50 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent">
                                     <input
                                         type="file"
                                         accept="image/*,application/pdf"
@@ -336,7 +361,7 @@ export default function NewRecord() {
 
                         <label className="space-y-2 block">
                             <span className="text-sm font-medium text-zinc-300">Additional Remarks</span>
-                            <textarea name="remark" value={formData.remark} onChange={handleChange} className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all h-28 resize-y" placeholder="Any extra notes or mechanic advice..." />
+                            <textarea name="remark" value={formData.remark} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all h-28 resize-y" placeholder="Any extra notes or mechanic advice..." />
                         </label>
                     </div>
 

@@ -13,10 +13,78 @@ export async function getGoogleSheetsClient(accessToken: string) {
     return google.sheets({ version: "v4", auth });
 }
 
+export async function resolveSpreadsheetId(accessToken: string): Promise<string> {
+    const sheets = await getGoogleSheetsClient(accessToken);
+    const auth = new google.auth.OAuth2();
+    auth.setCredentials({ access_token: accessToken });
+    const drive = google.drive({ version: 'v3', auth });
+
+    const adminSheetId = process.env.GOOGLE_SPREADSHEET_ID;
+
+    // 1. Try to read the master admin sheet first
+    if (adminSheetId) {
+        try {
+            await sheets.spreadsheets.get({ spreadsheetId: adminSheetId, fields: 'spreadsheetId' });
+            console.log("Admin sheet access granted.");
+            return adminSheetId;
+        } catch (err: any) {
+            console.log("Admin sheet access denied or not found. Falling back to personal isolation.");
+        }
+    }
+
+    // 2. Stranger Mode: Search their personal Google Drive for the Database File
+    const FILE_NAME = "Vehicle Maintenance App Data";
+    const searchRes = await drive.files.list({
+        q: `name='${FILE_NAME}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`,
+        spaces: 'drive',
+        fields: 'files(id, name)',
+    });
+
+    if (searchRes.data.files && searchRes.data.files.length > 0) {
+        console.log("Found existing personal database for user.");
+        return searchRes.data.files[0].id!;
+    }
+
+    // 3. Auto-Provisioning: Create the file if it doesn't exist
+    console.log("No database found. Auto-provisioning new Google Sheet for user.");
+    const createRes = await sheets.spreadsheets.create({
+        requestBody: {
+            properties: { title: FILE_NAME },
+            sheets: [
+                { properties: { title: "Maintainance Record" } },
+                { properties: { title: "Vehicles" } }
+            ]
+        }
+    });
+
+    const newSpreadsheetId = createRes.data.spreadsheetId!;
+
+    // 4. Initialize the Headers for the new spreadsheet
+    await sheets.spreadsheets.values.update({
+        spreadsheetId: newSpreadsheetId,
+        range: "'Maintainance Record'!A1:K1",
+        valueInputOption: "USER_ENTERED",
+        requestBody: {
+            values: [["Timestamp", "Vehicle", "Service Type", "Date Done", "Current Mileage", "Next Service Interval", "Next Service Calculated", "Workshop", "Details", "Receipt / Notes", "Cost (RM)"]]
+        }
+    });
+
+    await sheets.spreadsheets.values.update({
+        spreadsheetId: newSpreadsheetId,
+        range: "'Vehicles'!A1:A1",
+        valueInputOption: "USER_ENTERED",
+        requestBody: {
+            values: [["Vehicle Name"]]
+        }
+    });
+
+    return newSpreadsheetId;
+}
+
 export async function fetchMaintenanceRecords(accessToken: string) {
     try {
         const sheets = await getGoogleSheetsClient(accessToken);
-        const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+        const spreadsheetId = await resolveSpreadsheetId(accessToken);
 
         // First, get the spreadsheet metadata to find the name of the first sheet
         const metadata = await sheets.spreadsheets.get({
@@ -60,11 +128,11 @@ export async function fetchMaintenanceRecords(accessToken: string) {
         console.log("First Row Data Layout:", JSON.stringify(rows[0]));
         console.log("Raw Last Row:", JSON.stringify(rows[rows.length - 1]));
 
-        // Filter out empty rows (where vehicle type doesn't contain a known string or length is too short)
+        // Filter out empty or invalid rows
         const validRows = rows.filter((row: any[]) => {
             if (!row || row.length < 2) return false;
-            const v = String(row[1]).toLowerCase();
-            return v.includes("honda") || v.includes("yamaha");
+            const v = String(row[1]).trim();
+            return v.length > 0;
         });
 
         console.log("Last 5 rows for dashboard rendering:", JSON.stringify(validRows.slice(-5)));
@@ -119,7 +187,7 @@ export async function fetchMaintenanceRecords(accessToken: string) {
 export async function appendMaintenanceRecord(accessToken: string, rowData: any[]) {
     try {
         const sheets = await getGoogleSheetsClient(accessToken);
-        const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+        const spreadsheetId = await resolveSpreadsheetId(accessToken);
 
         const metadata = await sheets.spreadsheets.get({ spreadsheetId });
         let firstSheetName = metadata.data.sheets?.[0]?.properties?.title;
@@ -151,6 +219,206 @@ export async function appendMaintenanceRecord(accessToken: string, rowData: any[
         return response.data;
     } catch (error) {
         console.error("Error appending record:", error);
+        throw error;
+    }
+}
+
+async function ensureVehiclesTab(sheets: any, spreadsheetId: string) {
+    try {
+        await sheets.spreadsheets.values.get({ spreadsheetId, range: "'Vehicles'!A1" });
+    } catch (e: any) {
+        if (e.message?.includes("Unable to parse range")) {
+            console.log("Vehicles tab missing. Creating it now to ensure backwards compatibility.");
+            await sheets.spreadsheets.batchUpdate({
+                spreadsheetId,
+                requestBody: { requests: [{ addSheet: { properties: { title: "Vehicles" } } }] }
+            });
+            await sheets.spreadsheets.values.update({
+                spreadsheetId,
+                range: "'Vehicles'!A1:C3",
+                valueInputOption: "USER_ENTERED",
+                requestBody: {
+                    values: [
+                        ["Vehicle Name", "Image URL", "Vehicle Type"],
+                        ["Honda City WXE7539", "", "Car"],
+                        ["Yamaha Y16ZR VKB6835", "", "Motorcycle"]
+                    ]
+                }
+            });
+        }
+    }
+}
+
+export interface VehicleData {
+    name: string;
+    color: string;
+    type: string;
+}
+
+export async function fetchVehicles(accessToken: string): Promise<VehicleData[]> {
+    try {
+        const sheets = await getGoogleSheetsClient(accessToken);
+        const spreadsheetId = await resolveSpreadsheetId(accessToken);
+
+        await ensureVehiclesTab(sheets, spreadsheetId);
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: "'Vehicles'!A2:C",
+        });
+
+        if (!response.data.values) return [];
+        return response.data.values.map(row => {
+            let colorVal = row[1];
+            if (!colorVal || typeof colorVal !== 'string' || !colorVal.startsWith('#')) {
+                colorVal = "#3b82f6"; // Default Blue for missing or old Google Drive URL strings
+            }
+            return {
+                name: row[0] || "",
+                color: colorVal,
+                type: row[2] || "Car"
+            };
+        }).filter(v => v.name.length > 0);
+    } catch (error) {
+        console.error("Error fetching vehicles:", error);
+        return [];
+    }
+}
+
+export async function addVehicle(accessToken: string, vehicle: VehicleData) {
+    try {
+        const sheets = await getGoogleSheetsClient(accessToken);
+        const spreadsheetId = await resolveSpreadsheetId(accessToken);
+
+        await ensureVehiclesTab(sheets, spreadsheetId);
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: "'Vehicles'!A:C",
+            valueInputOption: "USER_ENTERED",
+            requestBody: {
+                values: [[vehicle.name, vehicle.color, vehicle.type]]
+            },
+        });
+        return true;
+    } catch (error) {
+        console.error("Error adding vehicle:", error);
+        throw error;
+    }
+}
+
+export async function deleteVehicle(accessToken: string, vehicleName: string) {
+    try {
+        const sheets = await getGoogleSheetsClient(accessToken);
+        const spreadsheetId = await resolveSpreadsheetId(accessToken);
+
+        await ensureVehiclesTab(sheets, spreadsheetId);
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: "'Vehicles'!A2:C",
+        });
+
+        let currentVehicles: any[] = [];
+        if (response.data.values) {
+            currentVehicles = response.data.values;
+        }
+
+        const newVehiclesRows = currentVehicles.filter(row => row[0] !== vehicleName);
+
+        // Clear the entire column block
+        await sheets.spreadsheets.values.clear({
+            spreadsheetId,
+            range: "'Vehicles'!A2:C",
+        });
+
+        if (newVehiclesRows.length > 0) {
+            await sheets.spreadsheets.values.update({
+                spreadsheetId,
+                range: "'Vehicles'!A2",
+                valueInputOption: "USER_ENTERED",
+                requestBody: { values: newVehiclesRows }
+            });
+        }
+        return true;
+    } catch (error) {
+        console.error("Error deleting vehicle:", error);
+        throw error;
+    }
+}
+
+export async function updateVehicle(accessToken: string, originalName: string, updatedVehicle: VehicleData) {
+    try {
+        const sheets = await getGoogleSheetsClient(accessToken);
+        const spreadsheetId = await resolveSpreadsheetId(accessToken);
+
+        // 1. Update the 'Vehicles' tab row
+        await ensureVehiclesTab(sheets, spreadsheetId);
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: "'Vehicles'!A2:C",
+        });
+
+        let vehicles = response.data.values || [];
+        let updated = false;
+
+        for (let i = 0; i < vehicles.length; i++) {
+            if (vehicles[i][0] === originalName) {
+                vehicles[i] = [updatedVehicle.name, updatedVehicle.color, updatedVehicle.type];
+                updated = true;
+                break;
+            }
+        }
+
+        if (updated) {
+            await sheets.spreadsheets.values.clear({
+                spreadsheetId,
+                range: "'Vehicles'!A2:C",
+            });
+            await sheets.spreadsheets.values.update({
+                spreadsheetId,
+                range: "'Vehicles'!A2",
+                valueInputOption: "USER_ENTERED",
+                requestBody: { values: vehicles }
+            });
+        }
+
+        // 2. Cascade update to 'Maintainance Record' column B if identity name changed
+        if (originalName !== updatedVehicle.name) {
+            const metadata = await sheets.spreadsheets.get({ spreadsheetId });
+            let firstSheetName = metadata.data.sheets?.[0]?.properties?.title || "Maintainance Record";
+            if (firstSheetName !== "Maintainance Record") firstSheetName = "Maintainance Record";
+
+            const recordsResponse = await sheets.spreadsheets.values.get({
+                spreadsheetId,
+                range: `'${firstSheetName}'!B2:B`,
+            });
+
+            const vehicleColumn = recordsResponse.data.values;
+            if (vehicleColumn) {
+                let needsRecordsUpdate = false;
+                for (let i = 0; i < vehicleColumn.length; i++) {
+                    if (vehicleColumn[i][0] === originalName) {
+                        vehicleColumn[i][0] = updatedVehicle.name;
+                        needsRecordsUpdate = true;
+                    }
+                }
+
+                if (needsRecordsUpdate) {
+                    await sheets.spreadsheets.values.update({
+                        spreadsheetId,
+                        range: `'${firstSheetName}'!B2:B${vehicleColumn.length + 1}`,
+                        valueInputOption: "USER_ENTERED",
+                        requestBody: { values: vehicleColumn }
+                    });
+                }
+            }
+        }
+
+        return true;
+    } catch (error) {
+        console.error("Error updating vehicle:", error);
         throw error;
     }
 }

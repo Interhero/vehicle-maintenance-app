@@ -41,20 +41,29 @@ export default function VehicleMappingMap({ vehicleType, serviceDetails }: Vehic
     // Analyze the details string to extract locations
     const activeMarkers = useMemo(() => {
         const text = serviceDetails.toLowerCase();
-        const markers: { id: string; top: string; left: string }[] = [];
+        const markers: { id: string; label?: string; top: string; left: string }[] = [];
 
-        // Prioritize specific complex checks first
-        if ((text.includes("front") && text.includes("left")) || text.includes("fl")) {
-            if (coordsMap["front left" as keyof typeof coordsMap]) markers.push({ id: "Front Left", ...coordsMap["front left" as keyof typeof coordsMap] });
+        // Prioritize specific complex checks first (Dual markers)
+        if (text.includes("front both") || text.includes("both front") || text.includes("front tyres") || text.includes("front tires")) {
+            if (coordsMap["front" as keyof typeof coordsMap]) markers.push({ id: "Front", ...coordsMap["front" as keyof typeof coordsMap] });
+        } else {
+            if ((text.includes("front") && text.includes("left")) || text.includes("fl")) {
+                if (coordsMap["front left" as keyof typeof coordsMap]) markers.push({ id: "Front Left", ...coordsMap["front left" as keyof typeof coordsMap] });
+            }
+            if ((text.includes("front") && text.includes("right")) || text.includes("fr")) {
+                if (coordsMap["front right" as keyof typeof coordsMap]) markers.push({ id: "Front Right", ...coordsMap["front right" as keyof typeof coordsMap] });
+            }
         }
-        if ((text.includes("front") && text.includes("right")) || text.includes("fr")) {
-            if (coordsMap["front right" as keyof typeof coordsMap]) markers.push({ id: "Front Right", ...coordsMap["front right" as keyof typeof coordsMap] });
-        }
-        if ((text.includes("rear") || text.includes("back")) && text.includes("left") || text.includes("rl")) {
-            if (coordsMap["rear left" as keyof typeof coordsMap]) markers.push({ id: "Rear Left", ...coordsMap["rear left" as keyof typeof coordsMap] });
-        }
-        if ((text.includes("rear") || text.includes("back")) && text.includes("right") || text.includes("rr")) {
-            if (coordsMap["rear right" as keyof typeof coordsMap]) markers.push({ id: "Rear Right", ...coordsMap["rear right" as keyof typeof coordsMap] });
+
+        if (text.includes("rear both") || text.includes("both rear") || text.includes("rear tyres") || text.includes("back both") || text.includes("both back")) {
+            if (coordsMap["rear" as keyof typeof coordsMap]) markers.push({ id: "Rear", ...coordsMap["rear" as keyof typeof coordsMap] });
+        } else {
+            if ((text.includes("rear") || text.includes("back")) && text.includes("left") || text.includes("rl")) {
+                if (coordsMap["rear left" as keyof typeof coordsMap]) markers.push({ id: "Rear Left", ...coordsMap["rear left" as keyof typeof coordsMap] });
+            }
+            if ((text.includes("rear") || text.includes("back")) && text.includes("right") || text.includes("rr")) {
+                if (coordsMap["rear right" as keyof typeof coordsMap]) markers.push({ id: "Rear Right", ...coordsMap["rear right" as keyof typeof coordsMap] });
+            }
         }
 
         // Generic checks
@@ -106,7 +115,7 @@ export default function VehicleMappingMap({ vehicleType, serviceDetails }: Vehic
                 activeMarkers.map((marker, idx) => (
                     <div
                         key={idx}
-                        className="absolute -translate-x-1/2 -translate-y-1/2 group"
+                        className="absolute -translate-x-1/2 -translate-y-1/2 group hover:z-50 cursor-pointer"
                         style={{ top: marker.top, left: marker.left }}
                     >
                         {/* Pulsating dot indicator */}
@@ -116,8 +125,8 @@ export default function VehicleMappingMap({ vehicleType, serviceDetails }: Vehic
                         </div>
 
                         {/* Hover Label */}
-                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-zinc-800 text-xs font-bold text-zinc-100 rounded shadow-xl whitespace-nowrap z-10 border border-zinc-700">
-                            {marker.id}
+                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-zinc-800 text-xs font-bold text-zinc-100 rounded shadow-xl whitespace-nowrap z-10 border border-zinc-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            {marker.label || marker.id}
                         </div>
                     </div>
                 ))
