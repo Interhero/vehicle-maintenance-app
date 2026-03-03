@@ -642,7 +642,11 @@ export default function Home() {
                           className="w-10 h-10 rounded-md border border-zinc-300 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-inner"
                           style={{ backgroundColor: v.color || "#3b82f6" }}
                         >
-                          <Car className="w-5 h-5 text-white/90 drop-shadow-md" />
+                          {v.type === "Motorcycle" ? (
+                            <Bike className="w-5 h-5 text-white/90 drop-shadow-md" />
+                          ) : (
+                            <Car className="w-5 h-5 text-white/90 drop-shadow-md" />
+                          )}
                         </div>
                         <div className="flex flex-col">
                           <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{v.name}</span>
