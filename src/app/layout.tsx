@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { SplashScreen } from "@/components/SplashScreen";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -63,7 +64,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <SplashScreen />
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
