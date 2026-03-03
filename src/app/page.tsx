@@ -416,10 +416,10 @@ export default function Home() {
                                           </p>
                                         </div>
                                         <div className="text-right shrink-0">
-                                          <p className={`text-sm font-mono font-bold ${isOverdue ? 'text-rose-400' : 'text-amber-400'}`}>
-                                            {isOverdue ? 'OVERDUE' : 'DUE SOON'} <span className="opacity-60 text-xs font-normal ml-1">@ {job.nextDue.toLocaleString()} KM</span>
+                                          <p className={`text-sm font-mono font-bold ${isOverdue ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                            {isOverdue ? 'OVERDUE' : 'DUE SOON'} <span className="opacity-80 dark:opacity-60 text-xs font-normal ml-1">@ {job.nextDue.toLocaleString()} KM</span>
                                           </p>
-                                          <p className="text-xs opacity-70 mt-1 font-medium bg-black/20 inline-block px-2 py-0.5 rounded-md">
+                                          <p className={`text-xs opacity-90 mt-1 font-medium inline-block px-2 py-0.5 rounded-md border ${isOverdue ? 'bg-rose-100/50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border-rose-200 dark:border-rose-900/50' : 'bg-amber-100/50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-900/50'}`}>
                                             {isOverdue ? Math.abs(job.remainingKm).toLocaleString() + ' KM ago' : 'in ' + job.remainingKm.toLocaleString() + ' KM'}
                                           </p>
                                         </div>
