@@ -3,17 +3,17 @@
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Loader2, Car, Wrench } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Car, Wrench, CheckCircle2, XCircle } from "lucide-react";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
 
 export default function NewRecord() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
     const [dynamicVehicles, setDynamicVehicles] = useState<any[]>([]);
+    const [submissionState, setSubmissionState] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [vehiclesLoading, setVehiclesLoading] = useState(true);
 
     const [formData, setFormData] = useState({
@@ -81,7 +81,8 @@ export default function NewRecord() {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        setLoading(true);
+        e.preventDefault();
+        setSubmissionState("loading");
         setError("");
 
         try {
@@ -132,11 +133,15 @@ export default function NewRecord() {
 
             if (!res.ok) throw new Error("Failed to save maintenance record");
 
-            router.push("/");
+            setSubmissionState("success");
+            setTimeout(() => {
+                router.push("/");
+            }, 2000);
+
         } catch (err: any) {
             setError(err.message);
-        } finally {
-            setLoading(false);
+            setSubmissionState("error");
+            setTimeout(() => setSubmissionState("idle"), 3000);
         }
     };
 
@@ -145,6 +150,40 @@ export default function NewRecord() {
             <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-colors">
                 <AnimatedLoader />
                 <p className="mt-4 text-sm font-medium text-zinc-500 dark:text-zinc-400 animate-pulse">Initializing Form...</p>
+            </div>
+        );
+    }
+
+    if (submissionState === "success" || submissionState === "loading" || submissionState === "error") {
+        return (
+            <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-zinc-900/95 backdrop-blur-xl animate-in fade-in duration-300">
+                {submissionState === "loading" && (
+                    <div className="flex flex-col items-center animate-pulse">
+                        <Loader2 className="w-16 h-16 text-blue-500 animate-spin mb-6" />
+                        <h2 className="text-2xl font-bold text-white tracking-tight">Writing to Database...</h2>
+                        <p className="text-zinc-400 mt-2">Connecting to Google Sheets</p>
+                    </div>
+                )}
+
+                {submissionState === "success" && (
+                    <div className="flex flex-col items-center animate-in zoom-in duration-500 spring-bounce">
+                        <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6">
+                            <CheckCircle2 className="w-16 h-16 text-emerald-500 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+                        </div>
+                        <h2 className="text-3xl font-bold text-white mb-2">Saved Successfully!</h2>
+                        <p className="text-emerald-400 font-medium">Redirecting to garage...</p>
+                    </div>
+                )}
+
+                {submissionState === "error" && (
+                    <div className="flex flex-col items-center animate-in shake duration-300">
+                        <div className="w-24 h-24 bg-rose-500/20 rounded-full flex items-center justify-center mb-6">
+                            <XCircle className="w-16 h-16 text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]" />
+                        </div>
+                        <h2 className="text-3xl font-bold text-white mb-2">Save Failed</h2>
+                        <p className="text-rose-400 font-medium max-w-sm text-center">{error}</p>
+                    </div>
+                )}
             </div>
         );
     }
@@ -376,9 +415,9 @@ export default function NewRecord() {
                         </label>
                     </div>
 
-                    <button disabled={loading} type="submit" className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 mt-8 active:scale-[0.99]">
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        {loading ? "Writing to Spreadsheet..." : "Submit Maintenance Record"}
+                    <button disabled={submissionState === "loading" || submissionState === "success"} type="submit" className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 mt-8 active:scale-[0.99]">
+                        {submissionState === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                        {submissionState === "loading" ? "Writing to Spreadsheet..." : "Submit Maintenance Record"}
                     </button>
                 </form>
             </div>
