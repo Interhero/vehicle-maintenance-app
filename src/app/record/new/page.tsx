@@ -415,9 +415,9 @@ export default function NewRecord() {
                         </label>
                     </div>
 
-                    <button disabled={submissionState === "loading" || submissionState === "success"} type="submit" className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 mt-8 active:scale-[0.99]">
-                        {submissionState === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        {submissionState === "loading" ? "Writing to Spreadsheet..." : "Submit Maintenance Record"}
+                    <button disabled={(submissionState as string) === "loading" || (submissionState as string) === "success"} type="submit" className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 mt-8 active:scale-[0.99]">
+                        {(submissionState as string) === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                        {(submissionState as string) === "loading" ? "Writing to Spreadsheet..." : "Submit Maintenance Record"}
                     </button>
                 </form>
             </div>
