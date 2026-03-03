@@ -2,7 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Car, Wrench, Calendar, LogOut, Loader2 } from "lucide-react";
+import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, Car, Bike, Settings } from 'lucide-react';
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
 
@@ -109,7 +109,6 @@ export default function Home() {
         },
         body: formData
       });
-
       if (res.ok) {
         const data = await res.json();
         if (vehicleToEdit) {
@@ -124,9 +123,14 @@ export default function Home() {
         setNewVehicleColor(CAR_COLORS[4]);
         setNewVehicleType("Car");
         setVehicleToEdit(null);
+        setIsManageModalOpen(false);
       } else {
-        const errorText = await res.text();
-        alert(`Save failed: ${errorText}`);
+        const errorData = await res.json().catch(async () => ({ error: await res.text() }));
+        if (errorData.error && errorData.error.includes("insufficient authentication scopes")) {
+          alert("Google needs permission to manage your Spreadsheets.\n\nPlease log out, log back in, and ensure you CHECK the boxes on the Google screen to grant Spreadsheet access!");
+        } else {
+          alert(`Save failed: ${errorData.error || "Unknown error"}`);
+        }
       }
     } catch (e: any) {
       console.error(e);
@@ -561,27 +565,29 @@ export default function Home() {
                 />
 
                 <div className="flex gap-3">
-                  {/* Segmented Radio Control for Vehicle Type */}
-                  <div className="flex bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg overflow-hidden shrink-0">
+                  {/* Stacked Vertical Control for Vehicle Type */}
+                  <div className="flex flex-col gap-2 shrink-0 w-32">
                     <button
                       type="button"
                       onClick={() => setNewVehicleType("Car")}
-                      className={`px-4 py-3 text-sm font-medium transition-colors ${newVehicleType === "Car"
-                        ? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 border-b-2 border-blue-500 shadow-[inset_0_4px_10px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_4px_10px_rgba(0,0,0,0.5)]"
-                        : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                      className={`px-4 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${newVehicleType === "Car"
+                        ? "bg-blue-600 text-white shadow-md scale-105 z-10"
+                        : "bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
                         }`}
                     >
+                      <Car className="w-4 h-4" />
                       Car
                     </button>
                     <button
                       type="button"
                       onClick={() => setNewVehicleType("Motorcycle")}
-                      className={`px-4 py-3 text-sm font-medium transition-colors border-l border-zinc-300 dark:border-zinc-800 ${newVehicleType === "Motorcycle"
-                        ? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 border-b-2 border-blue-500 shadow-[inset_0_4px_10px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_4px_10px_rgba(0,0,0,0.5)]"
-                        : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                      className={`px-4 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${newVehicleType === "Motorcycle"
+                        ? "bg-blue-600 text-white shadow-md scale-105 z-10"
+                        : "bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
                         }`}
                     >
-                      Motorcycle
+                      <Bike className="w-4 h-4" />
+                      Bike
                     </button>
                   </div>
 

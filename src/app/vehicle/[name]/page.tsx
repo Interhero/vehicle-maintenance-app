@@ -65,6 +65,8 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
         return null;
     }
 
+    const isMotorcycle = vehicleMeta?.type === "Motorcycle" || decodedName.toLowerCase().includes("yamaha");
+
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
             <div className="max-w-5xl mx-auto space-y-8">
@@ -158,7 +160,7 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
 
                                     {/* 2D Interactive Service Mapping Map */}
                                     <div className="w-full xl:w-72 shrink-0">
-                                        <VehicleMappingMap vehicleType={decodedName} serviceDetails={record.serviceType + " " + (record.details || "")} />
+                                        <VehicleMappingMap isMotorcycle={isMotorcycle} serviceDetails={record.serviceType + " " + (record.details || "")} />
                                     </div>
                                 </div>
                             ))}

@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 
 interface VehicleMappingMapProps {
-    vehicleType: string; // e.g. "Honda City WXE7539" or "Yamaha Y16ZR VKB6835"
+    isMotorcycle: boolean;
     serviceDetails: string; // the string from the log to parse
 }
 
@@ -32,11 +32,10 @@ const YAMAHA_COORDS = {
     magnet: { top: "58%", left: "46%" }, // Stator engine left side
 };
 
-export default function VehicleMappingMap({ vehicleType, serviceDetails }: VehicleMappingMapProps) {
+export default function VehicleMappingMap({ isMotorcycle, serviceDetails }: VehicleMappingMapProps) {
 
-    const isYamaha = vehicleType.includes("Yamaha");
-    const blueprintSrc = isYamaha ? "/yamaha_blueprint.png" : "/honda_blueprint.png";
-    const coordsMap = isYamaha ? YAMAHA_COORDS : HONDA_COORDS;
+    const blueprintSrc = isMotorcycle ? "/yamaha_blueprint.png" : "/honda_blueprint.png";
+    const coordsMap = isMotorcycle ? YAMAHA_COORDS : HONDA_COORDS;
 
     // Analyze the details string to extract locations
     const activeMarkers = useMemo(() => {
@@ -101,7 +100,7 @@ export default function VehicleMappingMap({ vehicleType, serviceDetails }: Vehic
             <img
                 src={blueprintSrc}
                 alt="Vehicle Blueprint Map"
-                className={`w-full h-full ${isYamaha ? 'object-contain scale-90' : 'object-cover'} opacity-50`}
+                className={`w-full h-full ${isMotorcycle ? 'object-contain scale-90' : 'object-cover'} opacity-50`}
             />
 
 
