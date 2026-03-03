@@ -25,6 +25,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         if (!mounted) return;
         const root = window.document.documentElement;
         root.classList.remove("light", "dark");
+        localStorage.setItem("theme", theme);
 
         if (theme === "system") {
             const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
@@ -36,7 +37,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         }
 
         root.classList.add(theme);
-        localStorage.setItem("theme", theme);
     }, [theme, mounted]);
 
     useEffect(() => {

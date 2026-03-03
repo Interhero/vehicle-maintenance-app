@@ -155,41 +155,41 @@ export default function NewRecord() {
     }
 
     if (submissionState === "success" || submissionState === "loading" || submissionState === "error") {
-        let bgClass = "bg-zinc-900/95";
-        if (submissionState === "loading") bgClass = "bg-gradient-to-br from-indigo-900/95 to-violet-950/95";
-        if (submissionState === "success") bgClass = "bg-gradient-to-br from-emerald-900/95 to-teal-950/95";
-        if (submissionState === "error") bgClass = "bg-gradient-to-br from-rose-900/95 to-red-950/95";
+        let bgClass = "bg-white/95 dark:bg-zinc-900/95";
+        if (submissionState === "loading") bgClass = "bg-gradient-to-br from-orange-500/95 to-amber-600/95 dark:from-orange-900/95 dark:to-orange-950/95";
+        if (submissionState === "success") bgClass = "bg-gradient-to-br from-emerald-500/95 to-teal-600/95 dark:from-emerald-900/95 dark:to-teal-950/95";
+        if (submissionState === "error") bgClass = "bg-gradient-to-br from-rose-500/95 to-red-600/95 dark:from-rose-900/95 dark:to-red-950/95";
 
         return (
             <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center backdrop-blur-xl animate-in fade-in duration-300 ${bgClass}`}>
                 {submissionState === "loading" && (
                     <div className="flex flex-col items-center animate-in zoom-in duration-500">
-                        <div className="w-28 h-28 bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden">
-                            <Clock className="w-14 h-14 text-indigo-200 animate-[spin_3s_linear_infinite]" />
-                            <div className="absolute inset-0 border-4 border-indigo-400/30 rounded-full border-t-white animate-spin"></div>
+                        <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden ring-4 ring-white/30 dark:ring-transparent">
+                            <Clock className="w-14 h-14 text-white dark:text-orange-200 animate-[spin_3s_linear_infinite]" />
+                            <div className="absolute inset-0 border-4 border-white/50 dark:border-orange-400/30 rounded-full border-t-white animate-spin"></div>
                         </div>
                         <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Writing to Database...</h2>
-                        <p className="text-indigo-200 mt-3 font-medium text-lg animate-pulse">Connecting to Google Sheets</p>
+                        <p className="text-orange-50 dark:text-orange-200 mt-3 font-medium text-lg animate-pulse">Connecting to Google Sheets</p>
                     </div>
                 )}
 
                 {submissionState === "success" && (
                     <div className="flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500 spring-bounce">
-                        <div className="w-28 h-28 bg-white/20 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-emerald-400/50">
-                            <CheckCircle2 className="w-16 h-16 text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
+                        <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
+                            <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
                         </div>
                         <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Saved Successfully!</h2>
-                        <p className="text-emerald-100 font-semibold text-lg drop-shadow-md">Redirecting to garage...</p>
+                        <p className="text-emerald-50 dark:text-emerald-100 font-semibold text-lg drop-shadow-md">Redirecting to garage...</p>
                     </div>
                 )}
 
                 {submissionState === "error" && (
                     <div className="flex flex-col items-center animate-in shake duration-300">
-                        <div className="w-28 h-28 bg-white/20 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(244,63,94,0.4)] ring-4 ring-rose-400/50">
-                            <XCircle className="w-16 h-16 text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[ping_1.5s_ease-in-out_infinite]" />
+                        <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(244,63,94,0.4)] ring-4 ring-white/50 dark:ring-rose-400/50">
+                            <XCircle className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[ping_1.5s_ease-in-out_infinite]" />
                         </div>
                         <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Save Failed</h2>
-                        <p className="text-rose-100 font-semibold text-lg max-w-sm text-center bg-rose-950/50 p-4 rounded-xl border border-rose-500/30 backdrop-blur-md">{error}</p>
+                        <p className="text-rose-50 dark:text-rose-100 font-semibold text-lg max-w-sm text-center bg-rose-900/40 dark:bg-rose-950/50 p-4 rounded-xl border border-white/20 dark:border-rose-500/30 backdrop-blur-md">{error}</p>
                     </div>
                 )}
             </div>
