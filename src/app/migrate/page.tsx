@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "next"; // will fix next import
+import { useState } from "react";
 import React from 'react';
 
 export default function MigratePage() {
