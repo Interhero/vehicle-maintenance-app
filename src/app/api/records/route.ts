@@ -46,11 +46,9 @@ export async function POST(request: Request) {
         // Unify all Brand mapping into Column I (8)
         rowData[8] = body.partBrand || "";
 
-        // Dynamically map custom part parameters across Column J - K based on Form topology
-        if (body.locationMatrix) {
-            if (body.locationMatrix.includes("Front") || body.locationMatrix.includes("Both")) rowData[9] = body.locationMatrix;
-            if (body.locationMatrix.includes("Rear") || body.locationMatrix.includes("Both") || body.locationMatrix.includes("Back")) rowData[10] = body.locationMatrix;
-        }
+        // Map discrete Location Matrix states directly to Column J (Front) and K (Rear)
+        rowData[9] = body.locationFront || "";
+        rowData[10] = body.locationRear || "";
 
         let descriptiveText = body.details || "";
         if (body.partModel) descriptiveText = `Model: ${body.partModel}${descriptiveText ? ` - ${descriptiveText}` : ''}`;

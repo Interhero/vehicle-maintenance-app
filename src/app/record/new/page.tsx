@@ -34,7 +34,8 @@ export default function NewRecord() {
         // Specific Part Modifiers
         partBrand: "",
         partModel: "",
-        locationMatrix: "", // Storing "Front Left", "Back Right", etc.
+        locationFront: "",
+        locationRear: "",
     });
 
     useEffect(() => {
@@ -223,18 +224,28 @@ export default function NewRecord() {
                             {/* Additional conditionally rendered details based on Service Type grouping */}
                             {["Other", "Brake Pads", "Tire"].includes(formData.serviceType) && (
                                 <>
-                                    <label className="space-y-2">
-                                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location Matrix (Optional)</span>
-                                        <select name="locationMatrix" value={formData.locationMatrix} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
-                                            <option value="">N/A</option>
-                                            <option value="Front Left">Front Left</option>
-                                            <option value="Front Right">Front Right</option>
-                                            <option value="Front Both">Front Both</option>
-                                            <option value="Rear Left">Rear Left</option>
-                                            <option value="Rear Right">Rear Right</option>
-                                            <option value="Rear Both">Rear Both</option>
-                                        </select>
-                                    </label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <label className="space-y-2">
+                                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location - Front</span>
+                                            <select name="locationFront" value={formData.locationFront} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
+                                                <option value="">N/A</option>
+                                                <option value="Front Left">Left</option>
+                                                <option value="Front Right">Right</option>
+                                                <option value="Front Both">Both</option>
+                                                <option value="Front Center">Center (Motorcycle)</option>
+                                            </select>
+                                        </label>
+                                        <label className="space-y-2">
+                                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location - Rear</span>
+                                            <select name="locationRear" value={formData.locationRear} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
+                                                <option value="">N/A</option>
+                                                <option value="Rear Left">Left</option>
+                                                <option value="Rear Right">Right</option>
+                                                <option value="Rear Both">Both</option>
+                                                <option value="Rear Center">Center (Motorcycle)</option>
+                                            </select>
+                                        </label>
+                                    </div>
                                     <label className="space-y-2">
                                         <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Brand of Part</span>
                                         <input type="text" name="partBrand" value={formData.partBrand} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Michelin" />
