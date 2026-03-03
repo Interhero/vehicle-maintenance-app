@@ -14,14 +14,14 @@ export function SplashScreen() {
         if (sessionStorage.getItem("welcomeShown")) {
             setShowWelcome(false);
         } else if (status !== "loading") {
-            // Start fading out after 1.8 seconds ONCE session is resolved
-            const timer1 = setTimeout(() => setWelcomeFading(true), 1800);
+            // Start fading out after 4 seconds ONCE session is resolved
+            const timer1 = setTimeout(() => setWelcomeFading(true), 4000);
 
             // Remove it from the DOM completely after the transition (700ms)
             const timer2 = setTimeout(() => {
                 setShowWelcome(false);
                 sessionStorage.setItem("welcomeShown", "true");
-            }, 2500);
+            }, 4700);
 
             return () => {
                 clearTimeout(timer1);
@@ -32,7 +32,7 @@ export function SplashScreen() {
 
     if (!showWelcome) return null;
 
-    const firstName = session?.user?.name ? session.user.name.split(" ")[0] : "";
+    const userName = session?.user?.name || "";
 
     return (
         <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-opacity duration-700 ${welcomeFading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -44,7 +44,7 @@ export function SplashScreen() {
                 {/* Dynamic Text Area - Fades in once session resolves to avoid jitter */}
                 <div className={`flex flex-col items-center transition-all duration-700 ${status === 'loading' ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
                     <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-500 tracking-tight text-center px-4 uppercase">
-                        {session ? `Welcome Back, ${firstName}!` : "VehicleTracker"}
+                        {session ? `Welcome Back, ${userName}!` : "VehicleTracker"}
                     </h1>
                     <p className="font-medium text-zinc-500 dark:text-zinc-400 mt-4 flex items-center gap-2">
                         <Loader2 className="w-4 h-4 animate-spin text-blue-500/70" />
