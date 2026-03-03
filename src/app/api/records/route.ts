@@ -32,8 +32,8 @@ export async function POST(request: Request) {
 
         const timestamp = new Date().toLocaleString("en-GB");
 
-        // Build a sparse array up to 28 cols (A to AB)
-        const rowData = new Array(28).fill("");
+        // Build a sparse array up to 15 cols (A to O)
+        const rowData = new Array(15).fill("");
         rowData[0] = timestamp;
         rowData[1] = body.vehicleType || "";
         rowData[2] = body.serviceType || "";
@@ -43,27 +43,22 @@ export async function POST(request: Request) {
         rowData[6] = body.nextServiceCalculated || "";
         rowData[7] = body.workshop || "";
 
-        // Dynamically map custom part parameters across Column I - P based on Form topology
+        // Unify all Brand mapping into Column I (8)
+        rowData[8] = body.partBrand || "";
+
+        // Dynamically map custom part parameters across Column J - K based on Form topology
         if (body.locationMatrix) {
             if (body.locationMatrix.includes("Front") || body.locationMatrix.includes("Both")) rowData[9] = body.locationMatrix;
             if (body.locationMatrix.includes("Rear") || body.locationMatrix.includes("Both") || body.locationMatrix.includes("Back")) rowData[10] = body.locationMatrix;
         }
 
-        if (["Brake Pads", "Tire", "Other"].includes(body.serviceType)) {
-            rowData[8] = body.partBrand || "";
-        } else if (["Engine Oil", "Engine Oil Filter", "Transition Oil", "Transmition Oil Filter"].includes(body.serviceType)) {
-            rowData[11] = body.partBrand || ""; // Engine oil Type / Brand mapping
-        } else if (body.serviceType === "Battery") {
-            rowData[13] = body.partBrand || "";
-        }
-
         let descriptiveText = body.details || "";
         if (body.partModel) descriptiveText = `Model: ${body.partModel}${descriptiveText ? ` - ${descriptiveText}` : ''}`;
-        rowData[15] = descriptiveText;
+        rowData[11] = descriptiveText;
 
-        rowData[16] = body.cost || "";
-        rowData[17] = body.receipt || "";
-        rowData[18] = body.remark || "";
+        rowData[12] = body.cost || "";
+        rowData[13] = body.receipt || "";
+        rowData[14] = body.remark || "";
 
         const result = await appendMaintenanceRecord(accessToken, rowData);
         return NextResponse.json({ success: true, result }, { status: 200 });

@@ -64,10 +64,10 @@ export async function resolveSpreadsheetId(accessToken: string): Promise<string>
     // 4. Initialize the Headers for the new spreadsheet
     await sheets.spreadsheets.values.update({
         spreadsheetId: newSpreadsheetId,
-        range: "'Maintainance Record'!A1:K1",
+        range: "'Maintainance Record'!A1:O1",
         valueInputOption: "USER_ENTERED",
         requestBody: {
-            values: [["Timestamp", "Vehicle", "Service Type", "Date Done", "Current Mileage", "Next Service Interval", "Next Service Calculated", "Workshop", "Details", "Receipt / Notes", "Cost (RM)"]]
+            values: [["Timestamp", "Vehicle", "Service Type", "Date Done", "Current Mileage", "Next Service Interval", "Next Service Calculated", "Workshop", "Brand of Part", "Location Matrix (Front)", "Location Matrix (Rear)", "Extra Details", "Cost (RM)", "Receipt / Notes", "Additional remarks"]]
         }
     });
 
@@ -150,8 +150,8 @@ export async function fetchMaintenanceRecords(accessToken: string) {
             nextServiceCalculated: String(row[6] || ""),
             workshop: String(row[7] || ""),
 
-            // Look for non-empty text in columns 8 through 15 (parts, oils based on service)
-            details: row.slice(8, 16).filter(Boolean).join(", "),
+            // Ensure backwards compatibility with old 28-col schema and new 15-col schema
+            details: (row.length > 15 ? row.slice(8, 16) : row.slice(8, 12)).filter(Boolean).join(", "),
 
             // Costs might be raw numbers ("150") or embedded in text ("Service cost : RM 110")
             // Search backwards for the first identifiable cost
