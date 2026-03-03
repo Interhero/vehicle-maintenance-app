@@ -33,9 +33,17 @@ export async function POST(request: Request) {
             mimeType: file.type,
         };
 
-        // If the user specified a specific folder ID in their environment variables, save it there instead of the root
-        if (process.env.GOOGLE_DRIVE_FOLDER_ID) {
-            fileMetadata.parents = [process.env.GOOGLE_DRIVE_FOLDER_ID];
+        // If a specific folder ID is in the environment variables, verify the active user has permissions to see/write to it
+        const globalFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+        if (globalFolderId) {
+            try {
+                // Determine if this access token actually has sight of the admin folder
+                await drive.files.get({ fileId: globalFolderId, fields: 'id' });
+                fileMetadata.parents = [globalFolderId];
+                console.log("Uploading receipt to Admin folder.");
+            } catch (err: any) {
+                console.log("User token lacks access to Admin folder. Falling back to personal root Drive upload.");
+            }
         }
 
         const media = {
