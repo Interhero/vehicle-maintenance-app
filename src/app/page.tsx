@@ -2,7 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, Car, Bike, Settings } from 'lucide-react';
+import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, Car, Bike, Settings, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
 
@@ -55,6 +55,10 @@ export default function Home() {
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [vehicleToEdit, setVehicleToEdit] = useState<string | null>(null);
 
+  // Flash Screen States for Adding/Updating Vehicles
+  const [submissionState, setSubmissionState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
   useEffect(() => {
     // Load dismissed alerts from local storage purely on client
     const saved = localStorage.getItem("vehicle_dismissals");
@@ -94,6 +98,10 @@ export default function Home() {
   const handleSaveVehicle = async () => {
     if (!newVehicleName.trim()) return;
     setModalLoading(true);
+    setIsManageModalOpen(false); // Close modal immediately to show the flash screen
+    setSubmissionState("loading");
+    setErrorMsg("");
+
     try {
       const formData = new FormData();
       if (vehicleToEdit) formData.append("originalName", vehicleToEdit);
@@ -119,22 +127,38 @@ export default function Home() {
         } else {
           setDynamicVehicles([...dynamicVehicles, data.vehicle]);
         }
-        setNewVehicleName("");
-        setNewVehicleColor(CAR_COLORS[4]);
-        setNewVehicleType("Car");
-        setVehicleToEdit(null);
-        setIsManageModalOpen(false);
+
+        // Ensure success screen happens before resetting form
+        setSubmissionState("success");
+        setTimeout(() => {
+          setNewVehicleName("");
+          setNewVehicleColor(CAR_COLORS[4]);
+          setNewVehicleType("Car");
+          setVehicleToEdit(null);
+          setSubmissionState("idle");
+        }, 2000);
+
       } else {
         const errorData = await res.json().catch(async () => ({ error: await res.text() }));
         if (errorData.error && errorData.error.includes("insufficient authentication scopes")) {
-          alert("Google needs permission to manage your Spreadsheets.\n\nPlease log out, log back in, and ensure you CHECK the boxes on the Google screen to grant Spreadsheet access!");
+          setErrorMsg("Google needs Spreadsheet permissions across your account. Re-login and check the boxes.");
         } else {
-          alert(`Save failed: ${errorData.error || "Unknown error"}`);
+          setErrorMsg(`Save failed: ${errorData.error || "Unknown error"}`);
         }
+        setSubmissionState("error");
+        setTimeout(() => {
+          setSubmissionState("idle");
+          setIsManageModalOpen(true); // Re-open so they can fix it
+        }, 3000);
       }
     } catch (e: any) {
       console.error(e);
-      alert(`Connection Error: ${e.message}`);
+      setErrorMsg(`Connection Error: ${e.message}`);
+      setSubmissionState("error");
+      setTimeout(() => {
+        setSubmissionState("idle");
+        setIsManageModalOpen(true);
+      }, 3000);
     } finally {
       setModalLoading(false);
     }
@@ -677,6 +701,43 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Status Flash Screen Overlay (Injected for Saving/Updating Vehicles) */}
+      {(submissionState === "success" || submissionState === "loading" || submissionState === "error") && (
+        <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center backdrop-blur-xl animate-in fade-in duration-300 ${submissionState === "loading" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-orange-500/95 to-amber-600/95 dark:from-orange-900/95 dark:to-orange-950/95" : submissionState === "success" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-emerald-500/95 to-teal-600/95 dark:from-emerald-900/95 dark:to-teal-950/95" : "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-rose-500/95 to-red-600/95 dark:from-rose-900/95 dark:to-red-950/95"}`}>
+
+          {submissionState === "loading" && (
+            <div className="flex flex-col items-center animate-in zoom-in duration-500">
+              <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden ring-4 ring-white/30 dark:ring-transparent">
+                <Clock className="w-14 h-14 text-white dark:text-orange-200 animate-[spin_3s_linear_infinite]" />
+                <div className="absolute inset-0 border-4 border-white/50 dark:border-orange-400/30 rounded-full border-t-white animate-spin"></div>
+              </div>
+              <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Writing to Database...</h2>
+              <p className="text-orange-50 dark:text-orange-200 mt-3 font-medium text-lg animate-pulse">Syncing with Garage</p>
+            </div>
+          )}
+
+          {submissionState === "success" && (
+            <div className="flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500 spring-bounce">
+              <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
+                <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
+              </div>
+              <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">{vehicleToEdit ? "Vehicle Updated!" : "Vehicle Added!"}</h2>
+              <p className="text-emerald-50 dark:text-emerald-100 font-semibold text-lg drop-shadow-md">Returning to dashboard...</p>
+            </div>
+          )}
+
+          {submissionState === "error" && (
+            <div className="flex flex-col items-center animate-in shake duration-300">
+              <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(244,63,94,0.4)] ring-4 ring-white/50 dark:ring-rose-400/50">
+                <XCircle className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[ping_1.5s_ease-in-out_infinite]" />
+              </div>
+              <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Save Failed</h2>
+              <p className="text-rose-50 dark:text-rose-100 font-semibold text-lg max-w-sm text-center bg-rose-900/40 dark:bg-rose-950/50 p-4 rounded-xl border border-white/20 dark:border-rose-500/30 backdrop-blur-md">{errorMsg}</p>
+            </div>
+          )}
         </div>
       )}
 
