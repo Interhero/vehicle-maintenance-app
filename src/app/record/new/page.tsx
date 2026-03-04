@@ -230,7 +230,7 @@ export default function NewRecord() {
 
                             <label className="space-y-2">
                                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Current Mileage (KM) *</span>
-                                <input required type="number" name="lastMileage" value={formData.lastMileage} onChange={handleChange} min="0" className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="e.g. 158279" />
+                                <input required type="number" name="lastMileage" value={formData.lastMileage} onChange={handleChange} min="0" className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="e.g. 158279" />
                             </label>
                         </div>
                     </div>
