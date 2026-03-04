@@ -13,7 +13,7 @@ export default function NewRecord() {
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
     const [dynamicVehicles, setDynamicVehicles] = useState<any[]>([]);
-    const [submissionState, setSubmissionState] = useState<"idle" | "loading" | "success" | "error">("idle");
+    const [flash, setFlash] = useState<{ show: boolean; type: "idle" | "loading" | "success" | "error" }>({ show: false, type: "idle" });
     const [vehiclesLoading, setVehiclesLoading] = useState(true);
 
     const [formData, setFormData] = useState({
@@ -81,8 +81,7 @@ export default function NewRecord() {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        e.preventDefault();
-        setSubmissionState("loading");
+        setFlash({ show: true, type: "loading" });
         setError("");
 
         try {
@@ -133,15 +132,16 @@ export default function NewRecord() {
 
             if (!res.ok) throw new Error("Failed to save maintenance record");
 
-            setSubmissionState("success");
+            setFlash({ show: true, type: "success" });
             setTimeout(() => {
-                router.push("/");
+                setFlash(prev => ({ ...prev, show: false }));
+                setTimeout(() => router.push("/"), 500); // Wait for fade out
             }, 2000);
 
         } catch (err: any) {
             setError(err.message);
-            setSubmissionState("error");
-            setTimeout(() => setSubmissionState("idle"), 3000);
+            setFlash({ show: true, type: "error" });
+            setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 3000);
         }
     };
 
@@ -154,15 +154,16 @@ export default function NewRecord() {
         );
     }
 
-    if (submissionState === "success" || submissionState === "loading" || submissionState === "error") {
-        let bgClass = "bg-white/95 dark:bg-zinc-900/95";
-        if (submissionState === "loading") bgClass = "bg-gradient-to-br from-orange-500/95 to-amber-600/95 dark:from-orange-900/95 dark:to-orange-950/95";
-        if (submissionState === "success") bgClass = "bg-gradient-to-br from-emerald-500/95 to-teal-600/95 dark:from-emerald-900/95 dark:to-teal-950/95";
-        if (submissionState === "error") bgClass = "bg-gradient-to-br from-rose-500/95 to-red-600/95 dark:from-rose-900/95 dark:to-red-950/95";
+    return (
+        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
+            {/* Status Flash Screen Overlay */}
+            <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center backdrop-blur-xl transition-all duration-500 ease-in-out ${flash.show ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-105'
+                } ${flash.type === "loading" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-orange-500/95 to-amber-600/95 dark:from-orange-900/95 dark:to-orange-950/95" :
+                    flash.type === "success" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-emerald-500/95 to-teal-600/95 dark:from-emerald-900/95 dark:to-teal-950/95" :
+                        flash.type === "error" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-rose-500/95 to-red-600/95 dark:from-rose-900/95 dark:to-red-950/95" : "bg-transparent"
+                }`}>
 
-        return (
-            <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center backdrop-blur-xl animate-in fade-in duration-300 ${bgClass}`}>
-                {submissionState === "loading" && (
+                {flash.type === "loading" && (
                     <div className="flex flex-col items-center animate-in zoom-in duration-500">
                         <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden ring-4 ring-white/30 dark:ring-transparent">
                             <Clock className="w-14 h-14 text-white dark:text-orange-200 animate-[spin_3s_linear_infinite]" />
@@ -173,7 +174,7 @@ export default function NewRecord() {
                     </div>
                 )}
 
-                {submissionState === "success" && (
+                {flash.type === "success" && (
                     <div className="flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500 spring-bounce">
                         <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
                             <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
@@ -183,7 +184,7 @@ export default function NewRecord() {
                     </div>
                 )}
 
-                {submissionState === "error" && (
+                {flash.type === "error" && (
                     <div className="flex flex-col items-center animate-in shake duration-300">
                         <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(244,63,94,0.4)] ring-4 ring-white/50 dark:ring-rose-400/50">
                             <XCircle className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[ping_1.5s_ease-in-out_infinite]" />
@@ -193,11 +194,6 @@ export default function NewRecord() {
                     </div>
                 )}
             </div>
-        );
-    }
-
-    return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
             <div className="max-w-3xl mx-auto space-y-8">
                 <header className="flex items-center gap-4 glass-panel p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm dark:shadow-none">
                     <button onClick={() => router.back()} className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors">
@@ -423,9 +419,9 @@ export default function NewRecord() {
                         </label>
                     </div>
 
-                    <button disabled={(submissionState as string) === "loading" || (submissionState as string) === "success"} type="submit" className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 mt-8 active:scale-[0.99]">
-                        {(submissionState as string) === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        {(submissionState as string) === "loading" ? "Writing to Spreadsheet..." : "Submit Maintenance Record"}
+                    <button disabled={flash.type === "loading" || flash.type === "success"} type="submit" className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 mt-8 active:scale-[0.99]">
+                        {flash.type === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                        {flash.type === "loading" ? "Writing to Spreadsheet..." : "Submit Maintenance Record"}
                     </button>
                 </form>
             </div>

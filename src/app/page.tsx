@@ -60,6 +60,13 @@ export default function Home() {
   const [flash, setFlash] = useState<{ show: boolean; type: "idle" | "saving" | "deleting" | "success" | "deleted" | "error" }>({ show: false, type: "idle" });
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Voluntary Mileage Update States
+  const [showMileageModal, setShowMileageModal] = useState(false);
+  const [isMileageModalClosing, setIsMileageModalClosing] = useState(false);
+  const [mileageTarget, setMileageTarget] = useState<any>(null);
+  const [newMileage, setNewMileage] = useState("");
+  const [mileageLoading, setMileageLoading] = useState(false);
+
   const openManageModal = () => {
     setShowManageModal(true);
     setIsManageModalClosing(false);
@@ -70,6 +77,22 @@ export default function Home() {
     setTimeout(() => {
       setShowManageModal(false);
       setIsManageModalClosing(false);
+    }, 300);
+  };
+
+  const openMileageModal = (vehicle: any) => {
+    setMileageTarget(vehicle);
+    setNewMileage(vehicle.currentMileage?.toString() || "");
+    setShowMileageModal(true);
+    setIsMileageModalClosing(false);
+  };
+
+  const closeMileageModal = () => {
+    setIsMileageModalClosing(true);
+    setTimeout(() => {
+      setShowMileageModal(false);
+      setIsMileageModalClosing(false);
+      setMileageTarget(null);
     }, 300);
   };
 
@@ -188,6 +211,65 @@ export default function Home() {
     setNewVehicleName("");
     setNewVehicleColor(CAR_COLORS[4]);
     setNewVehicleType("Car");
+  };
+
+  const handleUpdateMileage = async () => {
+    if (!mileageTarget || !newMileage.trim()) return;
+    const mileageNum = parseInt(newMileage.replace(/,/g, ''), 10);
+    if (isNaN(mileageNum) || mileageNum <= (mileageTarget.currentMileage || 0)) {
+      setErrorMsg("Mileage must be a valid number greater than current mileage.");
+      setFlash({ show: true, type: "error" });
+      setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 3000);
+      return;
+    }
+
+    setMileageLoading(true);
+    closeMileageModal(); // Hide modal
+    setFlash({ show: true, type: "saving" }); // Show loading flash overlay
+    setErrorMsg("");
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const formData = new FormData();
+      formData.append("vehicle", mileageTarget.name);
+      formData.append("date", today);
+      formData.append("currentMileage", mileageNum.toString());
+      formData.append("serviceType", "Mileage Check");
+      formData.append("provider", "Driver (Voluntary)");
+      formData.append("cost", "0");
+      formData.append("notes", "Voluntary mileage update to recalculate upcoming services.");
+
+      const res = await fetch("/api/records", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${(session as any).accessToken}`
+        },
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // Optimistically update records so dashboard recalculates instantly
+        setRecords([data.record, ...records]);
+
+        setFlash({ show: true, type: "success" });
+        setTimeout(() => {
+          setFlash(prev => ({ ...prev, show: false }));
+        }, 2000);
+      } else {
+        const errorText = await res.text();
+        setErrorMsg(`Failed update: ${errorText}`);
+        setFlash({ show: true, type: "error" });
+        setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 3000);
+      }
+    } catch (e: any) {
+      console.error(e);
+      setErrorMsg(`Connection Error: ${e.message}`);
+      setFlash({ show: true, type: "error" });
+      setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 3000);
+    } finally {
+      setMileageLoading(false);
+    }
   };
 
   const handleDeleteVehicle = async () => {
@@ -424,7 +506,15 @@ export default function Home() {
                           <div className="grid grid-cols-2 gap-4 mb-2">
                             <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm">
                               <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Current Mileage</span>
-                              <p className="font-mono text-xl text-zinc-800 dark:text-zinc-200">{v.currentMileage > 0 ? v.currentMileage.toLocaleString() : '--'} <span className="text-sm text-zinc-500">KM</span></p>
+                              <div className="flex items-center justify-between">
+                                <p className="font-mono text-xl text-zinc-800 dark:text-zinc-200">{v.currentMileage > 0 ? v.currentMileage.toLocaleString() : '--'} <span className="text-sm text-zinc-500">KM</span></p>
+                                <button
+                                  onClick={() => openMileageModal(v)}
+                                  className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-800/40 px-2 py-1 rounded-md transition-colors border border-blue-200 dark:border-blue-800/50"
+                                >
+                                  Update
+                                </button>
+                              </div>
                             </div>
                             <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm">
                               <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Tracked Services</span>
@@ -737,6 +827,59 @@ export default function Home() {
                   ))
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Voluntary Mileage Update Modal */}
+      {showMileageModal && mileageTarget && (
+        <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${isMileageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
+          <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-xl dark:shadow-2xl flex flex-col transition-all duration-300 ease-in-out ${isMileageModalClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+            <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+              <h3 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-500" />
+                Update Mileage
+              </h3>
+              <button
+                onClick={closeMileageModal}
+                className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors p-1"
+                disabled={mileageLoading}
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                You are updating the mileage for <strong className="text-zinc-900 dark:text-white">{mileageTarget.name}</strong>. This forces a recalculation of your upcoming services.
+              </p>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">New Odometer Reading (KM)</label>
+                <input
+                  type="number"
+                  value={newMileage}
+                  onChange={(e) => setNewMileage(e.target.value)}
+                  placeholder="e.g. 50500"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-xl p-3.5 text-lg font-mono text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-inner"
+                  autoFocus
+                />
+              </div>
+
+              <button
+                onClick={handleUpdateMileage}
+                disabled={mileageLoading || !newMileage || parseInt(newMileage) <= (mileageTarget.currentMileage || 0)}
+                className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-xl p-3.5 transition-colors flex items-center justify-center relative overflow-hidden mt-2"
+              >
+                <span className={`transition-all duration-300 ${mileageLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+                  Confirm Mileage
+                </span>
+                {mileageLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  </div>
+                )}
+              </button>
             </div>
           </div>
         </div>
