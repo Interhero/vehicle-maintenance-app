@@ -2,7 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, Car, Bike, Settings, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, Car, Bike, Settings, Clock, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
 
@@ -46,7 +46,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [dismissedAlerts, setDismissedAlerts] = useState<Record<string, number>>({});
 
-  const [isManageModalOpen, setIsManageModalOpen] = useState(false);
+  const [showManageModal, setShowManageModal] = useState(false);
+  const [isManageModalClosing, setIsManageModalClosing] = useState(false);
   const [dynamicVehicles, setDynamicVehicles] = useState<any[]>([]);
   const [newVehicleName, setNewVehicleName] = useState("");
   const [newVehicleType, setNewVehicleType] = useState("Car");
@@ -55,9 +56,22 @@ export default function Home() {
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [vehicleToEdit, setVehicleToEdit] = useState<string | null>(null);
 
-  // Flash Screen States for Adding/Updating Vehicles
-  const [submissionState, setSubmissionState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  // Flash Screen States for Adding/Updating/Deleting Vehicles
+  const [flash, setFlash] = useState<{ show: boolean; type: "idle" | "saving" | "deleting" | "success" | "deleted" | "error" }>({ show: false, type: "idle" });
   const [errorMsg, setErrorMsg] = useState("");
+
+  const openManageModal = () => {
+    setShowManageModal(true);
+    setIsManageModalClosing(false);
+  };
+
+  const closeManageModal = () => {
+    setIsManageModalClosing(true);
+    setTimeout(() => {
+      setShowManageModal(false);
+      setIsManageModalClosing(false);
+    }, 300);
+  };
 
   useEffect(() => {
     // Load dismissed alerts from local storage purely on client
@@ -98,8 +112,8 @@ export default function Home() {
   const handleSaveVehicle = async () => {
     if (!newVehicleName.trim()) return;
     setModalLoading(true);
-    setIsManageModalOpen(false); // Close modal immediately to show the flash screen
-    setSubmissionState("loading");
+    // User requested modal to NOT auto-close, so we keep it open under the flash screen
+    setFlash({ show: true, type: "saving" });
     setErrorMsg("");
 
     try {
@@ -129,13 +143,13 @@ export default function Home() {
         }
 
         // Ensure success screen happens before resetting form
-        setSubmissionState("success");
+        setFlash({ show: true, type: "success" });
         setTimeout(() => {
           setNewVehicleName("");
           setNewVehicleColor(CAR_COLORS[4]);
           setNewVehicleType("Car");
           setVehicleToEdit(null);
-          setSubmissionState("idle");
+          setFlash(prev => ({ ...prev, show: false }));
         }, 2000);
 
       } else {
@@ -145,19 +159,17 @@ export default function Home() {
         } else {
           setErrorMsg(`Save failed: ${errorData.error || "Unknown error"}`);
         }
-        setSubmissionState("error");
+        setFlash({ show: true, type: "error" });
         setTimeout(() => {
-          setSubmissionState("idle");
-          setIsManageModalOpen(true); // Re-open so they can fix it
+          setFlash(prev => ({ ...prev, show: false }));
         }, 3000);
       }
     } catch (e: any) {
       console.error(e);
       setErrorMsg(`Connection Error: ${e.message}`);
-      setSubmissionState("error");
+      setFlash({ show: true, type: "error" });
       setTimeout(() => {
-        setSubmissionState("idle");
-        setIsManageModalOpen(true);
+        setFlash(prev => ({ ...prev, show: false }));
       }, 3000);
     } finally {
       setModalLoading(false);
@@ -181,6 +193,9 @@ export default function Home() {
   const handleDeleteVehicle = async () => {
     if (!vehicleToDelete) return;
     setModalLoading(true);
+    setFlash({ show: true, type: "deleting" });
+    setErrorMsg("");
+
     try {
       const res = await fetch("/api/vehicles", {
         method: "DELETE",
@@ -192,15 +207,27 @@ export default function Home() {
       });
       if (res.ok) {
         setDynamicVehicles(dynamicVehicles.filter(v => v.name !== vehicleToDelete));
+        setFlash({ show: true, type: "deleted" });
+        setTimeout(() => {
+          setVehicleToDelete(null);
+          setFlash(prev => ({ ...prev, show: false }));
+        }, 2000);
       } else {
         const errorText = await res.text();
-        alert(`Deletion failed: ${errorText}`);
+        setErrorMsg(`Deletion failed: ${errorText}`);
+        setFlash({ show: true, type: "error" });
+        setTimeout(() => {
+          setFlash(prev => ({ ...prev, show: false }));
+        }, 3000);
       }
     } catch (e: any) {
       console.error(e);
-      alert(`Connection Error: ${e.message}`);
+      setErrorMsg(`Connection Error: ${e.message}`);
+      setFlash({ show: true, type: "error" });
+      setTimeout(() => {
+        setFlash(prev => ({ ...prev, show: false }));
+      }, 3000);
     } finally {
-      setVehicleToDelete(null);
       setModalLoading(false);
     }
   };
@@ -314,7 +341,7 @@ export default function Home() {
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Welcome back, {session.user?.name}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-4 md:mt-0">
-            <button onClick={() => setIsManageModalOpen(true)} className="px-4 py-2 sm:px-5 sm:py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-white font-medium rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm">
+            <button onClick={openManageModal} className="px-4 py-2 sm:px-5 sm:py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-white font-medium rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm">
               Manage Vehicles
             </button>
             <a href="/record/new" className="px-4 py-2 sm:px-5 sm:py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-colors shadow-md shadow-blue-500/20 whitespace-nowrap">
@@ -533,13 +560,13 @@ export default function Home() {
       </div>
 
       {/* Manage Vehicles Modal */}
-      {isManageModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      {showManageModal && (
+        <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${isManageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
 
           {/* Deletion Confirmation Sub-Modal Overlay */}
-          {vehicleToDelete && (
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-xl dark:shadow-2xl relative">
+          {vehicleToDelete && !flash.show && (
+            <div className={`absolute inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 transition-all duration-300`}>
+              <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-xl dark:shadow-2xl relative animate-in zoom-in-95 duration-200">
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Remove Vehicle?</h3>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -566,13 +593,17 @@ export default function Home() {
             </div>
           )}
 
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden shadow-xl dark:shadow-2xl flex flex-col max-h-[90vh] transition-colors">
+          <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden shadow-xl dark:shadow-2xl flex flex-col max-h-[90vh] transition-all duration-300 ease-in-out ${isManageModalClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
             <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
               <h3 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
                 <Car className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                 Manage Vehicles
               </h3>
-              <button onClick={() => { setIsManageModalOpen(false); cancelEdit(); }} className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors p-1" disabled={modalLoading}>
+              <button
+                onClick={() => { closeManageModal(); cancelEdit(); }}
+                className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors p-1"
+                disabled={modalLoading}
+              >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
               </button>
             </div>
@@ -646,21 +677,28 @@ export default function Home() {
                   <button
                     onClick={handleSaveVehicle}
                     disabled={modalLoading || !newVehicleName.trim()}
-                    className={`${vehicleToEdit ? 'flex-1' : 'w-full'} bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-lg p-3 text-sm transition-colors flex items-center justify-center`}
+                    className={`${vehicleToEdit ? 'flex-1' : 'w-full'} bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-lg p-3 text-sm transition-colors flex items-center justify-center relative overflow-hidden`}
                   >
-                    {modalLoading && newVehicleName.trim() ? <Loader2 className="w-4 h-4 animate-spin" /> : (vehicleToEdit ? "Save Changes" : "Add to Garage")}
+                    <span className={`transition-all duration-300 ${modalLoading && newVehicleName.trim() ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+                      {vehicleToEdit ? "Save Changes" : "Add to Garage"}
+                    </span>
+                    {modalLoading && newVehicleName.trim() && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      </div>
+                    )}
                   </button>
                 </div>
               </div>
 
               {/* List */}
-              <div className="space-y-2">
+              <div className="space-y-2 pb-4">
                 <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Your Vehicles</p>
                 {dynamicVehicles.length === 0 ? (
                   <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-4 bg-zinc-50 dark:bg-zinc-950/50 rounded-lg border border-zinc-200 dark:border-zinc-800/50">No vehicles tracked yet.</p>
                 ) : (
                   dynamicVehicles.map((v, i) => (
-                    <div key={i} className="flex justify-between items-center p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors">
+                    <div key={i} className="flex justify-between items-center p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors animate-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}>
                       <div className="flex items-center gap-3">
                         <div
                           className="w-10 h-10 rounded-md border border-zinc-300 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-inner"
@@ -704,42 +742,54 @@ export default function Home() {
         </div>
       )}
 
-      {/* Status Flash Screen Overlay (Injected for Saving/Updating Vehicles) */}
-      {(submissionState === "success" || submissionState === "loading" || submissionState === "error") && (
-        <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center backdrop-blur-xl animate-in fade-in duration-300 ${submissionState === "loading" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-orange-500/95 to-amber-600/95 dark:from-orange-900/95 dark:to-orange-950/95" : submissionState === "success" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-emerald-500/95 to-teal-600/95 dark:from-emerald-900/95 dark:to-teal-950/95" : "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-rose-500/95 to-red-600/95 dark:from-rose-900/95 dark:to-red-950/95"}`}>
+      {/* Status Flash Screen Overlay (Injected for Saving/Updating/Deleting Vehicles) */}
+      <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center backdrop-blur-xl transition-all duration-500 ease-in-out ${flash.show ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-105'
+        } ${flash.type === "saving" || flash.type === "deleting" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-orange-500/95 to-amber-600/95 dark:from-orange-900/95 dark:to-orange-950/95" :
+          flash.type === "success" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-emerald-500/95 to-teal-600/95 dark:from-emerald-900/95 dark:to-teal-950/95" :
+            flash.type === "deleted" || flash.type === "error" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-rose-500/95 to-red-600/95 dark:from-rose-900/95 dark:to-red-950/95" : "bg-transparent"
+        }`}>
 
-          {submissionState === "loading" && (
-            <div className="flex flex-col items-center animate-in zoom-in duration-500">
-              <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden ring-4 ring-white/30 dark:ring-transparent">
-                <Clock className="w-14 h-14 text-white dark:text-orange-200 animate-[spin_3s_linear_infinite]" />
-                <div className="absolute inset-0 border-4 border-white/50 dark:border-orange-400/30 rounded-full border-t-white animate-spin"></div>
-              </div>
-              <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">Writing to Database...</h2>
-              <p className="text-orange-50 dark:text-orange-200 mt-3 font-medium text-lg animate-pulse">Syncing with Garage</p>
+        {(flash.type === "saving" || flash.type === "deleting") && (
+          <div className={`flex flex-col items-center animate-in zoom-in duration-500`}>
+            <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden ring-4 ring-white/30 dark:ring-transparent">
+              <Clock className="w-14 h-14 text-white dark:text-orange-200 animate-[spin_3s_linear_infinite]" />
+              <div className="absolute inset-0 border-4 border-white/50 dark:border-orange-400/30 rounded-full border-t-white animate-spin"></div>
             </div>
-          )}
+            <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">{flash.type === "saving" ? "Writing to Database..." : "Removing Vehicle..."}</h2>
+            <p className="text-orange-50 dark:text-orange-200 mt-3 font-medium text-lg animate-pulse">Syncing with Garage</p>
+          </div>
+        )}
 
-          {submissionState === "success" && (
-            <div className="flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500 spring-bounce">
-              <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
-                <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
-              </div>
-              <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">{vehicleToEdit ? "Vehicle Updated!" : "Vehicle Added!"}</h2>
-              <p className="text-emerald-50 dark:text-emerald-100 font-semibold text-lg drop-shadow-md">Returning to dashboard...</p>
+        {flash.type === "success" && (
+          <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500 spring-bounce`}>
+            <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
+              <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
             </div>
-          )}
+            <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">{vehicleToEdit ? "Vehicle Updated!" : "Vehicle Added!"}</h2>
+            <p className="text-emerald-50 dark:text-emerald-100 font-semibold text-lg drop-shadow-md">Returning to dashboard...</p>
+          </div>
+        )}
 
-          {submissionState === "error" && (
-            <div className="flex flex-col items-center animate-in shake duration-300">
-              <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(244,63,94,0.4)] ring-4 ring-white/50 dark:ring-rose-400/50">
-                <XCircle className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[ping_1.5s_ease-in-out_infinite]" />
-              </div>
-              <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Save Failed</h2>
-              <p className="text-rose-50 dark:text-rose-100 font-semibold text-lg max-w-sm text-center bg-rose-900/40 dark:bg-rose-950/50 p-4 rounded-xl border border-white/20 dark:border-rose-500/30 backdrop-blur-md">{errorMsg}</p>
+        {flash.type === "deleted" && (
+          <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-top-4 duration-500 spring-bounce`}>
+            <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(244,63,94,0.4)] ring-4 ring-white/50 dark:ring-rose-400/50">
+              <Trash2 className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
             </div>
-          )}
-        </div>
-      )}
+            <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Vehicle Deleted</h2>
+            <p className="text-rose-50 dark:text-rose-100 font-semibold text-lg drop-shadow-md">Removed from your garage.</p>
+          </div>
+        )}
+
+        {flash.type === "error" && (
+          <div className={`flex flex-col items-center animate-in shake duration-300`}>
+            <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(244,63,94,0.4)] ring-4 ring-white/50 dark:ring-rose-400/50">
+              <XCircle className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[ping_1.5s_ease-in-out_infinite]" />
+            </div>
+            <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Action Failed</h2>
+            <p className="text-rose-50 dark:text-rose-100 font-semibold text-lg max-w-sm text-center bg-rose-900/40 dark:bg-rose-950/50 p-4 rounded-xl border border-white/20 dark:border-rose-500/30 backdrop-blur-md">{errorMsg}</p>
+          </div>
+        )}
+      </div>
 
     </div>
   );
