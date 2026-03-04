@@ -229,28 +229,33 @@ export default function Home() {
     setErrorMsg("");
 
     try {
-      const today = new Date().toISOString().split('T')[0];
-      const formData = new FormData();
-      formData.append("vehicle", mileageTarget.name);
-      formData.append("date", today);
-      formData.append("currentMileage", mileageNum.toString());
-      formData.append("serviceType", "Mileage Check");
-      formData.append("provider", "Driver (Voluntary)");
-      formData.append("cost", "0");
-      formData.append("notes", "Voluntary mileage update to recalculate upcoming services.");
+      const payload = {
+        vehicleType: mileageTarget.name,
+        serviceType: "Mileage Check",
+        dateDone: new Date().toLocaleDateString("en-GB"),
+        lastMileage: mileageNum.toString(),
+        workshop: "Driver (Voluntary)",
+        cost: "0",
+        remark: "Voluntary mileage check to calculate dashboard intervals."
+      };
 
       const res = await fetch("/api/records", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "Authorization": `Bearer ${(session as any).accessToken}`
         },
-        body: formData
+        body: JSON.stringify(payload)
       });
 
       if (res.ok) {
-        const data = await res.json();
-        // Optimistically update records so dashboard recalculates instantly
-        setRecords([data.record, ...records]);
+        // Fetch fresh records to guarantee dashboard consistency
+        fetch("/api/records", { headers: { "Authorization": `Bearer ${(session as any).accessToken}` } })
+          .then(r => r.json())
+          .then(d => {
+            if (d.records) setRecords(d.records);
+          })
+          .catch(console.error);
 
         setFlash({ show: true, type: "success" });
         setTimeout(() => {
