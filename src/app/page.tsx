@@ -651,7 +651,7 @@ export default function Home() {
 
         {/* Manage Vehicles Modal */}
         {showManageModal && (
-          <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${isManageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
+          <div className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 transition-all duration-300 ease-in-out ${isManageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
 
             {/* Deletion Confirmation Sub-Modal Overlay */}
             {vehicleToDelete && !flash.show && (
@@ -683,9 +683,9 @@ export default function Home() {
               </div>
             )}
 
-            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden shadow-xl dark:shadow-2xl flex flex-col max-h-[90vh] transition-all duration-300 ease-in-out ${isManageModalClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
-              <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
-                <h3 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
+            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 sm:rounded-2xl rounded-t-2xl w-full max-w-md overflow-hidden shadow-xl dark:shadow-2xl flex flex-col max-h-[95vh] sm:max-h-[90vh] transition-all duration-300 ease-in-out ${isManageModalClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+              <div className="px-4 py-3 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+                <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
                   <Car className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                   Manage Vehicles
                 </h3>
@@ -698,52 +698,52 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="p-6 overflow-y-auto overflow-x-hidden flex flex-col gap-6">
+              <div className="px-4 py-3 sm:p-6 overflow-y-auto overflow-x-hidden flex flex-col gap-4 sm:gap-6">
                 {/* Add New / Edit */}
-                <div className="flex flex-col gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800/80 order-2">
+                <div className="flex flex-col gap-2 sm:gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-800/80 order-2">
                   <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{vehicleToEdit ? "Edit Vehicle" : "Add New Vehicle"}</p>
                   <input
                     type="text"
                     value={newVehicleName}
                     onChange={(e) => setNewVehicleName(e.target.value)}
                     placeholder="Vehicle Name (e.g. Toyota Corolla)"
-                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-3 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
+                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-2.5 sm:p-3 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
                   />
 
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    {/* Responsive Control for Vehicle Type */}
-                    <div className="flex flex-row sm:flex-col gap-2 shrink-0 w-full sm:w-32">
+                  <div className="flex flex-row gap-2 sm:gap-3">
+                    {/* Compact Vehicle Type Buttons */}
+                    <div className="flex flex-col gap-1.5 sm:gap-2 shrink-0 w-24 sm:w-32">
                       <button
                         type="button"
                         onClick={() => setNewVehicleType("Car")}
-                        className={`flex-1 px-4 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${newVehicleType === "Car"
+                        className={`px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium rounded-lg flex items-center justify-center gap-1.5 transition-all ${newVehicleType === "Car"
                           ? "bg-blue-600 text-white shadow-md scale-105 z-10"
                           : "bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
                           }`}
                       >
-                        <Car className="w-4 h-4" />
+                        <Car className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         Car
                       </button>
                       <button
                         type="button"
                         onClick={() => setNewVehicleType("Motorcycle")}
-                        className={`flex-1 px-4 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${newVehicleType === "Motorcycle"
+                        className={`px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium rounded-lg flex items-center justify-center gap-1.5 transition-all ${newVehicleType === "Motorcycle"
                           ? "bg-blue-600 text-white shadow-md scale-105 z-10"
                           : "bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
                           }`}
                       >
-                        <Bike className="w-4 h-4" />
+                        <Bike className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         Bike
                       </button>
                     </div>
 
-                    <div className="flex-1 grid grid-cols-4 gap-2">
+                    <div className="flex-1 grid grid-cols-4 gap-1.5 sm:gap-2">
                       {CAR_COLORS.map((color) => (
                         <button
                           key={color}
                           type="button"
                           onClick={() => setNewVehicleColor(color)}
-                          className={`h-11 w-full rounded-md shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-950 ${newVehicleColor === color
+                          className={`h-9 sm:h-11 w-full rounded-md shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-950 ${newVehicleColor === color
                             ? 'ring-2 ring-zinc-800 dark:ring-white scale-105 z-10'
                             : 'ring-1 ring-zinc-200 dark:ring-zinc-700/50 hover:scale-105 hover:ring-zinc-400 dark:hover:ring-zinc-500'
                             }`}
@@ -755,12 +755,12 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 w-full mt-1">
+                  <div className="flex gap-2 w-full">
                     {vehicleToEdit && (
                       <button
                         onClick={cancelEdit}
                         disabled={modalLoading}
-                        className="flex-1 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-medium rounded-lg p-3 text-sm transition-colors flex items-center justify-center"
+                        className="flex-1 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-medium rounded-lg p-2.5 sm:p-3 text-sm transition-colors flex items-center justify-center"
                       >
                         Cancel
                       </button>
@@ -768,7 +768,7 @@ export default function Home() {
                     <button
                       onClick={handleSaveVehicle}
                       disabled={modalLoading || !newVehicleName.trim()}
-                      className={`${vehicleToEdit ? 'flex-1' : 'w-full'} bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-lg p-3 text-sm transition-colors flex items-center justify-center relative overflow-hidden`}
+                      className={`${vehicleToEdit ? 'flex-1' : 'w-full'} bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-lg p-2.5 sm:p-3 text-sm transition-colors flex items-center justify-center relative overflow-hidden`}
                     >
                       <span className={`transition-all duration-300 ${modalLoading && newVehicleName.trim() ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
                         {vehicleToEdit ? "Save Changes" : "Add to Garage"}
@@ -783,26 +783,26 @@ export default function Home() {
                 </div>
 
                 {/* List */}
-                <div className="space-y-2 pb-2 order-1">
-                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Your Vehicles</p>
+                <div className="space-y-1.5 sm:space-y-2 pb-1 order-1">
+                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 sm:mb-3">Your Vehicles</p>
                   {dynamicVehicles.length === 0 ? (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-4 bg-zinc-50 dark:bg-zinc-950/50 rounded-lg border border-zinc-200 dark:border-zinc-800/50">No vehicles tracked yet.</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-3 bg-zinc-50 dark:bg-zinc-950/50 rounded-lg border border-zinc-200 dark:border-zinc-800/50">No vehicles tracked yet.</p>
                   ) : (
                     dynamicVehicles.map((v, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors animate-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}>
-                        <div className="flex items-center gap-3">
+                      <div key={i} className="flex justify-between items-center p-2.5 sm:p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors animate-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}>
+                        <div className="flex items-center gap-2.5 sm:gap-3">
                           <div
-                            className="w-10 h-10 rounded-md border border-zinc-300 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-inner"
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-md border border-zinc-300 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-inner"
                             style={{ backgroundColor: v.color || "#3b82f6" }}
                           >
                             {v.type === "Motorcycle" ? (
-                              <Bike className="w-5 h-5 text-white/90 drop-shadow-md" />
+                              <Bike className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 drop-shadow-md" />
                             ) : (
-                              <Car className="w-5 h-5 text-white/90 drop-shadow-md" />
+                              <Car className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 drop-shadow-md" />
                             )}
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{v.name}</span>
+                            <span className="text-xs sm:text-sm font-medium text-zinc-800 dark:text-zinc-200">{v.name}</span>
                             <span className="text-[10px] text-zinc-500 uppercase tracking-wider">{v.type}</span>
                           </div>
                         </div>
@@ -810,18 +810,18 @@ export default function Home() {
                           <button
                             onClick={() => startEditVehicle(v)}
                             disabled={modalLoading || vehicleToEdit === v.name}
-                            className="text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-lg transition-all"
+                            className="text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 p-1.5 sm:p-2 rounded-lg transition-all"
                             title="Edit vehicle"
                           >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
                           </button>
                           <button
                             onClick={() => setVehicleToDelete(v.name)}
                             disabled={modalLoading || vehicleToEdit === v.name}
-                            className="text-rose-500/70 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-400/10 p-2 rounded-lg transition-all"
+                            className="text-rose-500/70 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-400/10 p-1.5 sm:p-2 rounded-lg transition-all"
                             title="Remove tracking"
                           >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
                           </button>
                         </div>
                       </div>
