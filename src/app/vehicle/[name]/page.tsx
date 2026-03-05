@@ -1,9 +1,9 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, useMemo, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Calendar, Wrench, FileText } from "lucide-react";
+import { ArrowLeft, Calendar, Wrench, FileText, Search, ArrowUpDown, X } from "lucide-react";
 import VehicleMappingMap from "@/components/VehicleMappingMap";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
 
@@ -17,9 +17,13 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
     const [vehicleMeta, setVehicleMeta] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
+    // Filter & Sort State
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeChip, setActiveChip] = useState<string | null>(null);
+    const [sortNewest, setSortNewest] = useState(true);
+
     useEffect(() => {
         if (session && (session as any).accessToken) {
-            // Fetch records
             fetch("/api/records", {
                 headers: { "Authorization": `Bearer ${(session as any).accessToken}` }
             })
@@ -27,13 +31,12 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                 .then(data => {
                     if (data.records) {
                         const filtered = data.records.filter((r: any) => r.vehicle === decodedName);
-                        setHistory(filtered.reverse()); // Newest first
+                        setHistory(filtered.reverse());
                     }
                 })
                 .catch(console.error)
                 .finally(() => setLoading(false));
 
-            // Fetch dynamic vehicle metadata (for custom image & type)
             fetch("/api/vehicles", {
                 headers: { "Authorization": `Bearer ${(session as any).accessToken}` }
             })
@@ -51,9 +54,49 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
         }
     }, [session, status, decodedName]);
 
+    // Derive unique service types for chips
+    const serviceTypes = useMemo(() => {
+        const types = new Set<string>();
+        history.forEach(r => {
+            if (r.serviceType && r.serviceType !== "N/A" && r.serviceType !== "Unknown Service") {
+                types.add(r.serviceType);
+            }
+        });
+        return Array.from(types).sort();
+    }, [history]);
+
+    // Filtered + Sorted records
+    const filteredHistory = useMemo(() => {
+        let results = [...history];
+
+        // Chip filter
+        if (activeChip) {
+            results = results.filter(r => r.serviceType === activeChip);
+        }
+
+        // Text search
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            results = results.filter(r =>
+                (r.serviceType || "").toLowerCase().includes(q) ||
+                (r.workshop || "").toLowerCase().includes(q) ||
+                (r.details || "").toLowerCase().includes(q) ||
+                (r.dateDone || "").toLowerCase().includes(q) ||
+                (r.cost || "").toString().includes(q)
+            );
+        }
+
+        // Sort
+        if (!sortNewest) {
+            results = [...results].reverse();
+        }
+
+        return results;
+    }, [history, activeChip, searchQuery, sortNewest]);
+
     if (status === "loading" || (loading && session)) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-colors">
+            <div className="min-h-dvh flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-colors">
                 <AnimatedLoader />
                 <p className="mt-4 text-sm font-medium text-zinc-500 dark:text-zinc-400 animate-pulse">Loading Profile...</p>
             </div>
@@ -66,13 +109,13 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
     }
 
     const isMotorcycle = vehicleMeta?.type === "Motorcycle" || decodedName.toLowerCase().includes("yamaha");
+    const hasActiveFilters = searchQuery.trim() || activeChip;
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
-            <div className="max-w-5xl mx-auto space-y-8">
+        <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
+            <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
 
                 <header className="relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 shadow-md dark:shadow-2xl transition-colors">
-                    {/* Background Color Gradient Overlay */}
                     <div className="absolute inset-0 z-0 pointer-events-none bg-zinc-50 dark:bg-zinc-950 overflow-hidden rounded-2xl">
                         <div
                             className="absolute inset-0 opacity-80 dark:opacity-70 transition-all duration-700 hover:opacity-100 dark:hover:opacity-90"
@@ -96,12 +139,88 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                     </a>
                 </header>
 
+                {/* Search & Filter Bar */}
+                {history.length > 0 && (
+                    <div className="space-y-3">
+                        <div className="flex gap-2">
+                            {/* Search Input */}
+                            <div className="flex-1 relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Search service, workshop, notes..."
+                                    className="w-full bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl pl-10 pr-9 py-2.5 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
+                                />
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery("")}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Sort Toggle */}
+                            <button
+                                onClick={() => setSortNewest(!sortNewest)}
+                                className="flex items-center gap-1.5 px-3 py-2.5 bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors shrink-0"
+                                title={sortNewest ? "Showing newest first" : "Showing oldest first"}
+                            >
+                                <ArrowUpDown className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">{sortNewest ? "Newest" : "Oldest"}</span>
+                            </button>
+                        </div>
+
+                        {/* Service Type Chips */}
+                        {serviceTypes.length > 1 && (
+                            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
+                                {serviceTypes.map((type) => (
+                                    <button
+                                        key={type}
+                                        onClick={() => setActiveChip(activeChip === type ? null : type)}
+                                        className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${activeChip === type
+                                            ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20"
+                                            : "bg-white dark:bg-zinc-900/60 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                                            }`}
+                                    >
+                                        {type}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Active Filter Summary */}
+                        {hasActiveFilters && (
+                            <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+                                <span>
+                                    Showing <strong className="text-zinc-700 dark:text-zinc-200">{filteredHistory.length}</strong> of {history.length} records
+                                </span>
+                                <button
+                                    onClick={() => { setSearchQuery(""); setActiveChip(null); }}
+                                    className="text-blue-600 dark:text-blue-400 hover:text-blue-500 font-medium"
+                                >
+                                    Clear filters
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 shadow-sm dark:shadow-none transition-colors">
                     {history.length === 0 ? (
                         <div className="text-center text-zinc-500 py-12">No records found for this vehicle.</div>
+                    ) : filteredHistory.length === 0 ? (
+                        <div className="text-center py-12">
+                            <Search className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+                            <p className="text-zinc-500 dark:text-zinc-400">No records match your filters.</p>
+                            <button onClick={() => { setSearchQuery(""); setActiveChip(null); }} className="text-sm text-blue-600 dark:text-blue-400 mt-2 hover:underline">Clear all filters</button>
+                        </div>
                     ) : (
                         <div className="space-y-6">
-                            {history.map((record, i) => (
+                            {filteredHistory.map((record, i) => (
                                 <div key={i} className="p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group flex flex-col xl:flex-row gap-6 shadow-sm dark:shadow-none">
                                     <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-zinc-200 dark:border-zinc-800/50 pb-4 mb-4">

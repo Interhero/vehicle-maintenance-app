@@ -57,7 +57,10 @@ export default function Home() {
   const [vehicleToEdit, setVehicleToEdit] = useState<string | null>(null);
 
   // Flash Screen States for Adding/Updating/Deleting Vehicles
-  const [flash, setFlash] = useState<{ show: boolean; type: "idle" | "saving" | "deleting" | "success" | "deleted" | "error" }>({ show: false, type: "idle" });
+  const [flash, setFlash] = useState<{
+    show: boolean;
+    type: "idle" | "saving" | "mileage_saving" | "deleting" | "success" | "mileage_success" | "deleted" | "error"
+  }>({ show: false, type: "idle" });
   const [errorMsg, setErrorMsg] = useState("");
 
   // Voluntary Mileage Update States
@@ -216,8 +219,9 @@ export default function Home() {
   const handleUpdateMileage = async () => {
     if (!mileageTarget || !newMileage.trim()) return;
     const mileageNum = parseInt(newMileage.replace(/,/g, ''), 10);
-    if (isNaN(mileageNum) || mileageNum <= (mileageTarget.currentMileage || 0)) {
-      setErrorMsg("Mileage must be a valid number greater than current mileage.");
+    // [TEMP] Relaxed validation to allow lower values for testing
+    if (isNaN(mileageNum) || mileageNum < 0) {
+      setErrorMsg("Mileage must be a valid positive number.");
       setFlash({ show: true, type: "error" });
       setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 3000);
       return;
@@ -225,7 +229,7 @@ export default function Home() {
 
     setMileageLoading(true);
     closeMileageModal(); // Hide modal
-    setFlash({ show: true, type: "saving" }); // Show loading flash overlay
+    setFlash({ show: true, type: "mileage_saving" }); // Show specific mileage saving flash overlay
     setErrorMsg("");
 
     try {
@@ -244,7 +248,7 @@ export default function Home() {
           v.name === mileageTarget.name ? { ...v, mileage: mileageNum } : v
         ));
 
-        setFlash({ show: true, type: "success" });
+        setFlash({ show: true, type: "mileage_success" });
         setTimeout(() => {
           setFlash(prev => ({ ...prev, show: false }));
         }, 2000);
@@ -888,28 +892,35 @@ export default function Home() {
 
         {/* Status Flash Screen Overlay (Injected for Saving/Updating/Deleting Vehicles) */}
         <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center backdrop-blur-xl transition-all duration-500 ease-in-out ${flash.show ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-105'
-          } ${flash.type === "saving" || flash.type === "deleting" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-orange-500/95 to-amber-600/95 dark:from-orange-900/95 dark:to-orange-950/95" :
-            flash.type === "success" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-emerald-500/95 to-teal-600/95 dark:from-emerald-900/95 dark:to-teal-950/95" :
+          } ${flash.type === "saving" || flash.type === "mileage_saving" || flash.type === "deleting" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-orange-500/95 to-amber-600/95 dark:from-orange-900/95 dark:to-orange-950/95" :
+            flash.type === "success" || flash.type === "mileage_success" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-emerald-500/95 to-teal-600/95 dark:from-emerald-900/95 dark:to-teal-950/95" :
               flash.type === "deleted" || flash.type === "error" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-rose-500/95 to-red-600/95 dark:from-rose-900/95 dark:to-red-950/95" : "bg-transparent"
           }`}>
 
-          {(flash.type === "saving" || flash.type === "deleting") && (
+          {(flash.type === "saving" || flash.type === "mileage_saving" || flash.type === "deleting") && (
             <div className={`flex flex-col items-center animate-in zoom-in duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden ring-4 ring-white/30 dark:ring-transparent">
                 <Clock className="w-14 h-14 text-white dark:text-orange-200 animate-[spin_3s_linear_infinite]" />
                 <div className="absolute inset-0 border-4 border-white/50 dark:border-orange-400/30 rounded-full border-t-white animate-spin"></div>
               </div>
-              <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">{flash.type === "saving" ? "Writing to Database..." : "Removing Vehicle..."}</h2>
+              <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
+                {flash.type === "saving" ? "Writing to Database..." :
+                  flash.type === "mileage_saving" ? "Updating Mileage..." :
+                    "Removing Vehicle..."}
+              </h2>
               <p className="text-orange-50 dark:text-orange-200 mt-3 font-medium text-lg animate-pulse">Syncing with Garage</p>
             </div>
           )}
 
-          {flash.type === "success" && (
+          {(flash.type === "success" || flash.type === "mileage_success") && (
             <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500 spring-bounce`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
                 <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
               </div>
-              <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">{vehicleToEdit ? "Vehicle Updated!" : "Vehicle Added!"}</h2>
+              <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">
+                {flash.type === "mileage_success" ? "Mileage Updated!" :
+                  (vehicleToEdit ? "Vehicle Updated!" : "Vehicle Added!")}
+              </h2>
               <p className="text-emerald-50 dark:text-emerald-100 font-semibold text-lg drop-shadow-md">Returning to dashboard...</p>
             </div>
           )}
