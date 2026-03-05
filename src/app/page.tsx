@@ -44,11 +44,11 @@ export default function Home() {
   const { data: session, status } = useSession();
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dismissedAlerts, setDismissedAlerts] = useState<Record<string, number>>({});
-
   const [showManageModal, setShowManageModal] = useState(false);
   const [isManageModalClosing, setIsManageModalClosing] = useState(false);
   const [dynamicVehicles, setDynamicVehicles] = useState<any[]>([]);
+  const [dismissedAlerts, setDismissedAlerts] = useState<Record<string, { status: 'dismissed' | 'attended', timestamp: number }>>({});
+  const [resolvingAlert, setResolvingAlert] = useState<any>(null);
   const [newVehicleName, setNewVehicleName] = useState("");
   const [newVehicleType, setNewVehicleType] = useState("Car");
   const [newVehicleColor, setNewVehicleColor] = useState(CAR_COLORS[4]); // Default to Blue
@@ -103,7 +103,19 @@ export default function Home() {
     // Load dismissed alerts from local storage purely on client
     const saved = localStorage.getItem("vehicle_dismissals");
     if (saved) {
-      try { setDismissedAlerts(JSON.parse(saved)); } catch (e) { }
+      try {
+        const parsed = JSON.parse(saved);
+        // Migration: convert old arrays or pure numbers to the new object format if needed
+        const migrated: any = {};
+        Object.keys(parsed).forEach(key => {
+          if (typeof parsed[key] === 'number') {
+            migrated[key] = { status: 'dismissed', timestamp: parsed[key] };
+          } else {
+            migrated[key] = parsed[key];
+          }
+        });
+        setDismissedAlerts(migrated as Record<string, { status: 'dismissed' | 'attended', timestamp: number }>);
+      } catch (e) { }
     }
 
     if (session && (session as any).accessToken) {
@@ -385,22 +397,39 @@ export default function Home() {
       const nextDue = parseInt(service.nextServiceCalculated);
       if (!isNaN(nextDue)) {
         const remainingKm = nextDue - v.currentMileage;
+        const alertId = `${v.name}-${service.serviceType}`;
 
-        // Push every tracked service, rely on manual dismissal to clear
-        upcomingServices.push({
-          vehicle: v.name,
-          serviceType: service.serviceType,
-          remainingKm,
-          nextDue,
-          lastDone: service.dateDone,
-          details: service.details,
-          workshop: service.workshop,
-          cost: service.cost,
-          receipt: service.receipt
-        });
+        // Skip if 'attended' or 'dismissed' (snoozed)
+        if (dismissedAlerts[alertId]?.status === 'attended') return;
+        if (dismissedAlerts[alertId]?.status === 'dismissed') return;
+
+        if (remainingKm <= 1000) {
+          upcomingServices.push({
+            vehicle: v.name,
+            serviceType: service.serviceType,
+            remainingKm,
+            nextDue,
+            lastDone: service.dateDone,
+            details: service.details,
+            workshop: service.workshop,
+            cost: service.cost,
+            receipt: service.receipt
+          });
+        }
       }
     });
   });
+
+  const handleResolveAlert = (alert: any, action: 'dismissed' | 'attended') => {
+    const alertId = `${alert.vehicle}-${alert.serviceType}`;
+    const newDismissals: Record<string, { status: 'dismissed' | 'attended', timestamp: number }> = {
+      ...dismissedAlerts,
+      [alertId]: { status: action, timestamp: Date.now() }
+    };
+    setDismissedAlerts(newDismissals);
+    localStorage.setItem("vehicle_dismissals", JSON.stringify(newDismissals));
+    setResolvingAlert(null);
+  };
 
   // Sort by highest priority (lowest remaining KM)
   upcomingServices.sort((a, b) => a.remainingKm - b.remainingKm);
@@ -446,11 +475,11 @@ export default function Home() {
 
               <div className="space-y-8">
                 {/* Vehicle Cards */}
-                <section className="space-y-6">
+                <section className="space-y-6 text-zinc-900 dark:text-zinc-100">
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold flex items-center gap-2">
-                      <Car className="w-5 h-5 text-blue-400" />
-                      My Vehicles
+                      <Wrench className="w-5 h-5 text-blue-400" />
+                      Upcoming Services
                     </h2>
                     {Object.keys(dismissedAlerts).length > 0 && (
                       <button
@@ -458,9 +487,10 @@ export default function Home() {
                           setDismissedAlerts({});
                           localStorage.removeItem("vehicle_dismissals");
                         }}
-                        className="text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors bg-zinc-200/50 dark:bg-zinc-900/80 border border-zinc-300 dark:border-zinc-800 px-3 py-1.5 rounded-lg"
+                        className="text-[10px] font-bold text-zinc-500 hover:text-rose-500 dark:text-zinc-400 dark:hover:text-rose-400 transition-all bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 shadow-sm"
                       >
-                        Reset Dismissed Alerts
+                        <XCircle className="w-3 h-3" />
+                        Reset Hidden Alerts
                       </button>
                     )}
                   </div>
@@ -545,19 +575,31 @@ export default function Home() {
                                       <div key={j} className={`p-4 rounded-2xl border ${isOverdue ? 'border-rose-200/60 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200' : 'border-amber-200/60 dark:border-amber-900/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200'} flex flex-col gap-2 relative overflow-hidden group/alert shadow-sm dark:shadow-lg backdrop-blur-md`}>
                                         <div className={`absolute top-0 left-0 w-1.5 h-full ${isOverdue ? 'bg-rose-500' : 'bg-amber-500'}`}></div>
 
-                                        {/* Dismiss Button */}
+                                        {/* Dismiss/Resolve Button */}
                                         <button
                                           onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
-                                            const newDismissals = { ...dismissedAlerts, [alertId]: Date.now() };
-                                            setDismissedAlerts(newDismissals);
-                                            localStorage.setItem("vehicle_dismissals", JSON.stringify(newDismissals));
+                                            if (isOverdue) {
+                                              setResolvingAlert(job);
+                                            } else {
+                                              const alertId = `${job.vehicle}-${job.serviceType}`;
+                                              const newDismissals: Record<string, { status: 'dismissed' | 'attended', timestamp: number }> = {
+                                                ...dismissedAlerts,
+                                                [alertId]: { status: 'dismissed', timestamp: Date.now() }
+                                              };
+                                              setDismissedAlerts(newDismissals);
+                                              localStorage.setItem("vehicle_dismissals", JSON.stringify(newDismissals));
+                                            }
                                           }}
-                                          className="absolute top-2 right-2 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white opacity-0 group-hover/alert:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-900/90 rounded-lg p-1.5 backdrop-blur-md border border-zinc-200 dark:border-zinc-700 shadow-sm"
-                                          title="Dismiss Alert"
+                                          className={`absolute top-2 right-2 opacity-0 group-hover/alert:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-900/90 rounded-lg p-1.5 backdrop-blur-md border shadow-sm ${isOverdue ? 'text-rose-500 border-rose-200 dark:border-rose-800' : 'text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}
+                                          title={isOverdue ? "Resolve Overdue Alert" : "Dismiss Alert"}
                                         >
-                                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                                          {isOverdue ? (
+                                            <Settings className="w-4 h-4" />
+                                          ) : (
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                                          )}
                                         </button>
 
                                         <div className="flex justify-between items-start pl-3 pr-8">
@@ -654,241 +696,245 @@ export default function Home() {
         </div>
 
         {/* Manage Vehicles Modal */}
-        {showManageModal && (
-          <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ease-in-out animate-in fade-in ${isManageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
+        {
+          showManageModal && (
+            <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ease-in-out animate-in fade-in ${isManageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
 
-            {/* Deletion Confirmation Sub-Modal Overlay */}
-            {vehicleToDelete && !flash.show && (
-              <div className={`absolute inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 transition-all duration-300`}>
-                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-xl dark:shadow-2xl relative animate-in zoom-in-95 duration-200">
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Remove Vehicle?</h3>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      Are you sure you want to remove <strong className="text-zinc-800 dark:text-zinc-200">{vehicleToDelete}</strong>? This will remove it from all menus, but your past maintenance records won't be deleted.
-                    </p>
-                  </div>
-                  <div className="flex border-t border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/50">
-                    <button
-                      onClick={() => setVehicleToDelete(null)}
-                      disabled={modalLoading}
-                      className="flex-1 px-4 py-3 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800/50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleDeleteVehicle}
-                      disabled={modalLoading}
-                      className="flex-1 px-4 py-3 text-sm font-semibold text-rose-600 dark:text-rose-500 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 transition-colors border-l border-zinc-200 dark:border-zinc-800/80 flex items-center justify-center gap-2"
-                    >
-                      {modalLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Remove"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden shadow-xl dark:shadow-2xl flex flex-col max-h-[85vh] sm:max-h-[90vh] transition-all duration-500 ease-in-out animate-in zoom-in-95 fade-in ${isManageModalClosing ? 'scale-95 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}`}>
-              <div className="px-4 py-3 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
-                <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
-                  <Car className="w-5 h-5 text-blue-500 dark:text-blue-400" />
-                  Manage Vehicles
-                </h3>
-                <button
-                  onClick={() => { closeManageModal(); cancelEdit(); }}
-                  className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors p-1"
-                  disabled={modalLoading}
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-                </button>
-              </div>
-
-              <div className="px-4 py-3 sm:p-6 overflow-y-auto overflow-x-hidden flex flex-col gap-4 sm:gap-6">
-                {/* Add New / Edit */}
-                <div className="flex flex-col gap-2 sm:gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-800/80 order-2">
-                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{vehicleToEdit ? "Edit Vehicle" : "Add New Vehicle"}</p>
-                  <input
-                    type="text"
-                    value={newVehicleName}
-                    onChange={(e) => setNewVehicleName(e.target.value)}
-                    placeholder="Vehicle Name (e.g. Toyota Corolla)"
-                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-2.5 sm:p-3 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
-                  />
-
-                  <div className="flex flex-row gap-2 sm:gap-3">
-                    {/* Compact Vehicle Type Buttons */}
-                    <div className="flex flex-col gap-1.5 sm:gap-2 shrink-0 w-24 sm:w-32">
-                      <button
-                        type="button"
-                        onClick={() => setNewVehicleType("Car")}
-                        className={`px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium rounded-lg flex items-center justify-center gap-1.5 transition-all ${newVehicleType === "Car"
-                          ? "bg-blue-600 text-white shadow-md scale-105 z-10"
-                          : "bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                          }`}
-                      >
-                        <Car className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        Car
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setNewVehicleType("Motorcycle")}
-                        className={`px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium rounded-lg flex items-center justify-center gap-1.5 transition-all ${newVehicleType === "Motorcycle"
-                          ? "bg-blue-600 text-white shadow-md scale-105 z-10"
-                          : "bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                          }`}
-                      >
-                        <Bike className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        Bike
-                      </button>
+              {/* Deletion Confirmation Sub-Modal Overlay */}
+              {vehicleToDelete && !flash.show && (
+                <div className={`absolute inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 transition-all duration-300`}>
+                  <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-xl dark:shadow-2xl relative animate-in zoom-in-95 duration-200">
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Remove Vehicle?</h3>
+                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                        Are you sure you want to remove <strong className="text-zinc-800 dark:text-zinc-200">{vehicleToDelete}</strong>? This will remove it from all menus, but your past maintenance records won't be deleted.
+                      </p>
                     </div>
-
-                    <div className="flex-1 grid grid-cols-4 gap-1.5 sm:gap-2">
-                      {CAR_COLORS.map((color) => (
-                        <button
-                          key={color}
-                          type="button"
-                          onClick={() => setNewVehicleColor(color)}
-                          className={`h-9 sm:h-11 w-full rounded-md shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-950 ${newVehicleColor === color
-                            ? 'ring-2 ring-zinc-800 dark:ring-white scale-105 z-10'
-                            : 'ring-1 ring-zinc-200 dark:ring-zinc-700/50 hover:scale-105 hover:ring-zinc-400 dark:hover:ring-zinc-500'
-                            }`}
-                          style={{ backgroundColor: color }}
-                          aria-label={`Select color ${color}`}
-                          title={`Select color ${color}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2 w-full">
-                    {vehicleToEdit && (
+                    <div className="flex border-t border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/50">
                       <button
-                        onClick={cancelEdit}
+                        onClick={() => setVehicleToDelete(null)}
                         disabled={modalLoading}
-                        className="flex-1 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-medium rounded-lg p-2.5 sm:p-3 text-sm transition-colors flex items-center justify-center"
+                        className="flex-1 px-4 py-3 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800/50 transition-colors"
                       >
                         Cancel
                       </button>
-                    )}
-                    <button
-                      onClick={handleSaveVehicle}
-                      disabled={modalLoading || !newVehicleName.trim()}
-                      className={`${vehicleToEdit ? 'flex-1' : 'w-full'} bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-lg p-2.5 sm:p-3 text-sm transition-colors flex items-center justify-center relative overflow-hidden`}
-                    >
-                      <span className={`transition-all duration-300 ${modalLoading && newVehicleName.trim() ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
-                        {vehicleToEdit ? "Save Changes" : "Add to Garage"}
-                      </span>
-                      {modalLoading && newVehicleName.trim() && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                        </div>
-                      )}
-                    </button>
+                      <button
+                        onClick={handleDeleteVehicle}
+                        disabled={modalLoading}
+                        className="flex-1 px-4 py-3 text-sm font-semibold text-rose-600 dark:text-rose-500 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 transition-colors border-l border-zinc-200 dark:border-zinc-800/80 flex items-center justify-center gap-2"
+                      >
+                        {modalLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Remove"}
+                      </button>
+                    </div>
                   </div>
                 </div>
+              )}
 
-                {/* List */}
-                <div className="space-y-1.5 sm:space-y-2 pb-1 order-1">
-                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 sm:mb-3">Your Vehicles</p>
-                  {dynamicVehicles.length === 0 ? (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-3 bg-zinc-50 dark:bg-zinc-950/50 rounded-lg border border-zinc-200 dark:border-zinc-800/50">No vehicles tracked yet.</p>
-                  ) : (
-                    dynamicVehicles.map((v, i) => (
-                      <div key={i} className="flex justify-between items-center p-2.5 sm:p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors animate-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}>
-                        <div className="flex items-center gap-2.5 sm:gap-3">
-                          <div
-                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-md border border-zinc-300 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-inner"
-                            style={{ backgroundColor: v.color || "#3b82f6" }}
-                          >
-                            {v.type === "Motorcycle" ? (
-                              <Bike className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 drop-shadow-md" />
-                            ) : (
-                              <Car className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 drop-shadow-md" />
-                            )}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-xs sm:text-sm font-medium text-zinc-800 dark:text-zinc-200">{v.name}</span>
-                            <span className="text-[10px] text-zinc-500 uppercase tracking-wider">{v.type}</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-1">
-                          <button
-                            onClick={() => startEditVehicle(v)}
-                            disabled={modalLoading || vehicleToEdit === v.name}
-                            className="text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 p-1.5 sm:p-2 rounded-lg transition-all"
-                            title="Edit vehicle"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
-                          </button>
-                          <button
-                            onClick={() => setVehicleToDelete(v.name)}
-                            disabled={modalLoading || vehicleToEdit === v.name}
-                            className="text-rose-500/70 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-400/10 p-1.5 sm:p-2 rounded-lg transition-all"
-                            title="Remove tracking"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
-                          </button>
-                        </div>
+              <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden shadow-xl dark:shadow-2xl flex flex-col max-h-[85vh] sm:max-h-[90vh] transition-all duration-500 ease-in-out animate-in zoom-in-95 fade-in ${isManageModalClosing ? 'scale-95 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}`}>
+                <div className="px-4 py-3 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+                  <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
+                    <Car className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                    Manage Vehicles
+                  </h3>
+                  <button
+                    onClick={() => { closeManageModal(); cancelEdit(); }}
+                    className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors p-1"
+                    disabled={modalLoading}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                  </button>
+                </div>
+
+                <div className="px-4 py-3 sm:p-6 overflow-y-auto overflow-x-hidden flex flex-col gap-4 sm:gap-6">
+                  {/* Add New / Edit */}
+                  <div className="flex flex-col gap-2 sm:gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-800/80 order-2">
+                    <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{vehicleToEdit ? "Edit Vehicle" : "Add New Vehicle"}</p>
+                    <input
+                      type="text"
+                      value={newVehicleName}
+                      onChange={(e) => setNewVehicleName(e.target.value)}
+                      placeholder="Vehicle Name (e.g. Toyota Corolla)"
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-2.5 sm:p-3 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
+                    />
+
+                    <div className="flex flex-row gap-2 sm:gap-3">
+                      {/* Compact Vehicle Type Buttons */}
+                      <div className="flex flex-col gap-1.5 sm:gap-2 shrink-0 w-24 sm:w-32">
+                        <button
+                          type="button"
+                          onClick={() => setNewVehicleType("Car")}
+                          className={`px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium rounded-lg flex items-center justify-center gap-1.5 transition-all ${newVehicleType === "Car"
+                            ? "bg-blue-600 text-white shadow-md scale-105 z-10"
+                            : "bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                            }`}
+                        >
+                          <Car className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          Car
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNewVehicleType("Motorcycle")}
+                          className={`px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium rounded-lg flex items-center justify-center gap-1.5 transition-all ${newVehicleType === "Motorcycle"
+                            ? "bg-blue-600 text-white shadow-md scale-105 z-10"
+                            : "bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                            }`}
+                        >
+                          <Bike className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          Bike
+                        </button>
                       </div>
-                    ))
-                  )}
+
+                      <div className="flex-1 grid grid-cols-4 gap-1.5 sm:gap-2">
+                        {CAR_COLORS.map((color) => (
+                          <button
+                            key={color}
+                            type="button"
+                            onClick={() => setNewVehicleColor(color)}
+                            className={`h-9 sm:h-11 w-full rounded-md shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-950 ${newVehicleColor === color
+                              ? 'ring-2 ring-zinc-800 dark:ring-white scale-105 z-10'
+                              : 'ring-1 ring-zinc-200 dark:ring-zinc-700/50 hover:scale-105 hover:ring-zinc-400 dark:hover:ring-zinc-500'
+                              }`}
+                            style={{ backgroundColor: color }}
+                            aria-label={`Select color ${color}`}
+                            title={`Select color ${color}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 w-full">
+                      {vehicleToEdit && (
+                        <button
+                          onClick={cancelEdit}
+                          disabled={modalLoading}
+                          className="flex-1 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-medium rounded-lg p-2.5 sm:p-3 text-sm transition-colors flex items-center justify-center"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                      <button
+                        onClick={handleSaveVehicle}
+                        disabled={modalLoading || !newVehicleName.trim()}
+                        className={`${vehicleToEdit ? 'flex-1' : 'w-full'} bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-lg p-2.5 sm:p-3 text-sm transition-colors flex items-center justify-center relative overflow-hidden`}
+                      >
+                        <span className={`transition-all duration-300 ${modalLoading && newVehicleName.trim() ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+                          {vehicleToEdit ? "Save Changes" : "Add to Garage"}
+                        </span>
+                        {modalLoading && newVehicleName.trim() && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* List */}
+                  <div className="space-y-1.5 sm:space-y-2 pb-1 order-1">
+                    <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 sm:mb-3">Your Vehicles</p>
+                    {dynamicVehicles.length === 0 ? (
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-3 bg-zinc-50 dark:bg-zinc-950/50 rounded-lg border border-zinc-200 dark:border-zinc-800/50">No vehicles tracked yet.</p>
+                    ) : (
+                      dynamicVehicles.map((v, i) => (
+                        <div key={i} className="flex justify-between items-center p-2.5 sm:p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors animate-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}>
+                          <div className="flex items-center gap-2.5 sm:gap-3">
+                            <div
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-md border border-zinc-300 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-inner"
+                              style={{ backgroundColor: v.color || "#3b82f6" }}
+                            >
+                              {v.type === "Motorcycle" ? (
+                                <Bike className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 drop-shadow-md" />
+                              ) : (
+                                <Car className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 drop-shadow-md" />
+                              )}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs sm:text-sm font-medium text-zinc-800 dark:text-zinc-200">{v.name}</span>
+                              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">{v.type}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => startEditVehicle(v)}
+                              disabled={modalLoading || vehicleToEdit === v.name}
+                              className="text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 p-1.5 sm:p-2 rounded-lg transition-all"
+                              title="Edit vehicle"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                            </button>
+                            <button
+                              onClick={() => setVehicleToDelete(v.name)}
+                              disabled={modalLoading || vehicleToEdit === v.name}
+                              className="text-rose-500/70 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-400/10 p-1.5 sm:p-2 rounded-lg transition-all"
+                              title="Remove tracking"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
         {/* Voluntary Mileage Update Modal */}
-        {showMileageModal && (
-          <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ease-in-out animate-in fade-in ${isMileageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
-            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-xl dark:shadow-2xl transition-all duration-500 ease-in-out animate-in zoom-in-95 fade-in ${isMileageModalClosing ? 'scale-95 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}`}>
-              <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-blue-500" />
-                  Update Mileage
-                </h3>
-                <button
-                  onClick={closeMileageModal}
-                  className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors p-1"
-                  disabled={mileageLoading}
-                >
-                  <XCircle className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="p-6 space-y-4">
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  You are updating the mileage for <strong className="text-zinc-900 dark:text-white">{mileageTarget.name}</strong>. This forces a recalculation of your upcoming services.
-                </p>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">New Odometer Reading (KM)</label>
-                  <input
-                    type="number"
-                    value={newMileage}
-                    onChange={(e) => setNewMileage(e.target.value)}
-                    placeholder="e.g. 50500"
-                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-xl p-3.5 text-lg font-mono text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-inner"
-                    autoFocus
-                  />
+        {
+          showMileageModal && (
+            <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ease-in-out animate-in fade-in ${isMileageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
+              <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-xl dark:shadow-2xl transition-all duration-500 ease-in-out animate-in zoom-in-95 fade-in ${isMileageModalClosing ? 'scale-95 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}`}>
+                <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-blue-500" />
+                    Update Mileage
+                  </h3>
+                  <button
+                    onClick={closeMileageModal}
+                    className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors p-1"
+                    disabled={mileageLoading}
+                  >
+                    <XCircle className="w-5 h-5" />
+                  </button>
                 </div>
+                <div className="p-6 space-y-4">
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                    You are updating the mileage for <strong className="text-zinc-900 dark:text-white">{mileageTarget.name}</strong>. This forces a recalculation of your upcoming services.
+                  </p>
 
-                <button
-                  onClick={handleUpdateMileage}
-                  disabled={mileageLoading || !newMileage || parseInt(newMileage) <= (mileageTarget.currentMileage || 0)}
-                  className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-xl p-3.5 transition-colors flex items-center justify-center relative overflow-hidden mt-2"
-                >
-                  <span className={`transition-all duration-300 ${mileageLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
-                    Confirm Mileage
-                  </span>
-                  {mileageLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    </div>
-                  )}
-                </button>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">New Odometer Reading (KM)</label>
+                    <input
+                      type="number"
+                      value={newMileage}
+                      onChange={(e) => setNewMileage(e.target.value)}
+                      placeholder="e.g. 50500"
+                      className="w-full bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-xl p-3.5 text-lg font-mono text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-inner"
+                      autoFocus
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleUpdateMileage}
+                    disabled={mileageLoading || !newMileage || parseInt(newMileage) <= (mileageTarget.currentMileage || 0)}
+                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-xl p-3.5 transition-colors flex items-center justify-center relative overflow-hidden mt-2"
+                  >
+                    <span className={`transition-all duration-300 ${mileageLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+                      Confirm Mileage
+                    </span>
+                    {mileageLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      </div>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
         {/* Status Flash Screen Overlay (Injected for Saving/Updating/Deleting Vehicles) */}
         <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center backdrop-blur-xl transition-all duration-500 ease-in-out ${flash.show ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-105'
@@ -946,7 +992,50 @@ export default function Home() {
           )}
         </div>
 
-      </div>
-    </div>
+        {/* Alert Resolution Modal */}
+        {
+          resolvingAlert && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-in fade-in duration-300">
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setResolvingAlert(null)}></div>
+              <div className="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 slide-in-from-bottom-4 duration-500">
+                <div className="p-8 text-center">
+                  <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-rose-500/20">
+                    <AlertCircle className="w-10 h-10 text-rose-500 animate-pulse" />
+                  </div>
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Resolve Service Alert</h3>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-8 px-4">
+                    How would you like to handle the <strong>{resolvingAlert.serviceType}</strong> alert for <strong>{resolvingAlert.vehicle}</strong>?
+                  </p>
+
+                  <div className="grid gap-3">
+                    <button
+                      onClick={() => handleResolveAlert(resolvingAlert, 'dismissed')}
+                      className="w-full flex items-center justify-center gap-3 p-4 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white font-bold rounded-2xl transition-all border border-zinc-200 dark:border-zinc-700 active:scale-95"
+                    >
+                      <Clock className="w-5 h-5 text-amber-500" />
+                      Only Dismiss (Snooze)
+                    </button>
+                    <button
+                      onClick={() => handleResolveAlert(resolvingAlert, 'attended')}
+                      className="w-full flex items-center justify-center gap-3 p-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+                    >
+                      <CheckCircle2 className="w-5 h-5" />
+                      Mark as Attended
+                    </button>
+                    <button
+                      onClick={() => setResolvingAlert(null)}
+                      className="w-full p-4 text-xs font-bold text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors uppercase tracking-widest"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        }
+
+      </div >
+    </div >
   );
 }

@@ -114,6 +114,34 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
     }, [history]);
 
     // Filtered + Sorted records
+    const [now, setNow] = useState(Date.now());
+    useEffect(() => {
+        if (!showSharesManager) return;
+        const timer = setInterval(() => setNow(Date.now()), 30000); // Update every 30s
+        return () => clearInterval(timer);
+    }, [showSharesManager]);
+
+    const activeLinksList = useMemo(() => {
+        return activeLinks.map(link => {
+            if (link.expiresAt === 'Never') return { ...link, countdown: 'Permanent', isExpired: false };
+
+            const expiry = parseInt(link.expiresAt);
+            if (isNaN(expiry)) return { ...link, countdown: 'Invalid Date', isExpired: true };
+
+            const diff = expiry - now;
+            if (diff <= 0) return { ...link, countdown: 'Expired', isExpired: true };
+
+            const hours = Math.floor(diff / 3600000);
+            const mins = Math.floor((diff % 3600000) / 60000);
+            return {
+                ...link,
+                countdown: `Expiring in: ${hours}h ${mins}m`,
+                isExpired: false,
+                isUrgent: diff < 3600000
+            };
+        });
+    }, [activeLinks, now]);
+
     const handleShare = (record: any) => {
         setSharingRecord(record);
         setGeneratedLink("");
@@ -582,40 +610,46 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 gap-3">
-                                    {activeLinks.map((link) => (
+                                    {activeLinksList.map((link) => (
                                         <div key={link.id} className="p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 flex items-center justify-between group">
                                             <div className="space-y-1">
                                                 <h4 className="font-bold text-zinc-900 dark:text-white text-sm">{link.service}</h4>
-                                                <div className="flex flex-wrap items-center gap-3 text-[10px] text-zinc-500">
-                                                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {link.createdAt}</span>
-                                                    <span className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full font-bold ${link.expiresAt === 'Never'
-                                                        ? 'bg-blue-500/10 text-blue-500'
-                                                        : (new Date(link.expiresAt.split('/').reverse().join('-')).getTime() - Date.now() < 3600000)
-                                                            ? 'bg-rose-500/10 text-rose-500 animate-pulse'
-                                                            : 'bg-orange-500/10 text-orange-500'
+                                                <div className="flex flex-wrap items-center gap-2 text-[10px]">
+                                                    <span className="flex items-center gap-1 text-zinc-500">
+                                                        <Calendar className="w-3 h-3" />
+                                                        {new Date(parseInt(link.createdAt)).toLocaleDateString('en-GB')}
+                                                    </span>
+                                                    <span className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full font-bold shadow-sm ${link.isExpired
+                                                            ? 'bg-rose-500/10 text-rose-500'
+                                                            : link.countdown === 'Permanent'
+                                                                ? 'bg-blue-500/10 text-blue-500'
+                                                                : link.isUrgent
+                                                                    ? 'bg-rose-500/10 text-rose-500 animate-pulse'
+                                                                    : 'bg-orange-500/10 text-orange-500'
                                                         }`}>
                                                         <Clock className="w-3 h-3" />
-                                                        {link.expiresAt === 'Never' ? 'Permanent' : (() => {
-                                                            const parts = link.expiresAt.split(', ')[0].split('/');
-                                                            const timePart = link.expiresAt.split(', ')[1];
-                                                            const isoStr = `${parts[2]}-${parts[1]}-${parts[0]}T${timePart.replace(/\./g, ':')}`;
-                                                            const expiry = new Date(isoStr);
-                                                            const diff = expiry.getTime() - Date.now();
-                                                            if (diff <= 0) return "Expired";
-                                                            const hours = Math.floor(diff / 3600000);
-                                                            const mins = Math.floor((diff % 3600000) / 60000);
-                                                            return `Expiring in: ${hours}h ${mins}m`;
-                                                        })()}
+                                                        {link.countdown}
                                                     </span>
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={() => handleRevoke(link.id)}
-                                                className="p-2.5 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20"
-                                                title="Revoke Access"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
+                                            <div className="flex items-center gap-2">
+                                                {link.isExpired ? (
+                                                    <button
+                                                        onClick={() => handleRevoke(link.id)}
+                                                        className="p-2.5 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-all border border-zinc-300 dark:border-zinc-700 font-bold text-[10px] uppercase"
+                                                    >
+                                                        Dismiss
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleRevoke(link.id)}
+                                                        className="p-2.5 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20 shadow-lg shadow-rose-500/5 group-hover:scale-105 active:scale-95"
+                                                        title="Revoke Access"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

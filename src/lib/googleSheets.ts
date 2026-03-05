@@ -64,7 +64,7 @@ export async function resolveSpreadsheetId(accessToken: string): Promise<string>
     // 4. Initialize the Headers for the new spreadsheet
     await sheets.spreadsheets.values.update({
         spreadsheetId: newSpreadsheetId,
-        range: "'Maintainance Record'!A1:O1",
+        range: "'Maintainance Record'!A1:Q1",
         valueInputOption: "USER_ENTERED",
         requestBody: {
             values: [["Timestamp", "Vehicle", "Service Type", "Date Done", "Current Mileage", "Next Service Interval", "Next Service Calculated", "Workshop", "Brand of Part", "Location Matrix (Front)", "Location Matrix (Rear)", "Extra Details", "Cost (RM)", "Receipt / Notes", "Additional remarks", "Map Link", "Part Model"]]
@@ -73,10 +73,19 @@ export async function resolveSpreadsheetId(accessToken: string): Promise<string>
 
     await sheets.spreadsheets.values.update({
         spreadsheetId: newSpreadsheetId,
-        range: "'Vehicles'!A1:A1",
+        range: "'Vehicles'!A1:D1",
         valueInputOption: "USER_ENTERED",
         requestBody: {
-            values: [["Vehicle Name"]]
+            values: [["Vehicle Name", "Color", "Type", "Mileage"]]
+        }
+    });
+
+    await sheets.spreadsheets.values.update({
+        spreadsheetId: newSpreadsheetId,
+        range: "'Shared Links'!A1:F1",
+        valueInputOption: "USER_ENTERED",
+        requestBody: {
+            values: [["Share ID", "Vehicle", "Service", "Created Timestamp", "Expires Timestamp", "Status"]]
         }
     });
 
@@ -499,7 +508,7 @@ export async function saveSharedLink(accessToken: string, shareData: any[]) {
                 range: "'Shared Links'!A1:F1",
                 valueInputOption: "USER_ENTERED",
                 requestBody: {
-                    values: [["Share ID", "Vehicle", "Service", "Created At", "Expires At", "Status"]]
+                    values: [["Share ID", "Vehicle", "Service", "Created Timestamp", "Expires Timestamp", "Status"]]
                 }
             });
         }
@@ -532,8 +541,8 @@ export async function fetchSharedLinks(accessToken: string) {
             id: row[0],
             vehicle: row[1],
             service: row[2],
-            createdAt: row[3],
-            expiresAt: row[4],
+            createdAt: row[3], // Now a numeric timestamp
+            expiresAt: row[4], // Now a numeric timestamp
             status: row[5]
         }));
     } catch (error) {
@@ -568,5 +577,32 @@ export async function revokeSharedLink(accessToken: string, shareId: string) {
     } catch (error) {
         console.error("Error revoking shared link:", error);
         return false;
+    }
+}
+
+/**
+ * Publicly accessible status check (Internal helper for public sharing page)
+ */
+export async function checkShareStatus(accessToken: string, spreadsheetId: string, shareId: string) {
+    try {
+        const sheets = await getGoogleSheetsClient(accessToken);
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: "'Shared Links'!A:F"
+        });
+
+        const rows = response.data.values || [];
+        const row = rows.find(r => r[0] === shareId);
+
+        if (row) {
+            return {
+                status: row[5],
+                expiresAt: row[4]
+            };
+        }
+        return null;
+    } catch (error) {
+        console.error("Error checking share status:", error);
+        return null;
     }
 }

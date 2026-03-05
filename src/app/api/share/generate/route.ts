@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createShareToken } from "@/lib/shareUtils";
 import { getServerSession } from "next-auth/next";
-import { saveSharedLink } from "@/lib/googleSheets";
+import { saveSharedLink, resolveSpreadsheetId } from "@/lib/googleSheets";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function POST(request: Request) {
@@ -18,27 +18,37 @@ export async function POST(request: Request) {
 
         // Generate a unique ID for this share
         const shareId = "sh_" + Math.random().toString(36).substring(2, 10);
+        const spreadsheetId = await resolveSpreadsheetId((session as any).accessToken);
 
-        // Include shareId in the token payload
-        const token = await createShareToken({ ...record, shareId }, expiresIn);
+        // Timestamps for storage
+        const now = Date.now();
+        let expiresAtTimestamp: number | string = "Never";
+        let jwtExpiry: string | number | undefined = undefined;
 
-        // Persist to Google Sheets
-        const createdAt = new Date().toLocaleString("en-GB");
-        let expiresAtLabel = "Never";
-        if (expiresIn === "1h") expiresAtLabel = new Date(Date.now() + 3600000).toLocaleString("en-GB");
-        else if (expiresIn === "1d") expiresAtLabel = new Date(Date.now() + 86400000).toLocaleString("en-GB");
-        else if (expiresIn === "7d") expiresAtLabel = new Date(Date.now() + 604800000).toLocaleString("en-GB");
+        if (expiresIn === "1h") {
+            expiresAtTimestamp = now + 3600000;
+            jwtExpiry = "1h";
+        } else if (expiresIn === "1d") {
+            expiresAtTimestamp = now + 86400000;
+            jwtExpiry = "1d";
+        } else if (expiresIn === "7d") {
+            expiresAtTimestamp = now + 604800000;
+            jwtExpiry = "7d";
+        }
+
+        // Include shareId and spreadsheetId in the token payload
+        const token = await createShareToken({ ...record, shareId, spreadsheetId }, jwtExpiry);
 
         await saveSharedLink((session as any).accessToken, [
             shareId,
             record.vehicle || "Unknown",
             record.serviceType || "Unknown",
-            createdAt,
-            expiresAtLabel,
+            now,
+            expiresAtTimestamp,
             "Active"
         ]);
 
-        return NextResponse.json({ token, shareId, expiresAt: expiresAtLabel });
+        return NextResponse.json({ token, shareId, expiresAt: expiresAtTimestamp });
     } catch (error: any) {
         console.error("Token generation failed:", error.message);
         return NextResponse.json(
