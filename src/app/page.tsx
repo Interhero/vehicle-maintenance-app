@@ -722,13 +722,13 @@ export default function Home() {
                     className="w-full bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-3 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
                   />
 
-                  <div className="flex gap-3">
-                    {/* Stacked Vertical Control for Vehicle Type */}
-                    <div className="flex flex-col gap-2 shrink-0 w-32">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Responsive Control for Vehicle Type */}
+                    <div className="flex flex-row sm:flex-col gap-2 shrink-0 w-full sm:w-32">
                       <button
                         type="button"
                         onClick={() => setNewVehicleType("Car")}
-                        className={`px-4 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${newVehicleType === "Car"
+                        className={`flex-1 px-4 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${newVehicleType === "Car"
                           ? "bg-blue-600 text-white shadow-md scale-105 z-10"
                           : "bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
                           }`}
@@ -739,7 +739,7 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => setNewVehicleType("Motorcycle")}
-                        className={`px-4 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${newVehicleType === "Motorcycle"
+                        className={`flex-1 px-4 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${newVehicleType === "Motorcycle"
                           ? "bg-blue-600 text-white shadow-md scale-105 z-10"
                           : "bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
                           }`}
