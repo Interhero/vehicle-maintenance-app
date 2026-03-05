@@ -271,12 +271,26 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                                         <Calendar className="w-3 h-3" />
                                                         {record.dateDone}
                                                     </div>
-                                                    <div className="flex items-center gap-1 bg-blue-100/50 dark:bg-blue-500/10 px-2 py-1 rounded text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium border border-blue-200 dark:border-blue-500/20">
-                                                        <MapPin className="w-3 h-3" />
-                                                        {record.workshop || "Self"}
-                                                    </div>
+                                                    {record.workshop && record.workshop !== "Self" ? (
+                                                        <a
+                                                            href={record.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(record.workshop)}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-1.5 bg-blue-100/50 dark:bg-blue-500/10 px-2.5 py-1 rounded-lg text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/20 hover:bg-blue-200/50 dark:hover:bg-blue-500/20 transition-all group/shop"
+                                                            title={record.mapLink ? "View pinned location" : `Search ${record.workshop} on Maps`}
+                                                        >
+                                                            <MapPin className="w-3 h-3 group-hover/shop:animate-bounce" />
+                                                            {record.workshop}
+                                                            <Navigation className="w-2.5 h-2.5 opacity-60 group-hover/shop:opacity-100" />
+                                                        </a>
+                                                    ) : (
+                                                        <div className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-1 rounded-lg text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-bold border border-zinc-200 dark:border-zinc-700/50">
+                                                            <Wrench className="w-3 h-3" />
+                                                            {record.workshop || "Self"}
+                                                        </div>
+                                                    )}
 
-                                                    {/* Action Buttons: Share and Map */}
+                                                    {/* Action Button: Share */}
                                                     <div className="flex items-center gap-1 ml-auto">
                                                         <button
                                                             onClick={() => handleShare(record)}
@@ -285,20 +299,6 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                                         >
                                                             <Share2 className="w-3.5 h-3.5" />
                                                         </button>
-                                                        {record.workshop !== "Self" && (
-                                                            <a
-                                                                href={record.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(record.workshop || 'Workshop')}`}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className={`p-1.5 rounded-lg transition-colors ${record.mapLink
-                                                                    ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-500/30"
-                                                                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                                                                    }`}
-                                                                title={record.mapLink ? "View pinned location" : "Search workshop on Map"}
-                                                            >
-                                                                <Navigation className="w-3.5 h-3.5" />
-                                                            </a>
-                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
