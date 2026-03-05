@@ -711,9 +711,10 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="p-6 overflow-y-auto overflow-x-hidden space-y-6">
-                {/* Add New */}
-                <div className="flex flex-col gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800/80">
+              <div className="p-6 overflow-y-auto overflow-x-hidden flex flex-col gap-6">
+                {/* Add New / Edit */}
+                <div className="flex flex-col gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800/80 order-2">
+                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{vehicleToEdit ? "Edit Vehicle" : "Add New Vehicle"}</p>
                   <input
                     type="text"
                     value={newVehicleName}
@@ -795,7 +796,7 @@ export default function Home() {
                 </div>
 
                 {/* List */}
-                <div className="space-y-2 pb-4">
+                <div className="space-y-2 pb-2 order-1">
                   <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Your Vehicles</p>
                   {dynamicVehicles.length === 0 ? (
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-4 bg-zinc-50 dark:bg-zinc-950/50 rounded-lg border border-zinc-200 dark:border-zinc-800/50">No vehicles tracked yet.</p>
