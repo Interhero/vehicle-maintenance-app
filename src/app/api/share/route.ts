@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { fetchSharedLinks, revokeSharedLink } from "@/lib/googleSheets";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { revokeLinkInstant } from "@/lib/revocationStore";
 
 export async function GET() {
     try {
@@ -33,6 +34,9 @@ export async function DELETE(request: Request) {
         }
 
         const success = await revokeSharedLink((session as any).accessToken, shareId);
+        if (success) {
+            revokeLinkInstant(shareId);
+        }
         return NextResponse.json({ success });
     } catch (error: any) {
         console.error("Failed to revoke link:", error.message);

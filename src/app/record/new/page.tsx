@@ -143,7 +143,7 @@ export default function NewRecord() {
                     ...formData,
                     serviceType: formData.serviceType === "Other" ? formData.otherServiceType : formData.serviceType,
                     nextInterval: formData.nextInterval === "Other" ? formData.otherNextInterval : formData.nextInterval,
-                    workshop: formData.locationType === "Self" ? "Self" : formData.workshop,
+                    workshop: formData.locationType === "Self" ? "Self" : (formData.workshop || (formData.mapLink ? "Pinned Location" : "")),
                     details: finalDetails,
                     receipt: driveReceiptLink,
                     // Google Sheets typically expects DD/MM/YYYY text if you match their locale form outputs
@@ -350,15 +350,15 @@ export default function NewRecord() {
                                 </div>
                                 {formData.locationType === "Other" && (
                                     <div className="space-y-3 mt-3">
-                                        <input required type="text" name="workshop" value={formData.workshop} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm" placeholder="Enter workshop name..." />
+                                        <input required={!formData.mapLink} type="text" name="workshop" value={formData.workshop} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm" placeholder="Enter workshop name..." />
 
                                         <div className="flex items-center gap-2">
                                             <button
                                                 type="button"
                                                 onClick={handlePinLocation}
                                                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-semibold transition-all ${formData.mapLink
-                                                        ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-500"
-                                                        : "bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                                    ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-500"
+                                                    : "bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                                     }`}
                                             >
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>

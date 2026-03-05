@@ -1,0 +1,23 @@
+
+> vehicle-maintenance-app@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./src/app/page.tsx:1105:1
+Parsing ecmascript source code failed
+  1103 |       </div >
+  1104 |       );
+> 1105 | }
+       | ^
+  1106 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+
+    at <unknown> (./src/app/page.tsx:1105:1)

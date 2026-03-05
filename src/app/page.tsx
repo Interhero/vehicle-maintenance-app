@@ -374,7 +374,8 @@ export default function Home() {
     }
 
     // Update overall latest mileage
-    const mileage = parseInt(record.lastMileage);
+    const mileageStr = String(record.lastMileage).replace(/,/g, '');
+    const mileage = parseInt(mileageStr, 10);
     if (!isNaN(mileage) && mileage > acc[record.vehicle].currentMileage) {
       acc[record.vehicle].currentMileage = mileage;
     }
@@ -394,7 +395,8 @@ export default function Home() {
   const upcomingServices: any[] = [];
   vehicles.forEach(v => {
     Object.values(v.services).forEach((service: any) => {
-      const nextDue = parseInt(service.nextServiceCalculated);
+      const nextDueStr = String(service.nextServiceCalculated).replace(/,/g, '');
+      const nextDue = parseInt(nextDueStr, 10);
       if (!isNaN(nextDue)) {
         const remainingKm = nextDue - v.currentMileage;
         const alertId = `${v.name}-${service.serviceType}`;
@@ -433,6 +435,9 @@ export default function Home() {
 
   // Sort by highest priority (lowest remaining KM)
   upcomingServices.sort((a, b) => a.remainingKm - b.remainingKm);
+
+  const hasDismissed = Object.values(dismissedAlerts).some(a => a.status === 'dismissed');
+  const hasAttended = Object.values(dismissedAlerts).some(a => a.status === 'attended');
 
   return (
     <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
@@ -481,18 +486,40 @@ export default function Home() {
                       <Wrench className="w-5 h-5 text-blue-400" />
                       Upcoming Services
                     </h2>
-                    {Object.keys(dismissedAlerts).length > 0 && (
-                      <button
-                        onClick={() => {
-                          setDismissedAlerts({});
-                          localStorage.removeItem("vehicle_dismissals");
-                        }}
-                        className="text-[10px] font-bold text-zinc-500 hover:text-rose-500 dark:text-zinc-400 dark:hover:text-rose-400 transition-all bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 shadow-sm"
-                      >
-                        <XCircle className="w-3 h-3" />
-                        Reset Hidden Alerts
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {hasDismissed && (
+                        <button
+                          onClick={() => {
+                            const newAlerts = { ...dismissedAlerts };
+                            Object.keys(newAlerts).forEach(k => {
+                              if (newAlerts[k].status === 'dismissed') delete newAlerts[k];
+                            });
+                            setDismissedAlerts(newAlerts);
+                            localStorage.setItem("vehicle_dismissals", JSON.stringify(newAlerts));
+                          }}
+                          className="text-[10px] font-bold text-amber-600 hover:text-amber-500 dark:text-amber-500 dark:hover:text-amber-400 transition-all bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 shadow-sm"
+                        >
+                          <Clock className="w-3 h-3" />
+                          Reset Snoozed
+                        </button>
+                      )}
+                      {hasAttended && (
+                        <button
+                          onClick={() => {
+                            const newAlerts = { ...dismissedAlerts };
+                            Object.keys(newAlerts).forEach(k => {
+                              if (newAlerts[k].status === 'attended') delete newAlerts[k];
+                            });
+                            setDismissedAlerts(newAlerts);
+                            localStorage.setItem("vehicle_dismissals", JSON.stringify(newAlerts));
+                          }}
+                          className="text-[10px] font-bold text-emerald-600 hover:text-emerald-500 dark:text-emerald-500 dark:hover:text-emerald-400 transition-all bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 shadow-sm"
+                        >
+                          <CheckCircle2 className="w-3 h-3" />
+                          Reset Attended
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {vehicles.length === 0 ? (
                     <div className="p-10 rounded-3xl border border-zinc-200 border-dashed dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/10 flex flex-col items-center justify-center text-center shadow-sm">
@@ -641,54 +668,92 @@ export default function Home() {
                 {/* The Action Required section has been migrated into the Vehicle Cards directly */}
               </div>
 
-              {/* Recent Logs Summary */}
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-emerald-400" />
-                  Recent Maintenance
-                </h2>
-                <div className="space-y-3">
-                  {records.slice(-10).reverse().map((record, i) => (
-                    <div key={i} className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 group hover:bg-zinc-50 dark:hover:bg-zinc-900/80 transition-all shadow-sm dark:shadow-none">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-1 overflow-hidden pr-4">
-                          <p className="font-medium text-sm text-zinc-900 dark:text-zinc-200 truncate">{record.serviceType}</p>
-                          <p className="text-xs text-zinc-500 truncate">{record.vehicle}</p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                            {record.cost && record.cost !== '0' ? `RM ${record.cost}` : '--'}
-                          </p>
-                          <p className="text-xs text-zinc-500 flex items-center justify-end gap-1 mt-1">
-                            <Calendar className="w-3 h-3" />
-                            {record.dateDone}
-                          </p>
-                        </div>
+              <div className="space-y-8 lg:space-y-10">
+                {/* All Upcoming Services Section */}
+                <div className="space-y-6">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-rose-400" />
+                    Latest Due Services
+                  </h2>
+                  <div className="space-y-3">
+                    {upcomingServices.length === 0 ? (
+                      <div className="p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 text-center">
+                        <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400 font-medium">All caught up! No services are due soon.</p>
                       </div>
-
-                      {/* Expandable Details for Recent Record */}
-                      {(record.details || record.workshop || record.receipt) && (
-                        <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800/50">
-                          <details className="text-xs text-zinc-600 dark:text-zinc-400 outline-none [&_summary::-webkit-details-marker]:hidden group/details">
-                            <summary className="cursor-pointer text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 w-fit select-none outline-none flex items-center gap-1 transition-colors">
-                              <span className="text-[10px] transform transition-transform group-open/details:rotate-90">▶</span>
-                              View Service Details
-                            </summary>
-                            <div className="mt-3 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200/80 dark:border-zinc-800/80 space-y-1.5 font-medium">
-                              {record.workshop && <p><span className="text-zinc-500 w-16 inline-block">Location:</span> <span className="text-zinc-700 dark:text-zinc-300">{record.workshop}</span></p>}
-                              {record.details && <p><span className="text-zinc-500 w-16 inline-block shrink-0 flex-shrink-0 align-top">Notes:</span> <span className="text-zinc-700 dark:text-zinc-300 leading-relaxed inline-block w-[calc(100%-4rem)]">{record.details}</span></p>}
-                              {record.receipt && (
-                                <a href={record.receipt} target="_blank" rel="noreferrer" className="text-emerald-600 dark:text-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 hover:underline flex items-center gap-1 mt-3 w-fit bg-emerald-500/10 px-3 py-1.5 rounded-md border border-emerald-500/20">
-                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
-                                  Open Attached Receipt
-                                </a>
-                              )}
+                    ) : (
+                      upcomingServices.filter(job => !dismissedAlerts[`${job.vehicle}-${job.serviceType}`]).slice(0, 10).map((job, i) => {
+                        const isOverdue = job.remainingKm < 0;
+                        return (
+                          <div key={i} className={`p-4 rounded-xl border ${isOverdue ? 'border-rose-200/60 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/40' : 'border-amber-200/60 dark:border-amber-900/60 bg-amber-50/80 dark:bg-amber-950/40'} flex justify-between items-center group hover:bg-opacity-100 transition-all shadow-sm`}>
+                            <div className="flex flex-col overflow-hidden pr-4">
+                              <p className={`font-bold text-sm truncate ${isOverdue ? 'text-rose-900 dark:text-rose-200' : 'text-amber-900 dark:text-amber-200'}`}>{job.serviceType}</p>
+                              <p className={`text-xs truncate ${isOverdue ? 'text-rose-700 dark:text-rose-400' : 'text-amber-700 dark:text-amber-400'}`}>{job.vehicle}</p>
                             </div>
-                          </details>
+                            <div className="text-right shrink-0">
+                              <p className={`text-sm font-mono font-bold ${isOverdue ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                {isOverdue ? 'OVERDUE' : 'DUE SOON'}
+                              </p>
+                              <p className={`text-[10px] sm:text-xs font-medium mt-0.5 ${isOverdue ? 'text-rose-800 dark:text-rose-300' : 'text-amber-800 dark:text-amber-300'}`}>
+                                {isOverdue ? Math.abs(job.remainingKm).toLocaleString() + ' KM ago' : 'in ' + job.remainingKm.toLocaleString() + ' KM'}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                {/* Recent Logs Summary */}
+                <div className="space-y-6">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-emerald-400" />
+                    Recent Maintenance
+                  </h2>
+                  <div className="space-y-3">
+                    {records.slice(-10).reverse().map((record, i) => (
+                      <div key={i} className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 group hover:bg-zinc-50 dark:hover:bg-zinc-900/80 transition-all shadow-sm dark:shadow-none">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-1 overflow-hidden pr-4">
+                            <p className="font-medium text-sm text-zinc-900 dark:text-zinc-200 truncate">{record.serviceType}</p>
+                            <p className="text-xs text-zinc-500 truncate">{record.vehicle}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                              {record.cost && record.cost !== '0' ? `RM ${record.cost}` : '--'}
+                            </p>
+                            <p className="text-xs text-zinc-500 flex items-center justify-end gap-1 mt-1">
+                              <Calendar className="w-3 h-3" />
+                              {record.dateDone}
+                            </p>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
+
+                        {/* Expandable Details for Recent Record */}
+                        {(record.details || record.workshop || record.receipt) && (
+                          <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800/50">
+                            <details className="text-xs text-zinc-600 dark:text-zinc-400 outline-none [&_summary::-webkit-details-marker]:hidden group/details">
+                              <summary className="cursor-pointer text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 w-fit select-none outline-none flex items-center gap-1 transition-colors">
+                                <span className="text-[10px] transform transition-transform group-open/details:rotate-90">▶</span>
+                                View Service Details
+                              </summary>
+                              <div className="mt-3 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200/80 dark:border-zinc-800/80 space-y-1.5 font-medium">
+                                {record.workshop && <p><span className="text-zinc-500 w-16 inline-block">Location:</span> <span className="text-zinc-700 dark:text-zinc-300">{record.workshop}</span></p>}
+                                {record.details && <p><span className="text-zinc-500 w-16 inline-block shrink-0 flex-shrink-0 align-top">Notes:</span> <span className="text-zinc-700 dark:text-zinc-300 leading-relaxed inline-block w-[calc(100%-4rem)]">{record.details}</span></p>}
+                                {record.receipt && (
+                                  <a href={record.receipt} target="_blank" rel="noreferrer" className="text-emerald-600 dark:text-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 hover:underline flex items-center gap-1 mt-3 w-fit bg-emerald-500/10 px-3 py-1.5 rounded-md border border-emerald-500/20">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+                                    Open Attached Receipt
+                                  </a>
+                                )}
+                              </div>
+                            </details>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

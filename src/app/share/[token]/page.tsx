@@ -5,10 +5,13 @@ import {
     MapPin,
     Navigation,
     Bike,
-    FileText
+    Car,
+    FileText,
+    ShieldAlert
 } from "lucide-react";
 import { ShareCountdown } from "@/components/ShareCountdown";
 import VehicleMappingMap from "@/components/VehicleMappingMap";
+import { getRevokedLinks } from "@/lib/revocationStore";
 import Link from "next/link";
 
 export default async function SharePage({ params }: { params: { token: string } }) {
@@ -17,16 +20,44 @@ export default async function SharePage({ params }: { params: { token: string } 
 
     const record = await verifyShareToken(shareToken);
 
-    // Real-time Revocation Check
-    let isRevoked = false;
-    if (record && record.expiresAt !== 'Never') {
-        const now = new Date().getTime();
-        if (record.expiresAt < now) {
-            isRevoked = true;
+    // Security checks
+    let isExpired = false;
+    let isInstantlyRevoked = false;
+
+    if (record && record.exp) {
+        if (Date.now() >= record.exp * 1000) {
+            isExpired = true;
         }
     }
 
-    if (!record || isRevoked) {
+    if (record && record.shareId) {
+        const revokedList = getRevokedLinks();
+        if (revokedList.includes(record.shareId)) {
+            isInstantlyRevoked = true;
+        }
+    }
+
+    if (!record || isInstantlyRevoked) {
+        return (
+            <div className="min-h-dvh flex items-center justify-center bg-zinc-950 p-6 font-sans">
+                <div className="max-w-md w-full bg-zinc-900 border border-zinc-800 p-8 rounded-[2rem] text-center shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600"></div>
+                    <div className="w-20 h-20 bg-rose-500/10 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 border border-rose-500/20 rotate-3">
+                        <ShieldAlert className="w-10 h-10 text-rose-500 -rotate-3" />
+                    </div>
+                    <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Access Revoked</h1>
+                    <p className="text-zinc-400 font-medium leading-relaxed mb-8">
+                        The owner has manually revoked access to this vehicle maintenance record. It is no longer securely available.
+                    </p>
+                    <a href="/" className="inline-flex items-center gap-2 bg-white text-zinc-900 font-bold py-3 px-8 rounded-xl hover:bg-zinc-200 transition-colors">
+                        Return to App
+                    </a>
+                </div>
+            </div>
+        );
+    }
+
+    if (isExpired) {
         return (
             <div className="min-h-screen bg-rose-50 dark:bg-zinc-950 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
                 <style dangerouslySetInnerHTML={{
@@ -76,7 +107,11 @@ export default async function SharePage({ params }: { params: { token: string } 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20">
-                                <Bike className="w-6 h-6 text-emerald-500" />
+                                {isMotorcycle ? (
+                                    <Bike className="w-6 h-6 text-emerald-500" />
+                                ) : (
+                                    <Car className="w-6 h-6 text-emerald-500" />
+                                )}
                             </div>
                             <div>
                                 <h2 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em]">Verified Record</h2>
@@ -142,7 +177,7 @@ export default async function SharePage({ params }: { params: { token: string } 
                                     Navigate to Workshop
                                 </a>
                             )}
-                            {record.receipt && (
+                            {record.receipt && record.receipt.startsWith("http") && (
                                 <a
                                     href={record.receipt}
                                     target="_blank"
