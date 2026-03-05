@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
-// Use a file inside the Next.js process-accessible directory or /tmp
-const storePath = path.join(process.cwd(), 'revoked_links.json');
+// Use OS temp dir to guarantee write access across different environments
+const storePath = path.join(os.tmpdir(), 'vehicle_revoked_links.json');
 
 export function getRevokedLinks(): string[] {
     try {

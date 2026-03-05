@@ -4,6 +4,8 @@ import { fetchSharedLinks, revokeSharedLink } from "@/lib/googleSheets";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { revokeLinkInstant } from "@/lib/revocationStore";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);

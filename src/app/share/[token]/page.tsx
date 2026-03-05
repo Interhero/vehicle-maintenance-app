@@ -14,6 +14,8 @@ import VehicleMappingMap from "@/components/VehicleMappingMap";
 import { getRevokedLinks } from "@/lib/revocationStore";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SharePage({ params }: { params: { token: string } }) {
     const unwrappedParams = await params;
     const shareToken = unwrappedParams.token;
