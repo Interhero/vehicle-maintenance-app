@@ -67,7 +67,7 @@ export async function resolveSpreadsheetId(accessToken: string): Promise<string>
         range: "'Maintainance Record'!A1:O1",
         valueInputOption: "USER_ENTERED",
         requestBody: {
-            values: [["Timestamp", "Vehicle", "Service Type", "Date Done", "Current Mileage", "Next Service Interval", "Next Service Calculated", "Workshop", "Brand of Part", "Location Matrix (Front)", "Location Matrix (Rear)", "Extra Details", "Cost (RM)", "Receipt / Notes", "Additional remarks"]]
+            values: [["Timestamp", "Vehicle", "Service Type", "Date Done", "Current Mileage", "Next Service Interval", "Next Service Calculated", "Workshop", "Brand of Part", "Location Matrix (Front)", "Location Matrix (Rear)", "Extra Details", "Cost (RM)", "Receipt / Notes", "Additional remarks", "Map Link"]]
         }
     });
 
@@ -175,10 +175,11 @@ export async function fetchMaintenanceRecords(accessToken: string) {
             })(),
             receipt: (() => {
                 for (let i = row.length - 1; i >= 10; i--) {
-                    if (String(row[i]).includes("http")) return row[i];
+                    if (String(row[i]).includes("http") && !String(row[i]).includes("maps.google.com") && !String(row[i]).includes("goo.gl/maps")) return row[i];
                 }
                 return "";
-            })()
+            })(),
+            mapLink: row[15] || "" // Column P
         }));
     } catch (error) {
         console.error("Error fetching records:", error);

@@ -32,8 +32,8 @@ export async function POST(request: Request) {
 
         const timestamp = new Date().toLocaleString("en-GB");
 
-        // Build a sparse array up to 15 cols (A to O)
-        const rowData = new Array(15).fill("");
+        // Build a sparse array up to 16 cols (A to P)
+        const rowData = new Array(16).fill("");
         rowData[0] = timestamp;
         rowData[1] = body.vehicleType || "";
         rowData[2] = body.serviceType || "";
@@ -57,6 +57,7 @@ export async function POST(request: Request) {
         rowData[12] = body.cost || "";
         rowData[13] = body.receipt || "";
         rowData[14] = body.remark || "";
+        rowData[15] = body.mapLink || "";
 
         const result = await appendMaintenanceRecord(accessToken, rowData);
         return NextResponse.json({ success: true, result }, { status: 200 });

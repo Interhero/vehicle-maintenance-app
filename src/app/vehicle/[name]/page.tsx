@@ -3,7 +3,21 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useMemo, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Calendar, Wrench, FileText, Search, ArrowUpDown, X } from "lucide-react";
+import {
+    ArrowLeft,
+    Search,
+    Filter,
+    SortAsc,
+    SortDesc,
+    Calendar,
+    Wrench,
+    MapPin,
+    ExternalLink,
+    History,
+    Share2,
+    Navigation,
+    X
+} from "lucide-react";
 import VehicleMappingMap from "@/components/VehicleMappingMap";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
 
@@ -66,6 +80,25 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
     }, [history]);
 
     // Filtered + Sorted records
+    const handleShare = (record: any) => {
+        const text = `🛠️ Maintenance Record: ${record.vehicle}\n📅 Date: ${record.dateDone}\n🔧 Service: ${record.serviceType}\n📍 Workshop: ${record.workshop || 'Self'}\n🛣️ Mileage: ${record.lastMileage} KM\n💰 Cost: RM ${record.cost}\n\nShared from Vehicle Maintenance App`;
+
+        if (navigator.share) {
+            navigator.share({
+                title: `Maintenance Record - ${record.vehicle}`,
+                text: text,
+                url: window.location.href
+            }).catch(console.error);
+        } else {
+            // Fallback: Copy to clipboard
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Record summary copied to clipboard!");
+            }).catch(err => {
+                console.error("Could not copy text: ", err);
+            });
+        }
+    };
+
     const filteredHistory = useMemo(() => {
         let results = [...history];
 
@@ -74,25 +107,32 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
             results = results.filter(r => r.serviceType === activeChip);
         }
 
-        // Text search
+        // Search query filter
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
             results = results.filter(r =>
-                (r.serviceType || "").toLowerCase().includes(q) ||
-                (r.workshop || "").toLowerCase().includes(q) ||
-                (r.details || "").toLowerCase().includes(q) ||
-                (r.dateDone || "").toLowerCase().includes(q) ||
-                (r.cost || "").toString().includes(q)
+                (r.serviceType?.toLowerCase().includes(q)) ||
+                (r.workshop?.toLowerCase().includes(q)) ||
+                (r.details?.toLowerCase().includes(q)) ||
+                (r.dateDone?.toLowerCase().includes(q)) ||
+                (r.cost?.toString().includes(q))
             );
         }
 
-        // Sort
-        if (!sortNewest) {
-            results = [...results].reverse();
-        }
+        return results;
+    }, [history, activeChip, searchQuery]);
+
+    const sortedHistory = useMemo(() => {
+        const results = [...filteredHistory];
+
+        results.sort((a, b) => {
+            const dateA = new Date(a.dateDone.split('/').reverse().join('-')).getTime();
+            const dateB = new Date(b.dateDone.split('/').reverse().join('-')).getTime();
+            return sortNewest ? dateB - dateA : dateA - dateB;
+        });
 
         return results;
-    }, [history, activeChip, searchQuery, sortNewest]);
+    }, [filteredHistory, sortNewest]);
 
     if (status === "loading" || (loading && session)) {
         return (
@@ -169,7 +209,7 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                 className="flex items-center gap-1.5 px-3 py-2.5 bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors shrink-0"
                                 title={sortNewest ? "Showing newest first" : "Showing oldest first"}
                             >
-                                <ArrowUpDown className="w-3.5 h-3.5" />
+                                {sortNewest ? <SortDesc className="w-3.5 h-3.5" /> : <SortAsc className="w-3.5 h-3.5" />}
                                 <span className="hidden sm:inline">{sortNewest ? "Newest" : "Oldest"}</span>
                             </button>
                         </div>
@@ -196,7 +236,7 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                         {hasActiveFilters && (
                             <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
                                 <span>
-                                    Showing <strong className="text-zinc-700 dark:text-zinc-200">{filteredHistory.length}</strong> of {history.length} records
+                                    Showing <strong className="text-zinc-700 dark:text-zinc-200">{sortedHistory.length}</strong> of {history.length} records
                                 </span>
                                 <button
                                     onClick={() => { setSearchQuery(""); setActiveChip(null); }}
@@ -212,7 +252,7 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                 <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 shadow-sm dark:shadow-none transition-colors">
                     {history.length === 0 ? (
                         <div className="text-center text-zinc-500 py-12">No records found for this vehicle.</div>
-                    ) : filteredHistory.length === 0 ? (
+                    ) : sortedHistory.length === 0 ? (
                         <div className="text-center py-12">
                             <Search className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
                             <p className="text-zinc-500 dark:text-zinc-400">No records match your filters.</p>
@@ -220,23 +260,49 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                         </div>
                     ) : (
                         <div className="space-y-6">
-                            {filteredHistory.map((record, i) => (
+                            {sortedHistory.map((record, i) => (
                                 <div key={i} className="p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group flex flex-col xl:flex-row gap-6 shadow-sm dark:shadow-none">
                                     <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-zinc-200 dark:border-zinc-800/50 pb-4 mb-4">
                                             <div>
                                                 <h3 className="font-semibold text-lg text-emerald-600 dark:text-emerald-400">{record.serviceType}</h3>
-                                                <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                                                    <Calendar className="w-3.5 h-3.5" />
-                                                    {record.dateDone}
-                                                    <span className="text-zinc-300 dark:text-zinc-700">•</span>
-                                                    <Wrench className="w-3.5 h-3.5" />
-                                                    {record.workshop}
+                                                <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                                                    <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 font-medium">
+                                                        <Calendar className="w-3 h-3" />
+                                                        {record.dateDone}
+                                                    </div>
+                                                    <div className="flex items-center gap-1 bg-blue-100/50 dark:bg-blue-500/10 px-2 py-1 rounded text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium border border-blue-200 dark:border-blue-500/20">
+                                                        <MapPin className="w-3 h-3" />
+                                                        {record.workshop || "Self"}
+                                                    </div>
+
+                                                    {/* Action Buttons: Share and Map */}
+                                                    <div className="flex items-center gap-1 ml-auto">
+                                                        <button
+                                                            onClick={() => handleShare(record)}
+                                                            className="p-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                                                            title="Share record"
+                                                        >
+                                                            <Share2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <a
+                                                            href={record.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(record.workshop || 'Workshop')}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className={`p-1.5 rounded-lg transition-colors ${record.mapLink
+                                                                ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-500/30"
+                                                                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                                                }`}
+                                                            title={record.mapLink ? "View pinned location" : "Search workshop on Map"}
+                                                        >
+                                                            <Navigation className="w-3.5 h-3.5" />
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className="text-left sm:text-right">
                                                 <p className="text-xl font-bold text-zinc-900 dark:text-zinc-200">RM {record.cost || '0'}</p>
-                                                {record.receipt && <a href={record.receipt} target="_blank" className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 flex items-center sm:justify-end gap-1 mt-1"><FileText className="w-3 h-3" /> View Receipt</a>}
+                                                {record.receipt && <a href={record.receipt} target="_blank" className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 flex items-center sm:justify-end gap-1 mt-1"><ExternalLink className="w-3 h-3" /> View Receipt</a>}
                                             </div>
                                         </div>
 
