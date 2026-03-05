@@ -399,7 +399,7 @@ export default function Home() {
       const nextDue = parseInt(nextDueStr, 10);
       if (!isNaN(nextDue)) {
         const remainingKm = nextDue - v.currentMileage;
-        const alertId = `${v.name}-${service.serviceType}`;
+        const alertId = `${v.name}-${service.serviceType}-${nextDue}`;
 
         // Skip if 'attended' or 'dismissed' (snoozed)
         if (dismissedAlerts[alertId]?.status === 'attended') return;
@@ -423,7 +423,7 @@ export default function Home() {
   });
 
   const handleResolveAlert = (alert: any, action: 'dismissed' | 'attended') => {
-    const alertId = `${alert.vehicle}-${alert.serviceType}`;
+    const alertId = `${alert.vehicle}-${alert.serviceType}-${alert.nextDue}`;
     const newDismissals: Record<string, { status: 'dismissed' | 'attended', timestamp: number }> = {
       ...dismissedAlerts,
       [alertId]: { status: action, timestamp: Date.now() }
@@ -503,22 +503,6 @@ export default function Home() {
                           Reset Snoozed
                         </button>
                       )}
-                      {hasAttended && (
-                        <button
-                          onClick={() => {
-                            const newAlerts = { ...dismissedAlerts };
-                            Object.keys(newAlerts).forEach(k => {
-                              if (newAlerts[k].status === 'attended') delete newAlerts[k];
-                            });
-                            setDismissedAlerts(newAlerts);
-                            localStorage.setItem("vehicle_dismissals", JSON.stringify(newAlerts));
-                          }}
-                          className="text-[10px] font-bold text-emerald-600 hover:text-emerald-500 dark:text-emerald-500 dark:hover:text-emerald-400 transition-all bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 shadow-sm"
-                        >
-                          <CheckCircle2 className="w-3 h-3" />
-                          Reset Attended
-                        </button>
-                      )}
                     </div>
                   </div>
                   {vehicles.length === 0 ? (
@@ -537,7 +521,7 @@ export default function Home() {
                   ) : (
                     vehicles.map((v, i) => {
                       const vehicleJobs = upcomingServices.filter(
-                        job => job.vehicle === v.name && !dismissedAlerts[`${job.vehicle}-${job.serviceType}`]
+                        job => job.vehicle === v.name && !dismissedAlerts[`${job.vehicle}-${job.serviceType}-${job.nextDue}`]
                       );
                       const hasOverdue = vehicleJobs.some(job => job.remainingKm < 0);
                       const hasDueSoon = vehicleJobs.some(job => job.remainingKm >= 0 && job.remainingKm <= 500);
@@ -596,7 +580,7 @@ export default function Home() {
                                 <div className="space-y-3">
                                   {vehicleJobs.map((job, j) => {
                                     const isOverdue = job.remainingKm < 0;
-                                    const alertId = `${job.vehicle}-${job.serviceType}`;
+                                    const alertId = `${job.vehicle}-${job.serviceType}-${job.nextDue}`;
 
                                     return (
                                       <div key={j} className={`p-4 rounded-2xl border ${isOverdue ? 'border-rose-200/60 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200' : 'border-amber-200/60 dark:border-amber-900/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200'} flex flex-col gap-2 relative overflow-hidden group/alert shadow-sm dark:shadow-lg backdrop-blur-md`}>
@@ -610,7 +594,7 @@ export default function Home() {
                                             if (isOverdue) {
                                               setResolvingAlert(job);
                                             } else {
-                                              const alertId = `${job.vehicle}-${job.serviceType}`;
+                                              const alertId = `${job.vehicle}-${job.serviceType}-${job.nextDue}`;
                                               const newDismissals: Record<string, { status: 'dismissed' | 'attended', timestamp: number }> = {
                                                 ...dismissedAlerts,
                                                 [alertId]: { status: 'dismissed', timestamp: Date.now() }
@@ -669,41 +653,7 @@ export default function Home() {
               </div>
 
               <div className="space-y-8 lg:space-y-10">
-                {/* All Upcoming Services Section */}
-                <div className="space-y-6">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-rose-400" />
-                    Latest Due Services
-                  </h2>
-                  <div className="space-y-3">
-                    {upcomingServices.length === 0 ? (
-                      <div className="p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 text-center">
-                        <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400 font-medium">All caught up! No services are due soon.</p>
-                      </div>
-                    ) : (
-                      upcomingServices.filter(job => !dismissedAlerts[`${job.vehicle}-${job.serviceType}`]).slice(0, 10).map((job, i) => {
-                        const isOverdue = job.remainingKm < 0;
-                        return (
-                          <div key={i} className={`p-4 rounded-xl border ${isOverdue ? 'border-rose-200/60 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/40' : 'border-amber-200/60 dark:border-amber-900/60 bg-amber-50/80 dark:bg-amber-950/40'} flex justify-between items-center group hover:bg-opacity-100 transition-all shadow-sm`}>
-                            <div className="flex flex-col overflow-hidden pr-4">
-                              <p className={`font-bold text-sm truncate ${isOverdue ? 'text-rose-900 dark:text-rose-200' : 'text-amber-900 dark:text-amber-200'}`}>{job.serviceType}</p>
-                              <p className={`text-xs truncate ${isOverdue ? 'text-rose-700 dark:text-rose-400' : 'text-amber-700 dark:text-amber-400'}`}>{job.vehicle}</p>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <p className={`text-sm font-mono font-bold ${isOverdue ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                                {isOverdue ? 'OVERDUE' : 'DUE SOON'}
-                              </p>
-                              <p className={`text-[10px] sm:text-xs font-medium mt-0.5 ${isOverdue ? 'text-rose-800 dark:text-rose-300' : 'text-amber-800 dark:text-amber-300'}`}>
-                                {isOverdue ? Math.abs(job.remainingKm).toLocaleString() + ' KM ago' : 'in ' + job.remainingKm.toLocaleString() + ' KM'}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
+                {/* Global Upcoming Services Removed per user request */}
 
                 {/* Recent Logs Summary */}
                 <div className="space-y-6">

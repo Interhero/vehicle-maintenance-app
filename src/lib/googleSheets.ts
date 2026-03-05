@@ -177,8 +177,12 @@ export async function fetchMaintenanceRecords(accessToken: string) {
                 return "0";
             })(),
             receipt: (() => {
+                const mapL = row[15] || "";
                 for (let i = row.length - 1; i >= 10; i--) {
-                    if (String(row[i]).includes("http") && !String(row[i]).includes("maps.google.com") && !String(row[i]).includes("goo.gl/maps")) return row[i];
+                    const val = String(row[i]);
+                    if (val.includes("http") && val !== mapL && !val.includes("maps.google") && !val.includes("goo.gl/map") && !val.includes("waze.com") && !val.includes("apple.com/map")) {
+                        return val;
+                    }
                 }
                 return "";
             })(),
