@@ -255,6 +255,7 @@ export interface VehicleData {
     name: string;
     color: string;
     type: string;
+    mileage?: number;
 }
 
 export async function fetchVehicles(accessToken: string): Promise<VehicleData[]> {
@@ -266,7 +267,7 @@ export async function fetchVehicles(accessToken: string): Promise<VehicleData[]>
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: "'Vehicles'!A2:C",
+            range: "'Vehicles'!A2:D",
         });
 
         if (!response.data.values) return [];
@@ -275,10 +276,12 @@ export async function fetchVehicles(accessToken: string): Promise<VehicleData[]>
             if (!colorVal || typeof colorVal !== 'string' || !colorVal.startsWith('#')) {
                 colorVal = "#3b82f6"; // Default Blue for missing or old Google Drive URL strings
             }
+            const mileage = parseInt(row[3]);
             return {
                 name: row[0] || "",
                 color: colorVal,
-                type: row[2] || "Car"
+                type: row[2] || "Car",
+                mileage: isNaN(mileage) ? 0 : mileage
             };
         }).filter(v => v.name.length > 0);
     } catch (error) {
@@ -296,10 +299,10 @@ export async function addVehicle(accessToken: string, vehicle: VehicleData) {
 
         await sheets.spreadsheets.values.append({
             spreadsheetId,
-            range: "'Vehicles'!A:C",
+            range: "'Vehicles'!A:D",
             valueInputOption: "USER_ENTERED",
             requestBody: {
-                values: [[vehicle.name, vehicle.color, vehicle.type]]
+                values: [[vehicle.name, vehicle.color, vehicle.type, vehicle.mileage || 0]]
             },
         });
         return true;
@@ -318,7 +321,7 @@ export async function deleteVehicle(accessToken: string, vehicleName: string) {
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: "'Vehicles'!A2:C",
+            range: "'Vehicles'!A2:D",
         });
 
         let currentVehicles: any[] = [];
@@ -331,7 +334,7 @@ export async function deleteVehicle(accessToken: string, vehicleName: string) {
         // Clear the entire column block
         await sheets.spreadsheets.values.clear({
             spreadsheetId,
-            range: "'Vehicles'!A2:C",
+            range: "'Vehicles'!A2:D",
         });
 
         if (newVehiclesRows.length > 0) {
@@ -359,7 +362,7 @@ export async function updateVehicle(accessToken: string, originalName: string, u
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: "'Vehicles'!A2:C",
+            range: "'Vehicles'!A2:D",
         });
 
         let vehicles = response.data.values || [];
@@ -367,7 +370,9 @@ export async function updateVehicle(accessToken: string, originalName: string, u
 
         for (let i = 0; i < vehicles.length; i++) {
             if (vehicles[i][0] === originalName) {
-                vehicles[i] = [updatedVehicle.name, updatedVehicle.color, updatedVehicle.type];
+                // Preserve existing mileage in column D
+                const existingMileage = vehicles[i][3] || "0";
+                vehicles[i] = [updatedVehicle.name, updatedVehicle.color, updatedVehicle.type, existingMileage];
                 updated = true;
                 break;
             }
@@ -376,7 +381,7 @@ export async function updateVehicle(accessToken: string, originalName: string, u
         if (updated) {
             await sheets.spreadsheets.values.clear({
                 spreadsheetId,
-                range: "'Vehicles'!A2:C",
+                range: "'Vehicles'!A2:D",
             });
             await sheets.spreadsheets.values.update({
                 spreadsheetId,
@@ -421,6 +426,49 @@ export async function updateVehicle(accessToken: string, originalName: string, u
         return true;
     } catch (error) {
         console.error("Error updating vehicle:", error);
+        throw error;
+    }
+}
+
+export async function updateVehicleMileage(accessToken: string, vehicleName: string, mileage: number) {
+    try {
+        const sheets = await getGoogleSheetsClient(accessToken);
+        const spreadsheetId = await resolveSpreadsheetId(accessToken);
+
+        await ensureVehiclesTab(sheets, spreadsheetId);
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: "'Vehicles'!A2:D",
+        });
+
+        const vehicles = response.data.values || [];
+        let targetRow = -1;
+
+        for (let i = 0; i < vehicles.length; i++) {
+            if (vehicles[i][0] === vehicleName) {
+                targetRow = i + 2; // +2 because row 1 is header and array is 0-indexed
+                break;
+            }
+        }
+
+        if (targetRow === -1) {
+            throw new Error(`Vehicle "${vehicleName}" not found`);
+        }
+
+        // Update only the mileage cell (column D) for this vehicle
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `'Vehicles'!D${targetRow}`,
+            valueInputOption: "USER_ENTERED",
+            requestBody: {
+                values: [[mileage]]
+            }
+        });
+
+        return true;
+    } catch (error) {
+        console.error("Error updating vehicle mileage:", error);
         throw error;
     }
 }

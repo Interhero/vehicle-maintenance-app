@@ -229,33 +229,20 @@ export default function Home() {
     setErrorMsg("");
 
     try {
-      const payload = {
-        vehicleType: mileageTarget.name,
-        serviceType: "Mileage Check",
-        dateDone: new Date().toLocaleDateString("en-GB"),
-        lastMileage: mileageNum.toString(),
-        workshop: "Driver (Voluntary)",
-        cost: "0",
-        remark: "Voluntary mileage check to calculate dashboard intervals."
-      };
-
-      const res = await fetch("/api/records", {
-        method: "POST",
+      const res = await fetch("/api/vehicles", {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${(session as any).accessToken}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ vehicleName: mileageTarget.name, mileage: mileageNum })
       });
 
       if (res.ok) {
-        // Fetch fresh records to guarantee dashboard consistency
-        fetch("/api/records", { headers: { "Authorization": `Bearer ${(session as any).accessToken}` } })
-          .then(r => r.json())
-          .then(d => {
-            if (d.records) setRecords(d.records);
-          })
-          .catch(console.error);
+        // Update local vehicle state to reflect new mileage immediately
+        setDynamicVehicles(prev => prev.map(v =>
+          v.name === mileageTarget.name ? { ...v, mileage: mileageNum } : v
+        ));
 
         setFlash({ show: true, type: "success" });
         setTimeout(() => {
@@ -356,7 +343,7 @@ export default function Home() {
   // Pre-fill with all dynamic vehicles so even those without records show up
   const initialVehicleData = dynamicVehicles.reduce((acc, v) => {
     if (v && v.name) {
-      acc[v.name] = { name: v.name, color: v.color, type: v.type, currentMileage: 0, services: {} };
+      acc[v.name] = { name: v.name, color: v.color, type: v.type, currentMileage: v.mileage || 0, services: {} };
     }
     return acc;
   }, {} as Record<string, any>);

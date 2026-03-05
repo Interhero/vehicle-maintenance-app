@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchVehicles, addVehicle, deleteVehicle, updateVehicle, VehicleData } from "@/lib/googleSheets";
+import { fetchVehicles, addVehicle, deleteVehicle, updateVehicle, updateVehicleMileage, VehicleData } from "@/lib/googleSheets";
 import { google } from "googleapis";
 
 export async function GET(request: Request) {
@@ -91,6 +91,31 @@ export async function PUT(request: Request) {
 
         await updateVehicle(accessToken, originalName, vehicleData);
         return NextResponse.json({ success: true, vehicle: vehicleData }, { status: 200 });
+    } catch (e: any) {
+        return NextResponse.json({ error: e.message }, { status: 500 });
+    }
+}
+
+export async function PATCH(request: Request) {
+    try {
+        const authHeader = request.headers.get("authorization");
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        const accessToken = authHeader.split(" ")[1];
+
+        const { vehicleName, mileage } = await request.json();
+        if (!vehicleName || mileage === undefined) {
+            return NextResponse.json({ error: "vehicleName and mileage required" }, { status: 400 });
+        }
+
+        const mileageNum = parseInt(mileage, 10);
+        if (isNaN(mileageNum) || mileageNum < 0) {
+            return NextResponse.json({ error: "Invalid mileage value" }, { status: 400 });
+        }
+
+        await updateVehicleMileage(accessToken, vehicleName, mileageNum);
+        return NextResponse.json({ success: true, mileage: mileageNum }, { status: 200 });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }
