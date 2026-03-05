@@ -5,6 +5,8 @@ import React, { useMemo } from 'react';
 interface VehicleMappingMapProps {
     isMotorcycle: boolean;
     serviceDetails: string; // the string from the log to parse
+    locationFront?: string;
+    locationRear?: string;
 }
 
 // Pre-defined mapping coordinates (Percentages) based on the specific blueprints
@@ -32,51 +34,48 @@ const YAMAHA_COORDS = {
     magnet: { top: "58%", left: "46%" }, // Stator engine left side
 };
 
-export default function VehicleMappingMap({ isMotorcycle, serviceDetails }: VehicleMappingMapProps) {
+export default function VehicleMappingMap({ isMotorcycle, serviceDetails, locationFront, locationRear }: VehicleMappingMapProps) {
 
     const blueprintSrc = isMotorcycle ? "/yamaha_blueprint.png" : "/honda_blueprint.png";
     const coordsMap = isMotorcycle ? YAMAHA_COORDS : HONDA_COORDS;
 
-    // Analyze the details string to extract locations
+    // Analyze the details string and discrete props to extract locations
     const activeMarkers = useMemo(() => {
-        const text = serviceDetails.toLowerCase();
+        const text = (serviceDetails + " " + (locationFront || "") + " " + (locationRear || "")).toLowerCase();
         const markers: { id: string; label?: string; top: string; left: string }[] = [];
 
-        // Prioritize specific complex checks first (Dual markers)
-        if (text.includes("front both") || text.includes("both front") || text.includes("front tyres") || text.includes("front tires")) {
-            if (coordsMap["front" as keyof typeof coordsMap]) markers.push({ id: "Front", ...coordsMap["front" as keyof typeof coordsMap] });
-        } else {
-            if ((text.includes("front") && text.includes("left")) || text.includes("fl")) {
+        // Direct Props Mapping (Priority)
+        if (locationFront) {
+            const lf = locationFront.toLowerCase();
+            if (lf.includes("left")) {
                 if (coordsMap["front left" as keyof typeof coordsMap]) markers.push({ id: "Front Left", ...coordsMap["front left" as keyof typeof coordsMap] });
-            }
-            if ((text.includes("front") && text.includes("right")) || text.includes("fr")) {
+            } else if (lf.includes("right")) {
                 if (coordsMap["front right" as keyof typeof coordsMap]) markers.push({ id: "Front Right", ...coordsMap["front right" as keyof typeof coordsMap] });
+            } else if (lf.includes("both")) {
+                if (coordsMap["front left" as keyof typeof coordsMap]) markers.push({ id: "Front Left", ...coordsMap["front left" as keyof typeof coordsMap] });
+                if (coordsMap["front right" as keyof typeof coordsMap]) markers.push({ id: "Front Right", ...coordsMap["front right" as keyof typeof coordsMap] });
+            } else if (lf.includes("center") || lf === "front") {
+                if (coordsMap["front" as keyof typeof coordsMap]) markers.push({ id: "Front", ...coordsMap["front" as keyof typeof coordsMap] });
             }
         }
 
-        if (text.includes("rear both") || text.includes("both rear") || text.includes("rear tyres") || text.includes("back both") || text.includes("both back")) {
-            if (coordsMap["rear" as keyof typeof coordsMap]) markers.push({ id: "Rear", ...coordsMap["rear" as keyof typeof coordsMap] });
-        } else {
-            if ((text.includes("rear") || text.includes("back")) && text.includes("left") || text.includes("rl")) {
+        if (locationRear) {
+            const lr = locationRear.toLowerCase();
+            if (lr.includes("left")) {
                 if (coordsMap["rear left" as keyof typeof coordsMap]) markers.push({ id: "Rear Left", ...coordsMap["rear left" as keyof typeof coordsMap] });
-            }
-            if ((text.includes("rear") || text.includes("back")) && text.includes("right") || text.includes("rr")) {
+            } else if (lr.includes("right")) {
                 if (coordsMap["rear right" as keyof typeof coordsMap]) markers.push({ id: "Rear Right", ...coordsMap["rear right" as keyof typeof coordsMap] });
+            } else if (lr.includes("both") || lr.includes("chain")) {
+                if (coordsMap["rear left" as keyof typeof coordsMap]) markers.push({ id: "Rear Left", ...coordsMap["rear left" as keyof typeof coordsMap] });
+                if (coordsMap["rear right" as keyof typeof coordsMap]) markers.push({ id: "Rear Right", ...coordsMap["rear right" as keyof typeof coordsMap] });
+                if (lr.includes("chain") && 'chain' in coordsMap) markers.push({ id: "Chain/Sprocket", ...(coordsMap as any).chain });
+            } else if (lr.includes("center") || lr === "rear") {
+                if (coordsMap["rear" as keyof typeof coordsMap]) markers.push({ id: "Rear", ...coordsMap["rear" as keyof typeof coordsMap] });
             }
         }
 
-        // Generic checks
-        if (markers.length === 0) {
-            if (text.includes("front") || text.includes("tyre") && text.includes("front")) {
-                markers.push({ id: "Front", ...coordsMap.front });
-            }
-            if (text.includes("rear") || text.includes("back") || text.includes("chain")) {
-                // Motorcycle specific fallbacks
-                if (text.includes("chain") && 'chain' in coordsMap) markers.push({ id: "Chain/Sprocket", ...(coordsMap as any).chain });
-                else markers.push({ id: "Rear", ...coordsMap.rear });
-            }
-        }
-
+        // Fallback/Legacy text-based parsing for other markers (Oil, Battery, etc)
+        // ...
         if (text.includes("engine") || text.includes("oil") || text.includes("filter") || text.includes("bleeding")) {
             markers.push({ id: "Engine Bay", ...coordsMap.engine });
         }
@@ -92,7 +91,7 @@ export default function VehicleMappingMap({ isMotorcycle, serviceDetails }: Vehi
 
         // Remove duplicates based on ID
         return markers.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i);
-    }, [serviceDetails, coordsMap]);
+    }, [serviceDetails, locationFront, locationRear, coordsMap]);
 
     return (
         <div className="relative w-full max-w-sm mx-auto sm:mx-0 aspect-[4/3] rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">

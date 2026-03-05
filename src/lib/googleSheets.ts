@@ -1,6 +1,4 @@
 import { google } from "googleapis";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function getGoogleSheetsClient(accessToken: string) {
     if (!accessToken) {
@@ -188,6 +186,8 @@ export async function fetchMaintenanceRecords(accessToken: string) {
             partBrand: row[8] || "", // Column I
             partModel: row[16] || "", // Column Q
             details: row[11] || "", // Column L
+            locationFront: row[9] || "", // Column J
+            locationRear: row[10] || "", // Column K
             // Metadata for sharing
             id: row[0] + "_" + row[1] // Unique ID based on timestamp and vehicle
         }));
@@ -491,7 +491,7 @@ export async function saveSharedLink(accessToken: string, shareData: any[]) {
 
         // Ensure "Shared Links" sheet exists
         const metadata = await sheets.spreadsheets.get({ spreadsheetId });
-        let hasSharedLinksSheet = metadata.data.sheets?.some(s => s.properties?.title === "Shared Links");
+        const hasSharedLinksSheet = metadata.data.sheets?.some(s => s.properties?.title === "Shared Links");
 
         if (!hasSharedLinksSheet) {
             await sheets.spreadsheets.batchUpdate({

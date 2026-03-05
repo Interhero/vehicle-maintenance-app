@@ -21,7 +21,9 @@ import {
     Copy,
     Check,
     AlertCircle,
-    Clock
+    Clock,
+    XCircle,
+    CheckCircle2
 } from "lucide-react";
 import VehicleMappingMap from "@/components/VehicleMappingMap";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
@@ -128,8 +130,11 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
             const expiry = parseInt(link.expiresAt);
             if (isNaN(expiry)) return { ...link, countdown: 'Invalid Date', isExpired: true };
 
+            const created = parseInt(link.createdAt);
+            const createdDate = isNaN(created) ? link.createdAt : new Date(created).toLocaleDateString('en-GB');
+
             const diff = expiry - now;
-            if (diff <= 0) return { ...link, countdown: 'Expired', isExpired: true };
+            if (diff <= 0) return { ...link, countdown: 'Expired', isExpired: true, createdDate };
 
             const hours = Math.floor(diff / 3600000);
             const mins = Math.floor((diff % 3600000) / 60000);
@@ -137,7 +142,8 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                 ...link,
                 countdown: `Expiring in: ${hours}h ${mins}m`,
                 isExpired: false,
-                isUrgent: diff < 3600000
+                isUrgent: diff < 3600000,
+                createdDate
             };
         });
     }, [activeLinks, now]);
@@ -457,7 +463,12 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
 
                                     {/* 2D Interactive Service Mapping Map */}
                                     <div className="w-full xl:w-72 shrink-0">
-                                        <VehicleMappingMap isMotorcycle={isMotorcycle} serviceDetails={record.serviceType + " " + (record.details || "")} />
+                                        <VehicleMappingMap
+                                            isMotorcycle={isMotorcycle}
+                                            serviceDetails={record.serviceType + " " + (record.details || "")}
+                                            locationFront={record.locationFront}
+                                            locationRear={record.locationRear}
+                                        />
                                     </div>
                                 </div>
                             ))}
@@ -617,15 +628,15 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                                 <div className="flex flex-wrap items-center gap-2 text-[10px]">
                                                     <span className="flex items-center gap-1 text-zinc-500">
                                                         <Calendar className="w-3 h-3" />
-                                                        {new Date(parseInt(link.createdAt)).toLocaleDateString('en-GB')}
+                                                        {link.createdDate}
                                                     </span>
                                                     <span className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full font-bold shadow-sm ${link.isExpired
-                                                            ? 'bg-rose-500/10 text-rose-500'
-                                                            : link.countdown === 'Permanent'
-                                                                ? 'bg-blue-500/10 text-blue-500'
-                                                                : link.isUrgent
-                                                                    ? 'bg-rose-500/10 text-rose-500 animate-pulse'
-                                                                    : 'bg-orange-500/10 text-orange-500'
+                                                        ? 'bg-rose-500/10 text-rose-500'
+                                                        : link.countdown === 'Permanent'
+                                                            ? 'bg-blue-500/10 text-blue-500'
+                                                            : link.isUrgent
+                                                                ? 'bg-rose-500/10 text-rose-500 animate-pulse'
+                                                                : 'bg-orange-500/10 text-orange-500'
                                                         }`}>
                                                         <Clock className="w-3 h-3" />
                                                         {link.countdown}
