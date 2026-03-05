@@ -308,7 +308,7 @@ export default function Home() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-colors">
+      <div className="min-h-dvh flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-colors">
         <AnimatedLoader />
         <p className="mt-4 text-sm font-medium text-zinc-500 dark:text-zinc-400 animate-pulse">Initializing Garage...</p>
       </div>
@@ -317,7 +317,7 @@ export default function Home() {
 
   if (!session) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-6 transition-colors">
+      <div className="min-h-dvh flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-6 transition-colors">
         <div className="max-w-md w-full text-center space-y-8">
           <div className="space-y-4">
             <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">VehicleTracker</h1>
@@ -402,7 +402,7 @@ export default function Home() {
   upcomingServices.sort((a, b) => a.remainingKm - b.remainingKm);
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
+    <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
       <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Header */}
@@ -651,7 +651,7 @@ export default function Home() {
 
         {/* Manage Vehicles Modal */}
         {showManageModal && (
-          <div className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 transition-all duration-300 ease-in-out ${isManageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
+          <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${isManageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
 
             {/* Deletion Confirmation Sub-Modal Overlay */}
             {vehicleToDelete && !flash.show && (
@@ -683,7 +683,7 @@ export default function Home() {
               </div>
             )}
 
-            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 sm:rounded-2xl rounded-t-2xl w-full max-w-md overflow-hidden shadow-xl dark:shadow-2xl flex flex-col max-h-[95vh] sm:max-h-[90vh] transition-all duration-300 ease-in-out ${isManageModalClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden shadow-xl dark:shadow-2xl flex flex-col max-h-[85vh] sm:max-h-[90vh] transition-all duration-300 ease-in-out ${isManageModalClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
               <div className="px-4 py-3 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
                 <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
                   <Car className="w-5 h-5 text-blue-500 dark:text-blue-400" />
