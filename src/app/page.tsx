@@ -63,6 +63,10 @@ export default function Home() {
   }>({ show: false, type: "idle" });
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Login & Logout Animations
+  const [loginFlash, setLoginFlash] = useState(false);
+  const [logoutFlash, setLogoutFlash] = useState(false);
+
   // Voluntary Mileage Update States
   const [showMileageModal, setShowMileageModal] = useState(false);
   const [isMileageModalClosing, setIsMileageModalClosing] = useState(false);
@@ -119,6 +123,11 @@ export default function Home() {
     }
 
     if (session && (session as any).accessToken) {
+      if (!sessionStorage.getItem("hasLoggedIn")) {
+        sessionStorage.setItem("hasLoggedIn", "true");
+        setLoginFlash(true);
+        setTimeout(() => setLoginFlash(false), 1500); // Hide after animation
+      }
       fetch("/api/records", {
         headers: {
           "Authorization": `Bearer ${(session as any).accessToken}`
@@ -448,6 +457,17 @@ export default function Home() {
 
   return (
     <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
+
+      {/* Login Flash Overlay */}
+      <div className={`fixed inset-0 z-[200] flex items-center justify-center bg-blue-600 transition-all duration-500 ease-in-out ${loginFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none delay-500'}`}>
+        <Car className={`w-32 h-32 text-white transition-transform duration-1000 ease-out fill-white/20 ${loginFlash ? 'translate-x-0 scale-100' : '-translate-x-[150vw] scale-50'}`} />
+      </div>
+
+      {/* Logout Flash Overlay */}
+      <div className={`fixed inset-0 z-[200] flex items-center justify-center bg-rose-600 transition-all duration-500 ease-in-out ${logoutFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <Car className={`w-32 h-32 text-white transition-transform duration-1000 ease-in fill-white/20 ${logoutFlash ? 'translate-x-[150vw] scale-50' : 'translate-x-0 scale-100'}`} />
+      </div>
+
       <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Header */}
@@ -469,7 +489,10 @@ export default function Home() {
               </a>
             </div>
             <button
-              onClick={() => signOut()}
+              onClick={() => {
+                setLogoutFlash(true);
+                setTimeout(() => signOut(), 800);
+              }}
               className="flex items-center justify-center gap-2 text-sm font-semibold text-rose-600 hover:text-white dark:text-rose-400 bg-rose-50 hover:bg-rose-500 dark:bg-rose-500/10 dark:hover:bg-rose-600 transition-colors px-4 py-3 sm:px-4 sm:py-2.5 rounded-xl border border-rose-200 dark:border-rose-500/20 w-full sm:w-auto mt-1 sm:mt-0 shadow-sm"
             >
               <LogOut className="w-4 h-4" />

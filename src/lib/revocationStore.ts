@@ -10,24 +10,16 @@ const storePath = isVercel
     ? path.join(os.tmpdir(), 'vehicle_revoked_links.json')
     : path.join(process.cwd(), '.revoked_links.json');
 
-declare global {
-    var revokedLinksCache: string[] | undefined;
-}
-
 export function getRevokedLinks(): string[] {
     try {
-        if (!globalThis.revokedLinksCache) {
-            if (fs.existsSync(storePath)) {
-                const data = fs.readFileSync(storePath, 'utf8');
-                globalThis.revokedLinksCache = JSON.parse(data);
-            } else {
-                globalThis.revokedLinksCache = [];
-            }
+        if (fs.existsSync(storePath)) {
+            const data = fs.readFileSync(storePath, 'utf8');
+            return JSON.parse(data);
         }
-        return globalThis.revokedLinksCache || [];
+        return [];
     } catch (e) {
         console.error("Failed to read revocation store:", e);
-        return globalThis.revokedLinksCache || [];
+        return [];
     }
 }
 
@@ -36,7 +28,6 @@ export function revokeLinkInstant(shareId: string) {
         const revoked = getRevokedLinks();
         if (!revoked.includes(shareId)) {
             revoked.push(shareId);
-            globalThis.revokedLinksCache = revoked;
             fs.writeFileSync(storePath, JSON.stringify(revoked), 'utf8');
         }
     } catch (e) {

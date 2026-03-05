@@ -23,7 +23,8 @@ import {
     AlertCircle,
     Clock,
     XCircle,
-    CheckCircle2
+    CheckCircle2,
+    Trash2
 } from "lucide-react";
 import VehicleMappingMap from "@/components/VehicleMappingMap";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
@@ -54,6 +55,8 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
     const [showSharesManager, setShowSharesManager] = useState(false);
     const [activeLinks, setActiveLinks] = useState<any[]>([]);
     const [isLoadingLinks, setIsLoadingLinks] = useState(false);
+    const [revokingLink, setRevokingLink] = useState<string | null>(null);
+    const [revokeFlash, setRevokeFlash] = useState(false);
 
     const fetchLinks = async () => {
         setIsLoadingLinks(true);
@@ -69,6 +72,21 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
         try {
             await fetch(`/api/share?id=${id}`, { method: "DELETE" });
             fetchLinks();
+        } catch (e) { console.error(e); }
+    };
+
+    const confirmRevoke = (id: string) => {
+        setRevokingLink(id);
+    };
+
+    const executeRevoke = async () => {
+        if (!revokingLink) return;
+        try {
+            await fetch(`/api/share?id=${revokingLink}`, { method: "DELETE" });
+            fetchLinks();
+            setRevokingLink(null);
+            setRevokeFlash(true);
+            setTimeout(() => setRevokeFlash(false), 1500);
         } catch (e) { console.error(e); }
     };
 
@@ -653,11 +671,11 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                                     </button>
                                                 ) : (
                                                     <button
-                                                        onClick={() => handleRevoke(link.id)}
+                                                        onClick={() => confirmRevoke(link.id)}
                                                         className="p-2.5 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20 shadow-lg shadow-rose-500/5 group-hover:scale-105 active:scale-95"
                                                         title="Revoke Access"
                                                     >
-                                                        <X className="w-4 h-4" />
+                                                        <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 )}
                                             </div>
@@ -674,6 +692,36 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                     </div>
                 </div>
             )}
+
+            {/* Revoke Confirmation Modal */}
+            {revokingLink && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setRevokingLink(null)}></div>
+                    <div className="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-3xl p-6 text-center shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 duration-300">
+                        <div className="w-16 h-16 bg-rose-500/10 rounded-2xl mx-auto flex items-center justify-center mb-4">
+                            <Trash2 className="w-8 h-8 text-rose-500" />
+                        </div>
+                        <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Revoke Access?</h3>
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+                            Are you sure you want to instantly revoke this public link? Visitors will immediately be blocked.
+                        </p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setRevokingLink(null)} className="flex-1 py-3 px-4 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl transition-colors">
+                                Cancel
+                            </button>
+                            <button onClick={executeRevoke} className="flex-1 py-3 px-4 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 transition-all">
+                                Revoke Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Revoke Flash Animation Overlay */}
+            <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center bg-rose-600 transition-all duration-500 ease-in-out ${revokeFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+                <Trash2 className={`w-32 h-32 text-white mb-4 transition-transform duration-500 ease-in-out ${revokeFlash ? 'scale-110 drop-shadow-2xl translate-y-0' : 'scale-50 translate-y-20'}`} />
+                <h2 className={`text-4xl font-black text-white tracking-tight transition-all duration-500 delay-100 ${revokeFlash ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>Link Revoked</h2>
+            </div>
         </div>
     );
 }
