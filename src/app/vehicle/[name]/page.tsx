@@ -16,7 +16,11 @@ import {
     History,
     Share2,
     Navigation,
-    X
+    X,
+    Link2,
+    Copy,
+    Check,
+    AlertCircle
 } from "lucide-react";
 import VehicleMappingMap from "@/components/VehicleMappingMap";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
@@ -35,6 +39,13 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
     const [searchQuery, setSearchQuery] = useState("");
     const [activeChip, setActiveChip] = useState<string | null>(null);
     const [sortNewest, setSortNewest] = useState(true);
+
+    // Advanced Sharing State
+    const [sharingRecord, setSharingRecord] = useState<any | null>(null);
+    const [shareExpiry, setShareExpiry] = useState("1d");
+    const [generatedLink, setGeneratedLink] = useState("");
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
 
     useEffect(() => {
         if (session && (session as any).accessToken) {
@@ -81,22 +92,39 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
 
     // Filtered + Sorted records
     const handleShare = (record: any) => {
-        const text = `🛠️ Maintenance Record: ${record.vehicle}\n📅 Date: ${record.dateDone}\n🔧 Service: ${record.serviceType}\n📍 Workshop: ${record.workshop || 'Self'}\n🛣️ Mileage: ${record.lastMileage} KM\n💰 Cost: RM ${record.cost}\n\nShared from Vehicle Maintenance App`;
+        setSharingRecord(record);
+        setGeneratedLink("");
+        setIsCopied(false);
+    };
 
-        if (navigator.share) {
-            navigator.share({
-                title: `Maintenance Record - ${record.vehicle}`,
-                text: text,
-                url: window.location.href
-            }).catch(console.error);
-        } else {
-            // Fallback: Copy to clipboard
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Record summary copied to clipboard!");
-            }).catch(err => {
-                console.error("Could not copy text: ", err);
+    const handleGenerateLink = async () => {
+        if (!sharingRecord) return;
+        setIsGenerating(true);
+        try {
+            const response = await fetch("/api/share/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    record: sharingRecord,
+                    expiresIn: shareExpiry === "never" ? undefined : shareExpiry
+                }),
             });
+            const data = await response.json();
+            if (data.token) {
+                const link = `${window.location.origin}/share/${data.token}`;
+                setGeneratedLink(link);
+            }
+        } catch (error) {
+            console.error("Link generation failed:", error);
+        } finally {
+            setIsGenerating(false);
         }
+    };
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(generatedLink);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
     };
 
     const filteredHistory = useMemo(() => {
@@ -356,6 +384,116 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                 </div>
 
             </div>
+
+            {/* Advanced Sharing Modal */}
+            {sharingRecord && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSharingRecord(null)}></div>
+                    <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 slide-in-from-bottom-4 duration-500">
+                        {/* Header */}
+                        <div className="p-6 border-b border-zinc-100 dark:border-zinc-800">
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                                    <Share2 className="w-5 h-5 text-emerald-500" />
+                                    Share Record
+                                </h3>
+                                <button onClick={() => setSharingRecord(null)} className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                Create a public link for <span className="text-emerald-500 font-semibold">{sharingRecord.serviceType}</span>
+                            </p>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6 space-y-6">
+                            {!generatedLink ? (
+                                <>
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest px-1">Link Expiration</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {[
+                                                { label: "1 Hour", value: "1h" },
+                                                { label: "1 Day", value: "1d" },
+                                                { label: "7 Days", value: "7d" },
+                                                { label: "Never", value: "never" }
+                                            ].map((opt) => (
+                                                <button
+                                                    key={opt.value}
+                                                    onClick={() => setShareExpiry(opt.value)}
+                                                    className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${shareExpiry === opt.value
+                                                            ? "bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400"
+                                                            : "bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                                                        }`}
+                                                >
+                                                    {opt.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-blue-50/50 dark:bg-blue-500/5 p-4 rounded-2xl border border-blue-100 dark:border-blue-500/10 flex items-start gap-3">
+                                        <AlertCircle className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                                        <p className="text-xs text-blue-600 dark:text-blue-400 leading-relaxed">
+                                            This link will allow anyone to view this specific record and map details without needing an account.
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        onClick={handleGenerateLink}
+                                        disabled={isGenerating}
+                                        className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50"
+                                    >
+                                        {isGenerating ? (
+                                            <>
+                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                Generating...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Link2 className="w-5 h-5" />
+                                                Generate Public Link
+                                            </>
+                                        )}
+                                    </button>
+                                </>
+                            ) : (
+                                <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
+                                    <div className="p-4 bg-emerald-50/50 dark:bg-emerald-500/5 rounded-2xl border border-emerald-100 dark:border-emerald-500/10 text-center">
+                                        <Check className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                                        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Share Link Ready!</p>
+                                    </div>
+
+                                    <div className="relative group">
+                                        <input
+                                            readOnly
+                                            value={generatedLink}
+                                            className="w-full bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 pr-12 text-sm text-zinc-900 dark:text-zinc-200 outline-none truncate"
+                                        />
+                                        <button
+                                            onClick={copyToClipboard}
+                                            className="absolute right-2 top-2 p-2 rounded-xl bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 text-zinc-500 hover:text-zinc-900 dark:hover:text-white shadow-sm transition-all active:scale-95"
+                                        >
+                                            {isCopied ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
+                                        </button>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2 pt-2">
+                                        <p className="text-[10px] text-zinc-400 text-center font-medium">Link expires in: <span className="text-zinc-600 dark:text-zinc-300 uppercase tracking-wider">{shareExpiry}</span></p>
+                                        <button
+                                            onClick={() => setGeneratedLink("")}
+                                            className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors py-2"
+                                        >
+                                            Change expiration or generate new
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
