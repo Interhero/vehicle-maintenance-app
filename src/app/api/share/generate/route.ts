@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { createShareToken } from "@/lib/shareUtils";
 import { getServerSession } from "next-auth/next";
 import { saveSharedLink } from "@/lib/googleSheets";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function POST(request: Request) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session || !(session as any).accessToken) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }

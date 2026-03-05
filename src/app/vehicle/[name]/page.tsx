@@ -128,7 +128,7 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    record: sharingRecord,
+                    record: { ...sharingRecord, vehicle: decodedName },
                     expiresIn: shareExpiry === "never" ? undefined : shareExpiry
                 }),
             });
@@ -589,10 +589,10 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                                 <div className="flex flex-wrap items-center gap-3 text-[10px] text-zinc-500">
                                                     <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {link.createdAt}</span>
                                                     <span className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full font-bold ${link.expiresAt === 'Never'
-                                                            ? 'bg-blue-500/10 text-blue-500'
-                                                            : (new Date(link.expiresAt.split('/').reverse().join('-')).getTime() - Date.now() < 3600000)
-                                                                ? 'bg-rose-500/10 text-rose-500 animate-pulse'
-                                                                : 'bg-orange-500/10 text-orange-500'
+                                                        ? 'bg-blue-500/10 text-blue-500'
+                                                        : (new Date(link.expiresAt.split('/').reverse().join('-')).getTime() - Date.now() < 3600000)
+                                                            ? 'bg-rose-500/10 text-rose-500 animate-pulse'
+                                                            : 'bg-orange-500/10 text-orange-500'
                                                         }`}>
                                                         <Clock className="w-3 h-3" />
                                                         {link.expiresAt === 'Never' ? 'Permanent' : (() => {
