@@ -67,7 +67,7 @@ export async function resolveSpreadsheetId(accessToken: string): Promise<string>
         range: "'Maintainance Record'!A1:O1",
         valueInputOption: "USER_ENTERED",
         requestBody: {
-            values: [["Timestamp", "Vehicle", "Service Type", "Date Done", "Current Mileage", "Next Service Interval", "Next Service Calculated", "Workshop", "Brand of Part", "Location Matrix (Front)", "Location Matrix (Rear)", "Extra Details", "Cost (RM)", "Receipt / Notes", "Additional remarks", "Map Link"]]
+            values: [["Timestamp", "Vehicle", "Service Type", "Date Done", "Current Mileage", "Next Service Interval", "Next Service Calculated", "Workshop", "Brand of Part", "Location Matrix (Front)", "Location Matrix (Rear)", "Extra Details", "Cost (RM)", "Receipt / Notes", "Additional remarks", "Map Link", "Part Model"]]
         }
     });
 
@@ -151,10 +151,6 @@ export async function fetchMaintenanceRecords(accessToken: string) {
             workshop: String(row[7] || ""),
 
             // Ensure backwards compatibility with old 28-col schema and new 15-col schema
-            details: (row.length > 15 ? row.slice(8, 16) : row.slice(8, 12)).filter(Boolean).join(", "),
-
-            // Costs might be raw numbers ("150") or embedded in text ("Service cost : RM 110")
-            // Search backwards for the first identifiable cost
             cost: (() => {
                 for (let i = row.length - 1; i >= 10; i--) {
                     const val = String(row[i]).trim();
@@ -179,7 +175,12 @@ export async function fetchMaintenanceRecords(accessToken: string) {
                 }
                 return "";
             })(),
-            mapLink: row[15] || "" // Column P
+            mapLink: row[15] || "", // Column P
+            partBrand: row[8] || "", // Column I
+            partModel: row[16] || "", // Column Q
+            details: row[11] || "", // Column L
+            // Metadata for sharing
+            id: row[0] + "_" + row[1] // Unique ID based on timestamp and vehicle
         }));
     } catch (error) {
         console.error("Error fetching records:", error);
@@ -471,5 +472,101 @@ export async function updateVehicleMileage(accessToken: string, vehicleName: str
     } catch (error) {
         console.error("Error updating vehicle mileage:", error);
         throw error;
+    }
+}
+
+export async function saveSharedLink(accessToken: string, shareData: any[]) {
+    try {
+        const sheets = await getGoogleSheetsClient(accessToken);
+        const spreadsheetId = await resolveSpreadsheetId(accessToken);
+
+        // Ensure "Shared Links" sheet exists
+        const metadata = await sheets.spreadsheets.get({ spreadsheetId });
+        let hasSharedLinksSheet = metadata.data.sheets?.some(s => s.properties?.title === "Shared Links");
+
+        if (!hasSharedLinksSheet) {
+            await sheets.spreadsheets.batchUpdate({
+                spreadsheetId,
+                requestBody: {
+                    requests: [{
+                        addSheet: { properties: { title: "Shared Links" } }
+                    }]
+                }
+            });
+            // Initialize headers
+            await sheets.spreadsheets.values.update({
+                spreadsheetId,
+                range: "'Shared Links'!A1:F1",
+                valueInputOption: "USER_ENTERED",
+                requestBody: {
+                    values: [["Share ID", "Vehicle", "Service", "Created At", "Expires At", "Status"]]
+                }
+            });
+        }
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: "'Shared Links'!A:F",
+            valueInputOption: "USER_ENTERED",
+            requestBody: { values: [shareData] }
+        });
+    } catch (error) {
+        console.error("Error saving shared link:", error);
+    }
+}
+
+export async function fetchSharedLinks(accessToken: string) {
+    try {
+        const sheets = await getGoogleSheetsClient(accessToken);
+        const spreadsheetId = await resolveSpreadsheetId(accessToken);
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: "'Shared Links'!A:F"
+        });
+
+        const rows = response.data.values || [];
+        if (rows.length <= 1) return [];
+
+        return rows.slice(1).map(row => ({
+            id: row[0],
+            vehicle: row[1],
+            service: row[2],
+            createdAt: row[3],
+            expiresAt: row[4],
+            status: row[5]
+        }));
+    } catch (error) {
+        console.error("Error fetching shared links:", error);
+        return [];
+    }
+}
+
+export async function revokeSharedLink(accessToken: string, shareId: string) {
+    try {
+        const sheets = await getGoogleSheetsClient(accessToken);
+        const spreadsheetId = await resolveSpreadsheetId(accessToken);
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: "'Shared Links'!A:A"
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(r => r[0] === shareId);
+
+        if (rowIndex !== -1) {
+            await sheets.spreadsheets.values.update({
+                spreadsheetId,
+                range: "'Shared Links'!F" + (rowIndex + 1),
+                valueInputOption: "USER_ENTERED",
+                requestBody: { values: [["Revoked"]] }
+            });
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error("Error revoking shared link:", error);
+        return false;
     }
 }

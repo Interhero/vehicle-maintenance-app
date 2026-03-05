@@ -32,8 +32,8 @@ export async function POST(request: Request) {
 
         const timestamp = new Date().toLocaleString("en-GB");
 
-        // Build a sparse array up to 16 cols (A to P)
-        const rowData = new Array(16).fill("");
+        // Build a sparse array up to 17 cols (A to Q)
+        const rowData = new Array(17).fill("");
         rowData[0] = timestamp;
         rowData[1] = body.vehicleType || "";
         rowData[2] = body.serviceType || "";
@@ -50,14 +50,14 @@ export async function POST(request: Request) {
         rowData[9] = body.locationFront || "";
         rowData[10] = body.locationRear || "";
 
-        let descriptiveText = body.details || "";
-        if (body.partModel) descriptiveText = `Model: ${body.partModel}${descriptiveText ? ` - ${descriptiveText}` : ''}`;
-        rowData[11] = descriptiveText;
+        // Column L (11) is raw details only now
+        rowData[11] = body.details || "";
 
         rowData[12] = body.cost || "";
         rowData[13] = body.receipt || "";
         rowData[14] = body.remark || "";
         rowData[15] = body.mapLink || "";
+        rowData[16] = body.partModel || "";
 
         const result = await appendMaintenanceRecord(accessToken, rowData);
         return NextResponse.json({ success: true, result }, { status: 200 });

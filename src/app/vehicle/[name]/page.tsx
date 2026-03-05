@@ -20,7 +20,8 @@ import {
     Link2,
     Copy,
     Check,
-    AlertCircle
+    AlertCircle,
+    Clock
 } from "lucide-react";
 import VehicleMappingMap from "@/components/VehicleMappingMap";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
@@ -46,6 +47,28 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
     const [generatedLink, setGeneratedLink] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
+
+    // Active Shares Management
+    const [showSharesManager, setShowSharesManager] = useState(false);
+    const [activeLinks, setActiveLinks] = useState<any[]>([]);
+    const [isLoadingLinks, setIsLoadingLinks] = useState(false);
+
+    const fetchLinks = async () => {
+        setIsLoadingLinks(true);
+        try {
+            const res = await fetch("/api/share");
+            const data = await res.json();
+            if (data.links) setActiveLinks(data.links.filter((l: any) => l.vehicle === decodedName && l.status === "Active"));
+        } catch (e) { console.error(e); }
+        finally { setIsLoadingLinks(false); }
+    };
+
+    const handleRevoke = async (id: string) => {
+        try {
+            await fetch(`/api/share?id=${id}`, { method: "DELETE" });
+            fetchLinks();
+        } catch (e) { console.error(e); }
+    };
 
     useEffect(() => {
         if (session && (session as any).accessToken) {
@@ -278,6 +301,21 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                 )}
 
                 <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 shadow-sm dark:shadow-none transition-colors">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+                        <div>
+                            <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">Maintenance History</h2>
+                            <p className="text-zinc-500 dark:text-zinc-400 text-sm">
+                                Track and manage all service records for your {isMotorcycle ? 'motorcycle' : 'vehicle'}.
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => { setShowSharesManager(true); fetchLinks(); }}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-xl text-xs font-bold transition-all border border-zinc-200 dark:border-zinc-700 shadow-sm"
+                        >
+                            <Share2 className="w-3.5 h-3.5" />
+                            Manage Public Links
+                        </button>
+                    </div>
                     {history.length === 0 ? (
                         <div className="text-center text-zinc-500 py-12">No records found for this vehicle.</div>
                     ) : sortedHistory.length === 0 ? (
@@ -294,6 +332,20 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                         <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-zinc-200 dark:border-zinc-800/50 pb-4 mb-4">
                                             <div>
                                                 <h3 className="font-semibold text-lg text-emerald-600 dark:text-emerald-400">{record.serviceType}</h3>
+                                                {(record.partBrand || record.partModel) && (
+                                                    <div className="flex flex-wrap gap-2 mt-1 mb-2">
+                                                        {record.partBrand && (
+                                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                                                BRAND: {record.partBrand}
+                                                            </span>
+                                                        )}
+                                                        {record.partModel && (
+                                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border border-zinc-500/20">
+                                                                MODEL: {record.partModel}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
                                                 <div className="flex flex-wrap items-center gap-1 sm:gap-2">
                                                     <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 font-medium">
                                                         <Calendar className="w-3 h-3" />
@@ -359,8 +411,10 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                                         View Service Details & Attached Receipts
                                                     </summary>
                                                     <div className="mt-4 p-4 rounded-xl bg-white dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 space-y-2 shadow-inner dark:shadow-none">
-                                                        {record.workshop && <p><span className="text-zinc-500 w-20 inline-block">Location:</span> <span className="text-zinc-700 dark:text-zinc-300 font-medium">{record.workshop}</span></p>}
-                                                        {record.details && <p><span className="text-zinc-500 w-20 inline-block shrink-0 flex-shrink-0 align-top">Notes:</span> <span className="text-zinc-700 dark:text-zinc-300 leading-relaxed font-medium inline-block w-[calc(100%-5rem)]">{record.details}</span></p>}
+                                                        {record.workshop && <p className="text-sm"><span className="text-zinc-500 w-24 inline-block text-[10px] font-black uppercase tracking-tighter">Location</span> <span className="text-zinc-700 dark:text-zinc-300 font-semibold">{record.workshop}</span></p>}
+                                                        {record.partBrand && <p className="text-sm"><span className="text-zinc-500 w-24 inline-block text-[10px] font-black uppercase tracking-tighter">Part Brand</span> <span className="text-emerald-600 dark:text-emerald-400 font-bold">{record.partBrand}</span></p>}
+                                                        {record.partModel && <p className="text-sm"><span className="text-zinc-500 w-24 inline-block text-[10px] font-black uppercase tracking-tighter">Part Model</span> <span className="text-zinc-700 dark:text-zinc-300 font-bold">{record.partModel}</span></p>}
+                                                        {record.details && <p className="text-sm flex gap-2"><span className="text-zinc-500 w-24 inline-block shrink-0 text-[10px] font-black uppercase tracking-tighter pt-1">Notes</span> <span className="text-zinc-700 dark:text-zinc-300 leading-relaxed font-medium italic">{record.details}</span></p>}
                                                         {record.receipt && (
                                                             <a href={record.receipt} target="_blank" rel="noreferrer" className="text-emerald-500 hover:text-emerald-400 hover:underline flex items-center gap-1.5 mt-4 w-fit bg-emerald-500/10 px-4 py-2 rounded-lg border border-emerald-500/20 font-medium shadow-sm shadow-emerald-500/5">
                                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
@@ -423,8 +477,8 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                                     key={opt.value}
                                                     onClick={() => setShareExpiry(opt.value)}
                                                     className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${shareExpiry === opt.value
-                                                            ? "bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400"
-                                                            : "bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                                                        ? "bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400"
+                                                        : "bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                                                         }`}
                                                 >
                                                     {opt.label}
@@ -490,6 +544,87 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Manage Shares Modal */}
+            {showSharesManager && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSharesManager(false)}></div>
+                    <div className="relative w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 slide-in-from-bottom-4 duration-500 flex flex-col max-h-[80vh]">
+                        {/* Header */}
+                        <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                                    <History className="w-5 h-5 text-blue-500" />
+                                    Active Public Links
+                                </h3>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Manage and revoke links shared with mechanics or friends.</p>
+                            </div>
+                            <button onClick={() => setShowSharesManager(false)} className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6 overflow-y-auto space-y-4 flex-1">
+                            {isLoadingLinks ? (
+                                <div className="space-y-3">
+                                    {[1, 2].map(i => (
+                                        <div key={i} className="h-24 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl animate-pulse"></div>
+                                    ))}
+                                </div>
+                            ) : activeLinks.length === 0 ? (
+                                <div className="py-12 text-center text-zinc-500">
+                                    <Link2 className="w-8 h-8 mx-auto mb-3 opacity-20" />
+                                    <p className="text-sm font-medium">No active links found for this {isMotorcycle ? 'motorcycle' : 'vehicle'}.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 gap-3">
+                                    {activeLinks.map((link) => (
+                                        <div key={link.id} className="p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 flex items-center justify-between group">
+                                            <div className="space-y-1">
+                                                <h4 className="font-bold text-zinc-900 dark:text-white text-sm">{link.service}</h4>
+                                                <div className="flex flex-wrap items-center gap-3 text-[10px] text-zinc-500">
+                                                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {link.createdAt}</span>
+                                                    <span className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full font-bold ${link.expiresAt === 'Never'
+                                                            ? 'bg-blue-500/10 text-blue-500'
+                                                            : (new Date(link.expiresAt.split('/').reverse().join('-')).getTime() - Date.now() < 3600000)
+                                                                ? 'bg-rose-500/10 text-rose-500 animate-pulse'
+                                                                : 'bg-orange-500/10 text-orange-500'
+                                                        }`}>
+                                                        <Clock className="w-3 h-3" />
+                                                        {link.expiresAt === 'Never' ? 'Permanent' : (() => {
+                                                            const parts = link.expiresAt.split(', ')[0].split('/');
+                                                            const timePart = link.expiresAt.split(', ')[1];
+                                                            const isoStr = `${parts[2]}-${parts[1]}-${parts[0]}T${timePart.replace(/\./g, ':')}`;
+                                                            const expiry = new Date(isoStr);
+                                                            const diff = expiry.getTime() - Date.now();
+                                                            if (diff <= 0) return "Expired";
+                                                            const hours = Math.floor(diff / 3600000);
+                                                            const mins = Math.floor((diff % 3600000) / 60000);
+                                                            return `Expiring in: ${hours}h ${mins}m`;
+                                                        })()}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => handleRevoke(link.id)}
+                                                className="p-2.5 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20"
+                                                title="Revoke Access"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/80 text-center">
+                            <p className="text-[10px] text-zinc-400">Revoking a link will immediately block access for anyone using that token.</p>
                         </div>
                     </div>
                 </div>
