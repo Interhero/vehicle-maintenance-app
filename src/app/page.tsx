@@ -655,7 +655,7 @@ export default function Home() {
 
         {/* Manage Vehicles Modal */}
         {showManageModal && (
-          <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${isManageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
+          <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ease-in-out animate-in fade-in ${isManageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
 
             {/* Deletion Confirmation Sub-Modal Overlay */}
             {vehicleToDelete && !flash.show && (
@@ -687,7 +687,7 @@ export default function Home() {
               </div>
             )}
 
-            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden shadow-xl dark:shadow-2xl flex flex-col max-h-[85vh] sm:max-h-[90vh] transition-all duration-300 ease-in-out ${isManageModalClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden shadow-xl dark:shadow-2xl flex flex-col max-h-[85vh] sm:max-h-[90vh] transition-all duration-500 ease-in-out animate-in zoom-in-95 fade-in ${isManageModalClosing ? 'scale-95 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}`}>
               <div className="px-4 py-3 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
                 <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
                   <Car className="w-5 h-5 text-blue-500 dark:text-blue-400" />
@@ -838,9 +838,9 @@ export default function Home() {
         )}
 
         {/* Voluntary Mileage Update Modal */}
-        {showMileageModal && mileageTarget && (
-          <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${isMileageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
-            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-xl dark:shadow-2xl flex flex-col transition-all duration-300 ease-in-out ${isMileageModalClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+        {showMileageModal && (
+          <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ease-in-out animate-in fade-in ${isMileageModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
+            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-xl dark:shadow-2xl transition-all duration-500 ease-in-out animate-in zoom-in-95 fade-in ${isMileageModalClosing ? 'scale-95 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}`}>
               <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
                 <h3 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                   <Clock className="w-5 h-5 text-blue-500" />
