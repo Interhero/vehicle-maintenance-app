@@ -370,7 +370,14 @@ export default function Home() {
 
     // Only process records for vehicles that are currently tracked
     if (!acc[record.vehicle]) {
-      return acc;
+      const dv = dynamicVehicles.find(v => v.name === record.vehicle);
+      acc[record.vehicle] = {
+        name: record.vehicle,
+        color: dv?.color || "#3b82f6",
+        type: dv?.type || "Car",
+        currentMileage: dv?.mileage || 0,
+        services: {}
+      };
     }
 
     // Update overall latest mileage
@@ -405,7 +412,7 @@ export default function Home() {
         if (dismissedAlerts[alertId]?.status === 'attended') return;
         if (dismissedAlerts[alertId]?.status === 'dismissed') return;
 
-        if (remainingKm <= 1000) {
+        if (remainingKm !== null && !isNaN(remainingKm)) {
           upcomingServices.push({
             vehicle: v.name,
             serviceType: service.serviceType,
@@ -452,16 +459,18 @@ export default function Home() {
             </h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Welcome back, {session.user?.name}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-4 md:mt-0">
-            <button onClick={openManageModal} className="px-4 py-2 sm:px-5 sm:py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-white font-medium rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm">
-              Manage Vehicles
-            </button>
-            <a href="/record/new" className="px-4 py-2 sm:px-5 sm:py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-colors shadow-md shadow-blue-500/20 whitespace-nowrap">
-              + New Record
-            </a>
+          <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3 sm:gap-4 mt-6 md:mt-0">
+            <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+              <button onClick={openManageModal} className="flex-1 sm:flex-none justify-center px-4 py-3 sm:px-5 sm:py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 font-medium rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm whitespace-nowrap">
+                Manage Vehicles
+              </button>
+              <a href="/record/new" className="flex-1 sm:flex-none text-center px-4 py-3 sm:px-5 sm:py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-colors shadow-md shadow-blue-500/20 whitespace-nowrap">
+                + New Record
+              </a>
+            </div>
             <button
               onClick={() => signOut()}
-              className="flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 ml-auto sm:ml-0"
+              className="flex items-center justify-center gap-2 text-sm font-semibold text-rose-600 hover:text-white dark:text-rose-400 bg-rose-50 hover:bg-rose-500 dark:bg-rose-500/10 dark:hover:bg-rose-600 transition-colors px-4 py-3 sm:px-4 sm:py-2.5 rounded-xl border border-rose-200 dark:border-rose-500/20 w-full sm:w-auto mt-1 sm:mt-0 shadow-sm"
             >
               <LogOut className="w-4 h-4" />
               Sign Out
@@ -573,18 +582,40 @@ export default function Home() {
                             {vehicleJobs.length > 0 && (
                               <div className="mt-6 pt-6 border-t border-zinc-200/60 dark:border-zinc-800/60 space-y-4">
                                 <div className="flex items-center gap-2 mb-3">
-                                  <Wrench className={`w-5 h-5 ${hasOverdue ? 'text-rose-500 dark:text-rose-400' : 'text-amber-500 dark:text-amber-400'}`} />
-                                  <span className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Action Required</span>
+                                  <Wrench className={`w-5 h-5 ${hasOverdue ? 'text-rose-500 dark:text-rose-400' : hasDueSoon ? 'text-amber-500 dark:text-amber-400' : 'text-zinc-500 dark:text-zinc-400'}`} />
+                                  <span className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">{hasOverdue ? 'Action Required' : 'Scheduled Services'}</span>
                                 </div>
 
                                 <div className="space-y-3">
                                   {vehicleJobs.map((job, j) => {
                                     const isOverdue = job.remainingKm < 0;
+                                    const isDueSoon = job.remainingKm >= 0 && job.remainingKm <= 500;
+                                    const isScheduled = job.remainingKm > 500;
                                     const alertId = `${job.vehicle}-${job.serviceType}-${job.nextDue}`;
 
+                                    let containerStyle = 'border-amber-200/60 dark:border-amber-900/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200';
+                                    let indicatorStyle = 'bg-amber-500';
+                                    let buttonStyle = 'text-amber-500 border-amber-200 dark:border-amber-800';
+                                    let labelStyle = 'text-amber-600 dark:text-amber-400';
+                                    let chipStyle = 'bg-amber-100/50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-900/50';
+
+                                    if (isOverdue) {
+                                      containerStyle = 'border-rose-200/60 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200';
+                                      indicatorStyle = 'bg-rose-500';
+                                      buttonStyle = 'text-rose-500 border-rose-200 dark:border-rose-800';
+                                      labelStyle = 'text-rose-600 dark:text-rose-400';
+                                      chipStyle = 'bg-rose-100/50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border-rose-200 dark:border-rose-900/50';
+                                    } else if (isScheduled) {
+                                      containerStyle = 'border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50/80 dark:bg-zinc-900/40 text-zinc-900 dark:text-zinc-200';
+                                      indicatorStyle = 'bg-zinc-400 dark:bg-zinc-600';
+                                      buttonStyle = 'text-zinc-500 border-zinc-200 dark:border-zinc-700';
+                                      labelStyle = 'text-zinc-600 dark:text-zinc-400';
+                                      chipStyle = 'bg-white/50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700/50';
+                                    }
+
                                     return (
-                                      <div key={j} className={`p-4 rounded-2xl border ${isOverdue ? 'border-rose-200/60 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200' : 'border-amber-200/60 dark:border-amber-900/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200'} flex flex-col gap-2 relative overflow-hidden group/alert shadow-sm dark:shadow-lg backdrop-blur-md`}>
-                                        <div className={`absolute top-0 left-0 w-1.5 h-full ${isOverdue ? 'bg-rose-500' : 'bg-amber-500'}`}></div>
+                                      <div key={j} className={`p-4 rounded-2xl border ${containerStyle} flex flex-col gap-2 relative overflow-hidden group/alert shadow-sm dark:shadow-lg backdrop-blur-md`}>
+                                        <div className={`absolute top-0 left-0 w-1.5 h-full ${indicatorStyle}`}></div>
 
                                         {/* Dismiss/Resolve Button */}
                                         <button
@@ -603,7 +634,7 @@ export default function Home() {
                                               localStorage.setItem("vehicle_dismissals", JSON.stringify(newDismissals));
                                             }
                                           }}
-                                          className={`absolute top-2 right-2 opacity-0 group-hover/alert:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-900/90 rounded-lg p-1.5 backdrop-blur-md border shadow-sm ${isOverdue ? 'text-rose-500 border-rose-200 dark:border-rose-800' : 'text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}
+                                          className={`absolute top-2 right-2 opacity-0 group-hover/alert:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-900/90 rounded-lg p-1.5 backdrop-blur-md border shadow-sm ${buttonStyle}`}
                                           title={isOverdue ? "Resolve Overdue Alert" : "Dismiss Alert"}
                                         >
                                           {isOverdue ? (
@@ -620,10 +651,10 @@ export default function Home() {
                                             </p>
                                           </div>
                                           <div className="text-right shrink-0">
-                                            <p className={`text-sm font-mono font-bold ${isOverdue ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                                              {isOverdue ? 'OVERDUE' : 'DUE SOON'} <span className="opacity-80 dark:opacity-60 text-xs font-normal ml-1">@ {job.nextDue.toLocaleString()} KM</span>
+                                            <p className={`text-sm font-mono font-bold uppercase ${labelStyle}`}>
+                                              {isOverdue ? 'OVERDUE' : isDueSoon ? 'DUE SOON' : 'SCHEDULED'} <span className="opacity-80 dark:opacity-60 text-xs font-normal ml-1">@ {job.nextDue.toLocaleString()} KM</span>
                                             </p>
-                                            <p className={`text-xs opacity-90 mt-1 font-medium inline-block px-2 py-0.5 rounded-md border ${isOverdue ? 'bg-rose-100/50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border-rose-200 dark:border-rose-900/50' : 'bg-amber-100/50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-900/50'}`}>
+                                            <p className={`text-xs opacity-90 mt-1 font-medium inline-block px-2 py-0.5 rounded-md border ${chipStyle}`}>
                                               {isOverdue ? Math.abs(job.remainingKm).toLocaleString() + ' KM ago' : 'in ' + job.remainingKm.toLocaleString() + ' KM'}
                                             </p>
                                           </div>
@@ -631,7 +662,7 @@ export default function Home() {
 
                                         {/* Last Service Details Summarized Inline */}
                                         {(job.details || job.workshop || (job.cost && job.cost !== "0")) && (
-                                          <div className="pl-3 pr-8 mt-3 text-xs opacity-90 border-t border-white/10 pt-3 space-y-1.5 font-medium">
+                                          <div className="pl-3 pr-8 mt-3 text-xs opacity-90 border-t border-black/5 dark:border-white/10 pt-3 space-y-1.5 font-medium">
                                             {job.workshop && <p className="flex items-center gap-1.5"><span className="opacity-60">Workshop:</span> {job.workshop}</p>}
                                             {job.details && <p className="line-clamp-2 flex items-start gap-1.5"><span className="opacity-60">Notes:</span> <span>{job.details}</span></p>}
                                           </div>

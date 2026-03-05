@@ -2,8 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
-// Use OS temp dir to guarantee write access across different environments
-const storePath = path.join(os.tmpdir(), 'vehicle_revoked_links.json');
+// Use a safe path for Next.js - `process.cwd()` is standard for local writes.
+// On Vercel, `process.cwd()` is usually NOT writable, so we use `os.tmpdir()`.
+// Since the environment is likely a local server for this user, .revoked.json in root is most reliable.
+const isVercel = process.env.VERCEL === "1";
+const storePath = isVercel
+    ? path.join(os.tmpdir(), 'vehicle_revoked_links.json')
+    : path.join(process.cwd(), '.revoked_links.json');
 
 declare global {
     var revokedLinksCache: string[] | undefined;
