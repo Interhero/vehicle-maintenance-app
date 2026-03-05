@@ -17,7 +17,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
     return (
         <div
             key={pathname}
-            className={`transition-all duration-500 ease-out transform ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            className={`transition-opacity duration-500 ease-out ${mounted ? "opacity-100" : "opacity-0"
                 }`}
         >
             {children}
