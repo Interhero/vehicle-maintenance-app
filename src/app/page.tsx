@@ -474,8 +474,17 @@ export default function Home() {
                     )}
                   </div>
                   {vehicles.length === 0 ? (
-                    <div className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 text-zinc-500 text-center shadow-sm">
-                      No vehicle data found in the spreadsheet.
+                    <div className="p-10 rounded-3xl border border-zinc-200 border-dashed dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/10 flex flex-col items-center justify-center text-center shadow-sm">
+                      <div className="w-16 h-16 mb-4 bg-zinc-100 dark:bg-zinc-800/50 rounded-full flex items-center justify-center">
+                        <Car className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">No Vehicles Found</h3>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mb-6">
+                        Your garage is empty. Add a vehicle to start tracking maintenance records, mileage, and service costs.
+                      </p>
+                      <button onClick={openManageModal} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-colors shadow-md shadow-blue-500/20">
+                        Add Your First Vehicle
+                      </button>
                     </div>
                   ) : (
                     vehicles.map((v, i) => {
