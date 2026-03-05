@@ -285,18 +285,20 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                                         >
                                                             <Share2 className="w-3.5 h-3.5" />
                                                         </button>
-                                                        <a
-                                                            href={record.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(record.workshop || 'Workshop')}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className={`p-1.5 rounded-lg transition-colors ${record.mapLink
-                                                                ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-500/30"
-                                                                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                                                                }`}
-                                                            title={record.mapLink ? "View pinned location" : "Search workshop on Map"}
-                                                        >
-                                                            <Navigation className="w-3.5 h-3.5" />
-                                                        </a>
+                                                        {record.workshop !== "Self" && (
+                                                            <a
+                                                                href={record.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(record.workshop || 'Workshop')}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className={`p-1.5 rounded-lg transition-colors ${record.mapLink
+                                                                    ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-500/30"
+                                                                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                                                    }`}
+                                                                title={record.mapLink ? "View pinned location" : "Search workshop on Map"}
+                                                            >
+                                                                <Navigation className="w-3.5 h-3.5" />
+                                                            </a>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
