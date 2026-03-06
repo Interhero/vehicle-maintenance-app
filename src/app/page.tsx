@@ -460,12 +460,12 @@ export default function Home() {
 
       {/* Login Flash Overlay */}
       <div className={`fixed inset-0 z-[200] flex items-center justify-center bg-blue-600 transition-all duration-500 ease-in-out ${loginFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none delay-500'}`}>
-        <Car className={`w-32 h-32 text-white transition-transform duration-1000 ease-out fill-white/20 ${loginFlash ? 'translate-x-0 scale-100' : '-translate-x-[150vw] scale-50'}`} />
+        <Car className={`w-32 h-32 text-white fill-white/20 ${loginFlash ? 'animate-vroom-in' : 'opacity-0'}`} />
       </div>
 
       {/* Logout Flash Overlay */}
-      <div className={`fixed inset-0 z-[200] flex items-center justify-center bg-rose-600 transition-all duration-500 ease-in-out ${logoutFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <Car className={`w-32 h-32 text-white transition-transform duration-1000 ease-in fill-white/20 ${logoutFlash ? 'translate-x-[150vw] scale-50' : 'translate-x-0 scale-100'}`} />
+      <div className={`fixed inset-0 z-[200] flex items-center justify-center bg-rose-600 transition-opacity duration-300 ease-in-out ${logoutFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <Car className={`w-32 h-32 text-white fill-white/20 ${logoutFlash ? 'animate-vroom-out' : 'opacity-0 scale-50'}`} />
       </div>
 
       <div className="max-w-6xl mx-auto space-y-8">
