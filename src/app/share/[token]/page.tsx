@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 import { ShareCountdown } from "@/components/ShareCountdown";
 import VehicleMappingMap from "@/components/VehicleMappingMap";
-import { getRevokedLinks } from "@/lib/revocationStore";
 import Link from "next/link";
+import { checkPublicBlocklist } from '@/lib/googleSheets';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -34,19 +34,15 @@ export default async function SharePage({ params }: { params: { token: string } 
         }
     }
 
-    const revokedList = await getRevokedLinks();
-
-    if (record && record.shareId) {
-        if (revokedList.includes(record.shareId)) {
+    if (record && record.shareId && record.blocklistId) {
+        const isRevokedOnSheet = await checkPublicBlocklist(record.blocklistId, record.shareId);
+        if (isRevokedOnSheet) {
             isInstantlyRevoked = true;
         }
-    }
-
-    // Backward compatibility for legacy links generated before the shareId system.
-    // Legacy links stored the full URL (e.g., http://.../share/eyJ...) in the spreadsheet and blocklist.
-    // We check if any entry in the blocklist contains the current raw token string.
-    if (!isInstantlyRevoked && revokedList.some(revokedItem => revokedItem.includes(shareToken))) {
-        isInstantlyRevoked = true;
+    } else if (record) {
+        // Fallback for extremely old legacy links that predate blocklists. 
+        // We will assume they are safe unless manually tracked elsewhere, but ideally they shouldn't exist anymore.
+        console.warn(`[SHARE] Link ${record.shareId} was generated before blocklist IDs existed.`);
     }
 
     if (!record || isInstantlyRevoked) {

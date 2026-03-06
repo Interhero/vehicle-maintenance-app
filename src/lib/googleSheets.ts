@@ -11,6 +11,61 @@ export async function getGoogleSheetsClient(accessToken: string) {
     return google.sheets({ version: "v4", auth });
 }
 
+export async function getOrProvisionPublicBlocklist(accessToken: string): Promise<string> {
+    const auth = new google.auth.OAuth2();
+    auth.setCredentials({ access_token: accessToken });
+    const drive = google.drive({ version: 'v3', auth });
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const FILE_NAME = "Vehicle Maintenance Blocklist";
+
+    // 1. Check if the blocklist already exists
+    const searchRes = await drive.files.list({
+        q: `name='${FILE_NAME}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`,
+        spaces: 'drive',
+        fields: 'files(id, name)',
+    });
+
+    if (searchRes.data.files && searchRes.data.files.length > 0) {
+        return searchRes.data.files[0].id!;
+    }
+
+    console.log("No blocklist found. Provisioning a new public blocklist sheet.");
+
+    // 2. Create the new Spreadsheet
+    const createRes = await sheets.spreadsheets.create({
+        requestBody: {
+            properties: { title: FILE_NAME },
+            sheets: [
+                { properties: { title: "Revoked Links" } }
+            ]
+        }
+    });
+
+    const blocklistId = createRes.data.spreadsheetId!;
+
+    // 3. Initialize the Headers
+    await sheets.spreadsheets.values.update({
+        spreadsheetId: blocklistId,
+        range: "'Revoked Links'!A1:B1",
+        valueInputOption: "USER_ENTERED",
+        requestBody: {
+            values: [["Revoked Share ID", "Timestamp"]]
+        }
+    });
+
+    // 4. Set the permissions so ANYONE with the link can view it anonymously
+    await drive.permissions.create({
+        fileId: blocklistId,
+        requestBody: {
+            type: 'anyone',
+            role: 'reader'
+        }
+    });
+
+    return blocklistId;
+}
+
 export async function resolveSpreadsheetId(accessToken: string): Promise<string> {
     const sheets = await getGoogleSheetsClient(accessToken);
     const auth = new google.auth.OAuth2();
@@ -555,6 +610,25 @@ export async function fetchSharedLinks(accessToken: string) {
     }
 }
 
+export async function addLinkToPublicBlocklist(accessToken: string, shareId: string) {
+    try {
+        const blocklistId = await getOrProvisionPublicBlocklist(accessToken);
+        const sheets = await getGoogleSheetsClient(accessToken);
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId: blocklistId,
+            range: "'Revoked Links'!A:B",
+            valueInputOption: "USER_ENTERED",
+            requestBody: {
+                values: [[shareId, new Date().toISOString()]]
+            }
+        });
+        console.log(`[BLOCKLIST] Added ${shareId} to Public Blocklist ${blocklistId}`);
+    } catch (e: any) {
+        console.error("[BLOCKLIST] Error writing to blocklist:", e.message);
+    }
+}
+
 export async function revokeSharedLink(accessToken: string, shareId: string) {
     try {
         const sheets = await getGoogleSheetsClient(accessToken);
@@ -575,12 +649,46 @@ export async function revokeSharedLink(accessToken: string, shareId: string) {
                 valueInputOption: "USER_ENTERED",
                 requestBody: { values: [["Revoked"]] }
             });
+
+            // Ensure it's pushed to the Public Blocklist
+            await addLinkToPublicBlocklist(accessToken, shareId);
             return true;
         }
         return false;
     } catch (error) {
         console.error("Error revoking shared link:", error);
         return false;
+    }
+}
+
+/**
+ * Anonymously fetch the Public Blocklist Sheet as a CSV to check if a shareId is revoked.
+ * This function requires NO authentication or API keys, allowing it to run freely on public routes.
+ */
+export async function checkPublicBlocklist(blocklistId: string, shareId: string): Promise<boolean> {
+    try {
+        if (!blocklistId) {
+            console.error("[BLOCKLIST] No blocklistId provided to checker.");
+            return true; // Fail closed if misconfigured
+        }
+
+        const url = `https://docs.google.com/spreadsheets/d/${blocklistId}/gviz/tq?tqx=out:csv&sheet=Revoked+Links`;
+        const res = await fetch(url, { cache: 'no-store' }); // Ensure Next.js doesn't aggressively cache the HTTP request
+
+        if (!res.ok) {
+            console.error("[BLOCKLIST] Failed to fetch public blocklist CSV:", res.statusText);
+            return true; // Fail closed: if we can't verify safety, assume it's revoked
+        }
+
+        const csvText = await res.text();
+
+        // CSV parsing: simple string check. Quotes are often added by the CSV exporter.
+        // We look for the raw ID or the ID wrapped in quotes.
+        return csvText.includes(`"${shareId}"`) || csvText.includes(shareId);
+
+    } catch (e: any) {
+        console.error("[BLOCKLIST] Exception checking public blocklist:", e.message);
+        return true; // Fail closed
     }
 }
 

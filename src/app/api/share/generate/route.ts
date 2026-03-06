@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createShareToken } from "@/lib/shareUtils";
 import { getServerSession } from "next-auth/next";
-import { saveSharedLink, resolveSpreadsheetId } from "@/lib/googleSheets";
+import { saveSharedLink, resolveSpreadsheetId, getOrProvisionPublicBlocklist } from "@/lib/googleSheets";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function POST(request: Request) {
@@ -19,6 +19,7 @@ export async function POST(request: Request) {
         // Generate a unique ID for this share
         const shareId = "sh_" + Math.random().toString(36).substring(2, 10);
         const spreadsheetId = await resolveSpreadsheetId((session as any).accessToken);
+        const blocklistId = await getOrProvisionPublicBlocklist((session as any).accessToken);
 
         // Timestamps for storage
         const now = Date.now();
@@ -36,8 +37,8 @@ export async function POST(request: Request) {
             jwtExpiry = "7d";
         }
 
-        // Include shareId and spreadsheetId in the token payload
-        const token = await createShareToken({ ...record, shareId, spreadsheetId }, jwtExpiry);
+        // Include shareId, spreadsheetId, AND blocklistId in the token payload
+        const token = await createShareToken({ ...record, shareId, spreadsheetId, blocklistId }, jwtExpiry);
 
         await saveSharedLink((session as any).accessToken, [
             shareId,

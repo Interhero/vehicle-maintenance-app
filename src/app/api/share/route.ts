@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { fetchSharedLinks, revokeSharedLink } from "@/lib/googleSheets";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { revokeLinkInstant } from "@/lib/revocationStore";
 
 export const dynamic = 'force-dynamic';
 
@@ -38,15 +37,6 @@ export async function DELETE(request: Request) {
         console.log(`[REVOKE API] Attempting to revoke link: ${shareId}`);
         const success = await revokeSharedLink((session as any).accessToken, shareId);
         console.log(`[REVOKE API] Google Sheets revocation success: ${success}`);
-
-        // Ensure local SQLite revocation applies immediately even if Sheets fails or is slow
-        try {
-            console.log(`[REVOKE API] Calling SQLite/KV revokeLinkInstant...`);
-            await revokeLinkInstant(shareId);
-            console.log(`[REVOKE API] SQLite/KV revokeLinkInstant succeeded.`);
-        } catch (dbError) {
-            console.error(`[REVOKE API] SQLite/KV error:`, dbError);
-        }
 
         return NextResponse.json({ success });
     } catch (error: any) {
