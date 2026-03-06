@@ -41,11 +41,11 @@ export async function DELETE(request: Request) {
 
         // Ensure local SQLite revocation applies immediately even if Sheets fails or is slow
         try {
-            console.log(`[REVOKE API] Calling SQLite revokeLinkInstant...`);
-            revokeLinkInstant(shareId);
-            console.log(`[REVOKE API] SQLite revokeLinkInstant succeeded.`);
+            console.log(`[REVOKE API] Calling SQLite/KV revokeLinkInstant...`);
+            await revokeLinkInstant(shareId);
+            console.log(`[REVOKE API] SQLite/KV revokeLinkInstant succeeded.`);
         } catch (dbError) {
-            console.error(`[REVOKE API] SQLite error:`, dbError);
+            console.error(`[REVOKE API] SQLite/KV error:`, dbError);
         }
 
         return NextResponse.json({ success });

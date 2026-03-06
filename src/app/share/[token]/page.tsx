@@ -35,7 +35,7 @@ export default async function SharePage({ params }: { params: { token: string } 
     }
 
     if (record && record.shareId) {
-        const revokedList = getRevokedLinks();
+        const revokedList = await getRevokedLinks();
         if (revokedList.includes(record.shareId)) {
             isInstantlyRevoked = true;
         }

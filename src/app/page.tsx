@@ -460,8 +460,8 @@ export default function Home() {
 
       {/* Login Flash Overlay */}
       <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 bg-blue-600 transition-all duration-500 ease-in-out ${loginFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none delay-500'}`}>
-        <div className="relative">
-          <Car className={`w-32 h-32 text-white fill-white/20 ${loginFlash ? 'animate-vroom-in' : 'opacity-0'}`} />
+        <div className={`relative ${loginFlash ? 'animate-vroom-in' : 'opacity-0'}`}>
+          <Car className="w-32 h-32 text-white fill-white/20" />
         </div>
         <h2 className={`text-3xl sm:text-4xl font-black text-white tracking-tight transition-all duration-500 delay-300 ${loginFlash ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           Logging In...
@@ -470,8 +470,8 @@ export default function Home() {
 
       {/* Logout Flash Overlay */}
       <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 bg-rose-600 transition-opacity duration-300 ease-in-out ${logoutFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <div className="relative">
-          <Car className={`w-32 h-32 text-white fill-white/20 ${logoutFlash ? 'animate-vroom-out' : 'opacity-0 scale-50'}`} />
+        <div className={`relative ${logoutFlash ? 'animate-vroom-out' : 'opacity-0'}`}>
+          <Car className="w-32 h-32 text-white fill-white/20" />
         </div>
         <h2 className={`text-3xl sm:text-4xl font-black text-white tracking-tight transition-all duration-500 ${logoutFlash ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           Logging Out...
@@ -501,7 +501,7 @@ export default function Home() {
             <button
               onClick={() => {
                 setLogoutFlash(true);
-                setTimeout(() => signOut(), 800);
+                setTimeout(() => signOut(), 1200);
               }}
               className="flex items-center justify-center gap-2 text-sm font-semibold text-rose-600 hover:text-white dark:text-rose-400 bg-rose-50 hover:bg-rose-500 dark:bg-rose-500/10 dark:hover:bg-rose-600 transition-colors px-4 py-3 sm:px-4 sm:py-2.5 rounded-xl border border-rose-200 dark:border-rose-500/20 w-full sm:w-auto mt-1 sm:mt-0 shadow-sm"
             >
