@@ -34,11 +34,19 @@ export default async function SharePage({ params }: { params: { token: string } 
         }
     }
 
+    const revokedList = await getRevokedLinks();
+
     if (record && record.shareId) {
-        const revokedList = await getRevokedLinks();
         if (revokedList.includes(record.shareId)) {
             isInstantlyRevoked = true;
         }
+    }
+
+    // Backward compatibility for legacy links generated before the shareId system.
+    // Legacy links stored the full URL (e.g., http://.../share/eyJ...) in the spreadsheet and blocklist.
+    // We check if any entry in the blocklist contains the current raw token string.
+    if (!isInstantlyRevoked && revokedList.some(revokedItem => revokedItem.includes(shareToken))) {
+        isInstantlyRevoked = true;
     }
 
     if (!record || isInstantlyRevoked) {
