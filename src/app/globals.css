@@ -89,3 +89,49 @@ option {
   background-color: var(--background);
   color: var(--foreground);
 }
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+@keyframes vroom-in {
+  0% {
+    transform: translateX(-150vw) scale(0.5);
+    opacity: 0;
+  }
+
+  60% {
+    transform: translateX(10vw) scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes vroom-out {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+
+  30% {
+    transform: translateX(-10vw) scale(0.9);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(150vw) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.animate-vroom-in {
+  animation: vroom-in 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animate-vroom-out {
+  animation: vroom-out 0.8s cubic-bezier(0.5, 0, 0.25, 1) forwards;
+}

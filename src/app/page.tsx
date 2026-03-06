@@ -459,13 +459,23 @@ export default function Home() {
     <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
 
       {/* Login Flash Overlay */}
-      <div className={`fixed inset-0 z-[200] flex items-center justify-center bg-blue-600 transition-all duration-500 ease-in-out ${loginFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none delay-500'}`}>
-        <Car className={`w-32 h-32 text-white fill-white/20 ${loginFlash ? 'animate-vroom-in' : 'opacity-0'}`} />
+      <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 bg-blue-600 transition-all duration-500 ease-in-out ${loginFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none delay-500'}`}>
+        <div className="relative">
+          <Car className={`w-32 h-32 text-white fill-white/20 ${loginFlash ? 'animate-vroom-in' : 'opacity-0'}`} />
+        </div>
+        <h2 className={`text-3xl sm:text-4xl font-black text-white tracking-tight transition-all duration-500 delay-300 ${loginFlash ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          Logging In...
+        </h2>
       </div>
 
       {/* Logout Flash Overlay */}
-      <div className={`fixed inset-0 z-[200] flex items-center justify-center bg-rose-600 transition-opacity duration-300 ease-in-out ${logoutFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <Car className={`w-32 h-32 text-white fill-white/20 ${logoutFlash ? 'animate-vroom-out' : 'opacity-0 scale-50'}`} />
+      <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 bg-rose-600 transition-opacity duration-300 ease-in-out ${logoutFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className="relative">
+          <Car className={`w-32 h-32 text-white fill-white/20 ${logoutFlash ? 'animate-vroom-out' : 'opacity-0 scale-50'}`} />
+        </div>
+        <h2 className={`text-3xl sm:text-4xl font-black text-white tracking-tight transition-all duration-500 ${logoutFlash ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          Logging Out...
+        </h2>
       </div>
 
       <div className="max-w-6xl mx-auto space-y-8">
