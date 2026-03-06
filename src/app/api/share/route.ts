@@ -35,10 +35,19 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: "Missing share ID" }, { status: 400 });
         }
 
+        console.log(`[REVOKE API] Attempting to revoke link: ${shareId}`);
         const success = await revokeSharedLink((session as any).accessToken, shareId);
-        if (success) {
+        console.log(`[REVOKE API] Google Sheets revocation success: ${success}`);
+
+        // Ensure local SQLite revocation applies immediately even if Sheets fails or is slow
+        try {
+            console.log(`[REVOKE API] Calling SQLite revokeLinkInstant...`);
             revokeLinkInstant(shareId);
+            console.log(`[REVOKE API] SQLite revokeLinkInstant succeeded.`);
+        } catch (dbError) {
+            console.error(`[REVOKE API] SQLite error:`, dbError);
         }
+
         return NextResponse.json({ success });
     } catch (error: any) {
         console.error("Failed to revoke link:", error.message);

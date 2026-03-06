@@ -1,48 +1,36 @@
+import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import Database from 'better-sqlite3';
+import { unstable_noStore as noStore } from 'next/cache';
 
-// Use a safe path for Next.js - `process.cwd()` is standard for local writes.
-// On Vercel, `process.cwd()` is usually NOT writable, so we use `os.tmpdir()`.
-const isVercel = process.env.VERCEL === "1";
-const dbPath = isVercel
-    ? path.join(os.tmpdir(), 'vehicle_revoked_links.db')
-    : path.join(process.cwd(), '.revoked_links.db');
-
-// Initialize DB and ensure table exists
-let db: Database.Database | null = null;
-
-function getDb(): Database.Database {
-    if (!db) {
-        db = new Database(dbPath);
-        db.pragma('journal_mode = WAL');
-        db.exec(`
-            CREATE TABLE IF NOT EXISTS revoked_links (
-                shareId TEXT PRIMARY KEY,
-                revokedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-    }
-    return db;
-}
+// Using the OS tmp directory guarantees uniform physical write locations across all API and Page render processes
+// regardless of how Turbopack defines `process.cwd()`.
+const storePath = path.join(os.tmpdir(), 'vehicle_revoked_links.json');
 
 export function getRevokedLinks(): string[] {
+    // CRITICAL: Next.js aggressively memoizes function calls and `fs.readFileSync` inside Server Components.
+    // Calling `noStore()` explicitly opts this function out of ANY rendering cache, forcing a synchronous disk read.
+    noStore();
     try {
-        const database = getDb();
-        const rows = database.prepare('SELECT shareId FROM revoked_links').all() as { shareId: string }[];
-        return rows.map(row => row.shareId);
+        if (fs.existsSync(storePath)) {
+            const data = fs.readFileSync(storePath, 'utf8');
+            return JSON.parse(data);
+        }
+        return [];
     } catch (e) {
-        console.error("Failed to read revocation store from SQLite:", e);
+        console.error("Failed to read revocation store:", e);
         return [];
     }
 }
 
 export function revokeLinkInstant(shareId: string) {
     try {
-        const database = getDb();
-        const stmt = database.prepare('INSERT OR IGNORE INTO revoked_links (shareId) VALUES (?)');
-        stmt.run(shareId);
+        const revoked = getRevokedLinks();
+        if (!revoked.includes(shareId)) {
+            revoked.push(shareId);
+            fs.writeFileSync(storePath, JSON.stringify(revoked), 'utf8');
+        }
     } catch (e) {
-        console.error("Failed to write to revocation store in SQLite:", e);
+        console.error("Failed to write to revocation store:", e);
     }
 }
