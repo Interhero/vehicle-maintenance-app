@@ -501,6 +501,7 @@ export default function Home() {
             <button
               onClick={() => {
                 setLogoutFlash(true);
+                sessionStorage.removeItem("hasLoggedIn");
                 setTimeout(() => signOut(), 1200);
               }}
               className="flex items-center justify-center gap-2 text-sm font-semibold text-rose-600 hover:text-white dark:text-rose-400 bg-rose-50 hover:bg-rose-500 dark:bg-rose-500/10 dark:hover:bg-rose-600 transition-colors px-4 py-3 sm:px-4 sm:py-2.5 rounded-xl border border-rose-200 dark:border-rose-500/20 w-full sm:w-auto mt-1 sm:mt-0 shadow-sm"
