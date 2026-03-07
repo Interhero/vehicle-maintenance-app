@@ -90,7 +90,7 @@ export default function Home() {
 
   const openMileageModal = (vehicle: any) => {
     setMileageTarget(vehicle);
-    setNewMileage(vehicle.currentMileage?.toString() || "");
+    setNewMileage("");
     setShowMileageModal(true);
     setIsMileageModalClosing(false);
   };
@@ -1055,7 +1055,12 @@ export default function Home() {
                   </p>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">New Odometer Reading (KM)</label>
+                    <div className="flex justify-between items-end mb-1">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">New Odometer Reading (KM)</label>
+                      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/50 px-2 py-0.5 rounded-md">
+                        Current: <span className="font-mono text-zinc-900 dark:text-zinc-200">{mileageTarget.currentMileage?.toLocaleString('en-GB') || "0"}</span>
+                      </span>
+                    </div>
                     <input
                       type="number"
                       value={newMileage}
