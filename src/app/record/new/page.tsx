@@ -486,25 +486,45 @@ export default function NewRecord() {
                                     Upload Receipt Image
                                     <span className="text-[10px] text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded font-bold tracking-wide">NEW</span>
                                 </span>
-                                <div className="relative w-full overflow-hidden bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-300 dark:border-zinc-700/50 border-dashed rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800/50 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent">
-                                    <input
-                                        type="file"
-                                        accept="image/*,application/pdf"
-                                        onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    />
+                                <div className={`relative w-full overflow-hidden bg-zinc-50 dark:bg-zinc-900/50 border border-dashed rounded-xl transition-all ${receiptFile ? 'border-indigo-500/50 dark:border-indigo-500/50' : 'border-zinc-300 dark:border-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'} focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent`}>
+                                    {!receiptFile && (
+                                        <input
+                                            type="file"
+                                            accept="image/*,application/pdf"
+                                            onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        />
+                                    )}
                                     <div className="flex items-center gap-3 p-3.5 text-zinc-400">
-                                        <div className="p-2 bg-zinc-800 rounded-lg text-zinc-300 shrink-0">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                        <div className={`p-2 rounded-lg shrink-0 transition-colors ${receiptFile ? 'bg-indigo-500 text-white shadow-md' : 'bg-zinc-800 text-zinc-300'}`}>
+                                            {receiptFile ? (
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M12 18v-6"></path><path d="m9 15 3 3 3-3"></path></svg>
+                                            ) : (
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                            )}
                                         </div>
                                         <div className="flex flex-col flex-1 min-w-0">
-                                            <span className="font-medium text-sm text-zinc-200 truncate">
+                                            <span className={`font-medium text-sm truncate transition-colors ${receiptFile ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-200'}`}>
                                                 {receiptFile ? receiptFile.name : "Choose a file to upload..."}
                                             </span>
                                             <span className="text-xs text-zinc-500 group-hover:text-indigo-400 transition-colors">
-                                                {receiptFile ? `${(receiptFile.size / 1024 / 1024).toFixed(2)} MB • Auto-saves to your Google Drive` : "Auto-saves directly to your Google Drive"}
+                                                {receiptFile ? `${(receiptFile.size / 1024 / 1024).toFixed(2)} MB • Ready to upload` : "Auto-saves directly to your Google Drive"}
                                             </span>
                                         </div>
+                                        {receiptFile && (
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setReceiptFile(null);
+                                                }}
+                                                className="p-2 ml-2 rounded-full hover:bg-rose-500/10 text-zinc-400 hover:text-rose-500 transition-colors z-20 shrink-0"
+                                                title="Remove file"
+                                            >
+                                                <XCircle className="w-5 h-5" />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </label>
