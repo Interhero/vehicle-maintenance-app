@@ -491,7 +491,24 @@ export default function NewRecord() {
                                         <input
                                             type="file"
                                             accept="image/*,application/pdf"
-                                            onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (!file) {
+                                                    setReceiptFile(null);
+                                                    return;
+                                                }
+                                                // Vercel Serverless hard limit is 4.5MB. Images can be compressed, PDFs cannot.
+                                                if (file.type === "application/pdf" && file.size > 4.5 * 1024 * 1024) {
+                                                    setError("PDF document is too large. Vercel hosting restricts uploads strictly to 4.5MB. Please compress your PDF before uploading.");
+                                                    setFlash({ show: true, type: "error" });
+                                                    setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 3000);
+
+                                                    // Reset the input value so the same file can be selected again if needed
+                                                    e.target.value = "";
+                                                    return;
+                                                }
+                                                setReceiptFile(file);
+                                            }}
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                         />
                                     )}
