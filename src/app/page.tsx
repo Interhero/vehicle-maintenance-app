@@ -907,7 +907,7 @@ export default function Home() {
                         </button>
                       </div>
 
-                      <div className="flex-1 grid grid-cols-4 gap-1.5 sm:gap-2">
+                      <div className="flex-1 grid grid-cols-5 gap-1.5 sm:gap-2">
                         {CAR_COLORS.map((color) => (
                           <button
                             key={color}
@@ -922,6 +922,33 @@ export default function Home() {
                             title={`Select color ${color}`}
                           />
                         ))}
+
+                        {/* Custom Color Picker Button */}
+                        <div className="relative h-9 sm:h-11 w-full">
+                          <input
+                            type="color"
+                            value={newVehicleColor}
+                            onChange={(e) => setNewVehicleColor(e.target.value)}
+                            onBlur={(e) => setNewVehicleColor(e.target.value)}
+                            className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-20"
+                            title="Choose Custom Color"
+                          />
+                          <div
+                            className={`absolute inset-0 rounded-md shadow-sm transition-all flex items-center justify-center overflow-hidden
+                              ${!CAR_COLORS.includes(newVehicleColor)
+                                ? 'ring-2 ring-zinc-800 dark:ring-white scale-105 z-10'
+                                : 'ring-1 ring-zinc-200 dark:ring-zinc-700/50 hover:scale-105 hover:ring-zinc-400 dark:hover:ring-zinc-500'
+                              }`}
+                          >
+                            {/* Background shows the currently selected custom color, or a rainbow gradient if a preset is selected indicating it's the "Custom" button */}
+                            {!CAR_COLORS.includes(newVehicleColor) ? (
+                              <div className="absolute inset-0" style={{ backgroundColor: newVehicleColor }}></div>
+                            ) : (
+                              <div className="absolute inset-0 bg-gradient-to-tr from-rose-500 via-amber-500 to-blue-500 opacity-80"></div>
+                            )}
+                            <Plus className={`w-4 h-4 relative z-10 ${!CAR_COLORS.includes(newVehicleColor) && ['#ffffff', '#f4f4f5'].includes(newVehicleColor.toLowerCase()) ? 'text-zinc-900' : 'text-white drop-shadow-md'}`} />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
