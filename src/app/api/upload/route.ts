@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { google } from "googleapis";
+import { Readable } from "stream";
 
 export async function POST(request: Request) {
     try {
@@ -77,7 +78,7 @@ export async function POST(request: Request) {
 
         const media = {
             mimeType: file.type,
-            body: require('stream').Readable.from(buffer),
+            body: Readable.from(buffer),
         };
 
         const uploadRes = await drive.files.create({
