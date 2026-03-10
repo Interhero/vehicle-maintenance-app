@@ -17,6 +17,13 @@ export function ShareCountdown({ expiresAt }: ShareCountdownProps) {
         return () => clearInterval(timer);
     }, [expiresAt]);
 
+    // Auto-reload when expired
+    useEffect(() => {
+        if (expiresAt !== "Never" && now > 0 && now >= expiresAt) {
+            window.location.reload();
+        }
+    }, [now, expiresAt]);
+
     const info = useMemo(() => {
         if (expiresAt === "Never") return { label: "Permanent Access", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20" };
 
