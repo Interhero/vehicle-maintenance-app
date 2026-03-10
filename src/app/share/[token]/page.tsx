@@ -151,24 +151,88 @@ export default async function SharePage({ params }: { params: { token: string } 
                         </div>
 
                         {/* Details Grid */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             <div className="p-6 rounded-3xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900/30">
-                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2 block">Mileage</span>
-                                <p className="text-2xl font-black text-zinc-900 dark:text-white">{record.lastMileage} <span className="text-xs text-zinc-400">KM</span></p>
+                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2 block">Current Mileage</span>
+                                <p className="text-xl font-black text-zinc-900 dark:text-white">{record.lastMileage} <span className="text-xs text-zinc-400">KM</span></p>
                             </div>
                             <div className="p-6 rounded-3xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900/30">
                                 <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2 block">Total Cost</span>
-                                <p className="text-2xl font-black text-zinc-900 dark:text-white"><span className="text-xs text-emerald-500 mr-1">RM</span>{record.cost || '0'}</p>
+                                <p className="text-xl font-black text-zinc-900 dark:text-white"><span className="text-xs text-emerald-500 mr-1">RM</span>{record.cost || '0'}</p>
+                            </div>
+                            <div className="p-6 rounded-3xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900/30">
+                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2 block">Next Interval</span>
+                                <p className="text-xl font-black text-zinc-900 dark:text-white">{record.nextInterval || '--'} <span className="text-xs text-zinc-400">KM</span></p>
+                            </div>
+                            <div className="p-6 rounded-3xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900/30">
+                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2 block">Next Due</span>
+                                <p className="text-xl font-black text-blue-600 dark:text-blue-400">{record.nextServiceCalculated || '--'} <span className="text-xs text-zinc-400">KM</span></p>
                             </div>
                         </div>
 
-                        {/* Notes */}
-                        {record.details && (
-                            <div className="space-y-3">
-                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest px-1">Service Notes</span>
-                                <div className="p-6 rounded-3xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50 text-zinc-600 dark:text-zinc-300 leading-relaxed font-medium italic text-lg shadow-inner">
-                                    &quot;{record.details}&quot;
-                                </div>
+                        {/* Technical Specs & Location */}
+                        {(record.partBrand || record.partModel || record.locationFront || record.locationRear) && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {(record.partBrand || record.partModel) && (
+                                    <div className="p-6 rounded-3xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50">
+                                        <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-4 block">Technical Specs</span>
+                                        <div className="space-y-4">
+                                            {record.partBrand && (
+                                                <div className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                                                    <span className="text-xs font-bold text-zinc-500 uppercase">Brand</span>
+                                                    <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">{record.partBrand}</span>
+                                                </div>
+                                            )}
+                                            {record.partModel && (
+                                                <div className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                                                    <span className="text-xs font-bold text-zinc-500 uppercase">Model</span>
+                                                    <span className="text-sm font-black text-zinc-800 dark:text-zinc-200">{record.partModel}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                {(record.locationFront || record.locationRear) && (
+                                    <div className="p-6 rounded-3xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50">
+                                        <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-4 block">Location Blueprint</span>
+                                        <div className="space-y-4">
+                                            {record.locationFront && (
+                                                <div className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                                                    <span className="text-xs font-bold text-zinc-500 uppercase">Front</span>
+                                                    <span className="text-sm font-black text-zinc-800 dark:text-zinc-200">{record.locationFront}</span>
+                                                </div>
+                                            )}
+                                            {record.locationRear && (
+                                                <div className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                                                    <span className="text-xs font-bold text-zinc-500 uppercase">Rear / Chain</span>
+                                                    <span className="text-sm font-black text-zinc-800 dark:text-zinc-200">{record.locationRear}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Notes & Remarks */}
+                        {(record.details || record.remark) && (
+                            <div className="space-y-4">
+                                {record.details && (
+                                    <div className="space-y-3">
+                                        <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest px-1">Service Notes</span>
+                                        <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 leading-relaxed font-medium italic text-lg shadow-inner">
+                                            &quot;{record.details}&quot;
+                                        </div>
+                                    </div>
+                                )}
+                                {record.remark && (
+                                    <div className="space-y-3">
+                                        <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest px-1">Remarks</span>
+                                        <div className="p-4 rounded-[1.5rem] bg-amber-500/5 border border-amber-500/10 text-amber-600 dark:text-amber-400/80 text-xs font-medium leading-relaxed">
+                                            {record.remark}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 

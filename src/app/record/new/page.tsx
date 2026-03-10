@@ -32,10 +32,6 @@ export default function NewRecord() {
     const [flash, setFlash] = useState<{ show: boolean; type: "idle" | "loading" | "success" | "error" }>({ show: false, type: "idle" });
     const [vehiclesLoading, setVehiclesLoading] = useState(true);
 
-    // Helper to get selected vehicle type
-    const selectedVehicle = dynamicVehicles.find(v => v.name === formData.vehicleType);
-    const vehicleType: "Car" | "Motorcycle" = (selectedVehicle?.type as any) || "Car";
-
     const [formData, setFormData] = useState({
         vehicleType: "",
         serviceType: "",
@@ -58,6 +54,10 @@ export default function NewRecord() {
         locationRear: "",
         mapLink: "", // Added
     });
+
+    // Helper to get selected vehicle type
+    const selectedVehicle = dynamicVehicles.find(v => v.name === formData.vehicleType);
+    const vehicleType: "Car" | "Motorcycle" = (selectedVehicle?.type as any) || "Car";
 
     useEffect(() => {
         if (session && (session as any).accessToken) {
