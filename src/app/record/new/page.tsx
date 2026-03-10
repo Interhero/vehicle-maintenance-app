@@ -6,6 +6,22 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Loader2, Car, Wrench, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
 
+const SERVICE_OPTIONS: Record<string, string[]> = {
+    Car: ["Engine Oil", "Engine Oil Filter", "Transmission Oil", "Transmission Oil Filter", "Brake Pads", "Tire", "Battery", "Other"],
+    Motorcycle: ["Engine Oil", "Engine Oil Filter", "Chain", "Brake Pads", "Tire", "Battery", "Other"]
+};
+
+const LOCATION_OPTIONS: Record<string, { front: string[], rear: string[] }> = {
+    Car: {
+        front: ["Front Left", "Front Right", "Front Both"],
+        rear: ["Rear Left", "Rear Right", "Rear Both"]
+    },
+    Motorcycle: {
+        front: ["Front Center"],
+        rear: ["Rear Center", "Chain"]
+    }
+};
+
 export default function NewRecord() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -15,6 +31,10 @@ export default function NewRecord() {
     const [dynamicVehicles, setDynamicVehicles] = useState<any[]>([]);
     const [flash, setFlash] = useState<{ show: boolean; type: "idle" | "loading" | "success" | "error" }>({ show: false, type: "idle" });
     const [vehiclesLoading, setVehiclesLoading] = useState(true);
+
+    // Helper to get selected vehicle type
+    const selectedVehicle = dynamicVehicles.find(v => v.name === formData.vehicleType);
+    const vehicleType: "Car" | "Motorcycle" = (selectedVehicle?.type as any) || "Car";
 
     const [formData, setFormData] = useState({
         vehicleType: "",
@@ -311,14 +331,9 @@ export default function NewRecord() {
                                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">What was done? *</span>
                                 <select required name="serviceType" value={formData.serviceType} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
                                     <option value="" disabled>Select primary service...</option>
-                                    <option value="Engine Oil">Engine Oil</option>
-                                    <option value="Engine Oil Filter">Engine Oil Filter</option>
-                                    <option value="Transition Oil">Transition Oil</option>
-                                    <option value="Transmition Oil Filter">Transmition Oil Filter</option>
-                                    <option value="Brake Pads">Brake Pads</option>
-                                    <option value="Tire">Tire</option>
-                                    <option value="Battery">Battery</option>
-                                    <option value="Other">Other</option>
+                                    {(SERVICE_OPTIONS[vehicleType] || SERVICE_OPTIONS.Car).map(opt => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                    ))}
                                 </select>
                             </label>
 
@@ -331,27 +346,25 @@ export default function NewRecord() {
                             )}
 
                             {/* Additional conditionally rendered details based on Service Type grouping */}
-                            {["Other", "Brake Pads", "Tire"].includes(formData.serviceType) && (
+                            {["Other", "Brake Pads", "Tire", "Chain"].includes(formData.serviceType) && (
                                 <>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <label className="space-y-2">
                                             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location - Front</span>
                                             <select name="locationFront" value={formData.locationFront} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
                                                 <option value="">N/A</option>
-                                                <option value="Front Left">Left</option>
-                                                <option value="Front Right">Right</option>
-                                                <option value="Front Both">Both</option>
-                                                <option value="Front Center">Center (Motorcycle)</option>
+                                                {(LOCATION_OPTIONS[vehicleType]?.front || LOCATION_OPTIONS.Car.front).map(opt => (
+                                                    <option key={opt} value={opt}>{opt.replace('Front ', '')}</option>
+                                                ))}
                                             </select>
                                         </label>
                                         <label className="space-y-2">
                                             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location - Rear</span>
                                             <select name="locationRear" value={formData.locationRear} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
                                                 <option value="">N/A</option>
-                                                <option value="Rear Left">Left</option>
-                                                <option value="Rear Right">Right</option>
-                                                <option value="Rear Both">Both</option>
-                                                <option value="Rear Center">Center (Motorcycle)</option>
+                                                {(LOCATION_OPTIONS[vehicleType]?.rear || LOCATION_OPTIONS.Car.rear).map(opt => (
+                                                    <option key={opt} value={opt}>{opt.replace('Rear ', '')}</option>
+                                                ))}
                                             </select>
                                         </label>
                                     </div>

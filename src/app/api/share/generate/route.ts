@@ -26,15 +26,26 @@ export async function POST(request: Request) {
         let expiresAtTimestamp: number | string = "Never";
         let jwtExpiry: string | number | undefined = undefined;
 
-        if (expiresIn === "1h") {
-            expiresAtTimestamp = now + 3600000;
-            jwtExpiry = "1h";
-        } else if (expiresIn === "1d") {
-            expiresAtTimestamp = now + 86400000;
-            jwtExpiry = "1d";
-        } else if (expiresIn === "7d") {
-            expiresAtTimestamp = now + 604800000;
-            jwtExpiry = "7d";
+        if (expiresIn && expiresIn !== "never") {
+            jwtExpiry = expiresIn;
+            const now = Date.now();
+            const value = parseInt(expiresIn);
+            const unit = expiresIn.slice(-1);
+
+            if (unit === 'm') {
+                expiresAtTimestamp = now + (value * 60000);
+            } else if (unit === 'h') {
+                expiresAtTimestamp = now + (value * 3600000);
+            } else if (unit === 'd') {
+                expiresAtTimestamp = now + (value * 86400000);
+            } else {
+                // Fallback to 1 day if unit is unknown but value exists
+                expiresAtTimestamp = now + 86400000;
+                jwtExpiry = "1d";
+            }
+        } else {
+            expiresAtTimestamp = "Never";
+            jwtExpiry = undefined;
         }
 
         // Include shareId, spreadsheetId, AND blocklistId in the token payload

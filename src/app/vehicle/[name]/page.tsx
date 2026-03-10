@@ -47,6 +47,8 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
     // Advanced Sharing State
     const [sharingRecord, setSharingRecord] = useState<any | null>(null);
     const [shareExpiry, setShareExpiry] = useState("1d");
+    const [customDuration, setCustomDuration] = useState<number>(1);
+    const [durationUnit, setDurationUnit] = useState<"m" | "h" | "d">("d");
     const [generatedLink, setGeneratedLink] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
@@ -181,7 +183,7 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     record: { ...sharingRecord, vehicle: decodedName },
-                    expiresIn: shareExpiry === "never" ? undefined : shareExpiry
+                    expiresIn: shareExpiry === "never" ? undefined : (shareExpiry === "custom" ? `${customDuration}${durationUnit}` : shareExpiry)
                 }),
             });
             const data = await response.json();
@@ -528,7 +530,8 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                                 { label: "1 Hour", value: "1h" },
                                                 { label: "1 Day", value: "1d" },
                                                 { label: "7 Days", value: "7d" },
-                                                { label: "Never", value: "never" }
+                                                { label: "Never", value: "never" },
+                                                { label: "Custom", value: "custom" }
                                             ].map((opt) => (
                                                 <button
                                                     key={opt.value}
@@ -542,6 +545,27 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                                 </button>
                                             ))}
                                         </div>
+
+                                        {shareExpiry === "custom" && (
+                                            <div className="flex gap-2 animate-in slide-in-from-top-2 duration-300">
+                                                <input
+                                                    type="number"
+                                                    value={customDuration}
+                                                    onChange={(e) => setCustomDuration(parseInt(e.target.value) || 1)}
+                                                    min="1"
+                                                    className="w-20 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 text-center text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                                />
+                                                <select
+                                                    value={durationUnit}
+                                                    onChange={(e) => setDurationUnit(e.target.value as any)}
+                                                    className="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                                >
+                                                    <option value="m">Minutes</option>
+                                                    <option value="h">Hours</option>
+                                                    <option value="d">Days</option>
+                                                </select>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="bg-blue-50/50 dark:bg-blue-500/5 p-4 rounded-2xl border border-blue-100 dark:border-blue-500/10 flex items-start gap-3">
@@ -591,7 +615,11 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                                     </div>
 
                                     <div className="flex flex-col gap-2 pt-2">
-                                        <p className="text-[10px] text-zinc-400 text-center font-medium">Link expires in: <span className="text-zinc-600 dark:text-zinc-300 uppercase tracking-wider">{shareExpiry}</span></p>
+                                        <p className="text-[10px] text-zinc-400 text-center font-medium uppercase tracking-wider">
+                                            Link expires in: <span className="text-emerald-500 font-bold">
+                                                {shareExpiry === "custom" ? `${customDuration}${durationUnit}` : shareExpiry}
+                                            </span>
+                                        </p>
                                         <button
                                             onClick={() => setGeneratedLink("")}
                                             className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors py-2"
