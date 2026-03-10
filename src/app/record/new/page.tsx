@@ -8,7 +8,7 @@ import { AnimatedLoader } from "@/components/AnimatedLoader";
 
 const SERVICE_OPTIONS: Record<string, string[]> = {
     Car: ["Engine Oil", "Engine Oil Filter", "Transmission Oil", "Transmission Oil Filter", "Brake Pads", "Tire", "Battery", "Other"],
-    Motorcycle: ["Engine Oil", "Engine Oil Filter", "Chain", "Brake Pads", "Tire", "Battery", "Other"]
+    Motorcycle: ["Engine Oil", "Engine Oil Filter", "Chain Cleaning", "Chain Lubricant", "Chain Replacement", "Brake Pads", "Tire", "Battery", "Other"]
 };
 
 const LOCATION_OPTIONS: Record<string, { front: string[], rear: string[] }> = {
@@ -18,7 +18,7 @@ const LOCATION_OPTIONS: Record<string, { front: string[], rear: string[] }> = {
     },
     Motorcycle: {
         front: ["Front Center"],
-        rear: ["Rear Center", "Chain"]
+        rear: ["Rear Center"]
     }
 };
 
@@ -346,28 +346,32 @@ export default function NewRecord() {
                             )}
 
                             {/* Additional conditionally rendered details based on Service Type grouping */}
-                            {["Other", "Brake Pads", "Tire", "Chain"].includes(formData.serviceType) && (
+                            {["Other", "Brake Pads", "Tire", "Chain Cleaning", "Chain Lubricant", "Chain Replacement"].includes(formData.serviceType) && (
                                 <>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <label className="space-y-2">
-                                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location - Front</span>
-                                            <select name="locationFront" value={formData.locationFront} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
-                                                <option value="">N/A</option>
-                                                {(LOCATION_OPTIONS[vehicleType]?.front || LOCATION_OPTIONS.Car.front).map(opt => (
-                                                    <option key={opt} value={opt}>{opt.replace('Front ', '')}</option>
-                                                ))}
-                                            </select>
-                                        </label>
-                                        <label className="space-y-2">
-                                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location - Rear</span>
-                                            <select name="locationRear" value={formData.locationRear} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
-                                                <option value="">N/A</option>
-                                                {(LOCATION_OPTIONS[vehicleType]?.rear || LOCATION_OPTIONS.Car.rear).map(opt => (
-                                                    <option key={opt} value={opt}>{opt.replace('Rear ', '')}</option>
-                                                ))}
-                                            </select>
-                                        </label>
-                                    </div>
+                                    {/* Only show location selectors if NOT a chain service */}
+                                    {!formData.serviceType.toLowerCase().includes("chain") && (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <label className="space-y-2">
+                                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location - Front</span>
+                                                <select name="locationFront" value={formData.locationFront} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
+                                                    <option value="">N/A</option>
+                                                    {(LOCATION_OPTIONS[vehicleType]?.front || LOCATION_OPTIONS.Car.front).map(opt => (
+                                                        <option key={opt} value={opt}>{opt.replace('Front ', '')}</option>
+                                                    ))}
+                                                </select>
+                                            </label>
+                                            <label className="space-y-2">
+                                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location - Rear</span>
+                                                <select name="locationRear" value={formData.locationRear} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all">
+                                                    <option value="">N/A</option>
+                                                    {(LOCATION_OPTIONS[vehicleType]?.rear || LOCATION_OPTIONS.Car.rear).map(opt => (
+                                                        <option key={opt} value={opt}>{opt.replace('Rear ', '')}</option>
+                                                    ))}
+                                                </select>
+                                            </label>
+                                        </div>
+                                    )}
+
                                     <label className="space-y-2">
                                         <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Brand of Part</span>
                                         <input type="text" name="partBrand" value={formData.partBrand} onChange={handleChange} className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-3.5 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Michelin" />

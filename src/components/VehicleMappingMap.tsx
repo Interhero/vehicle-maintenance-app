@@ -82,6 +82,9 @@ export default function VehicleMappingMap({ isMotorcycle, serviceDetails, locati
         if (text.includes("battery")) {
             markers.push({ id: "Battery", ...coordsMap.battery });
         }
+        if (text.includes("chain") && isMotorcycle && 'chain' in coordsMap) {
+            markers.push({ id: "Chain/Sprocket", ...(coordsMap as any).chain });
+        }
         if (text.includes("coolant") && 'coolant' in coordsMap) {
             markers.push({ id: "Radiator/Coolant", ...(coordsMap as any).coolant });
         }
