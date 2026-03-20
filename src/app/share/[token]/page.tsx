@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { ShareCountdown } from "@/components/ShareCountdown";
 import VehicleMappingMap from "@/components/VehicleMappingMap";
+import { AnimatedX } from "@/components/AnimatedStatusIcons";
 import Link from "next/link";
 import { checkPublicBlocklist } from '@/lib/googleSheets';
 
@@ -51,7 +52,7 @@ export default async function SharePage({ params }: { params: { token: string } 
                 <div className="max-w-md w-full bg-zinc-900 border border-zinc-800 p-8 rounded-[2rem] text-center shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600"></div>
                     <div className="w-20 h-20 bg-rose-500/10 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 border border-rose-500/20 rotate-3">
-                        <ShieldAlert className="w-10 h-10 text-rose-500 -rotate-3" />
+                        <AnimatedX className="w-10 h-10 text-rose-500 -rotate-3" />
                     </div>
                     <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Access Revoked</h1>
                     <p className="text-zinc-400 font-medium leading-relaxed mb-8">
@@ -82,10 +83,7 @@ export default async function SharePage({ params }: { params: { token: string } 
                 `}} />
 
                 <div className="w-24 h-24 bg-rose-500 rounded-full flex items-center justify-center mb-8 border-4 border-rose-600 shadow-2xl shadow-rose-500/40 animate-pulse-shake">
-                    <svg viewBox="0 0 24 24" className="w-12 h-12 text-white" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-                    </svg>
+                    <AnimatedX className="w-12 h-12 text-white" />
                 </div>
 
                 <h1 className="text-3xl font-black text-rose-600 dark:text-rose-500 mb-3 tracking-tight">ACCESS DENIED</h1>

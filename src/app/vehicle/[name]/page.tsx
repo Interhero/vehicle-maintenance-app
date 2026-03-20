@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import VehicleMappingMap from "@/components/VehicleMappingMap";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
+import { AnimatedCheck, AnimatedX } from "@/components/AnimatedStatusIcons";
 
 export default function VehicleDetails({ params }: { params: Promise<{ name: string }> }) {
     const unwrappedParams = use(params);
@@ -596,7 +597,7 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                             ) : (
                                 <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
                                     <div className="p-4 bg-emerald-50/50 dark:bg-emerald-500/5 rounded-2xl border border-emerald-100 dark:border-emerald-500/10 text-center">
-                                        <Check className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                                        <AnimatedCheck className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
                                         <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Share Link Ready!</p>
                                     </div>
 
@@ -727,7 +728,7 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setRevokingLink(null)}></div>
                     <div className="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-3xl p-6 text-center shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 duration-300">
                         <div className="w-16 h-16 bg-rose-500/10 rounded-2xl mx-auto flex items-center justify-center mb-4">
-                            <Trash2 className="w-8 h-8 text-rose-500" />
+                            <AnimatedX className="w-8 h-8 text-rose-500" />
                         </div>
                         <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Revoke Access?</h3>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
@@ -747,7 +748,7 @@ export default function VehicleDetails({ params }: { params: Promise<{ name: str
 
             {/* Revoke Flash Animation Overlay */}
             <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center bg-rose-600 transition-all duration-500 ease-in-out ${revokeFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-                <Trash2 className={`w-32 h-32 text-white mb-4 transition-transform duration-500 ease-in-out ${revokeFlash ? 'scale-110 drop-shadow-2xl translate-y-0' : 'scale-50 translate-y-20'}`} />
+                <AnimatedX className={`w-32 h-32 text-white mb-4 transition-transform duration-500 ease-in-out ${revokeFlash ? 'scale-110 drop-shadow-2xl translate-y-0' : 'scale-50 translate-y-20'}`} />
                 <h2 className={`text-4xl font-black text-white tracking-tight transition-all duration-500 delay-100 ${revokeFlash ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>Link Revoked</h2>
             </div>
         </div>
