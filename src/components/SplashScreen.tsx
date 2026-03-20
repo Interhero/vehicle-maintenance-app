@@ -13,7 +13,7 @@ export function SplashScreen() {
 
     const userName = session?.user?.name || "";
     const prefix = session ? "Welcome Back, " : "";
-    const namePart = session ? userName : "VehicleTracker";
+    const namePart = session ? userName : "Vehicle Maintenance Record";
     const suffix = session ? "!" : "";
     const fullText = prefix + namePart + suffix;
 
