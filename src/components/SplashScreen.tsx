@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Car, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { AnimatedCar } from "@/components/AnimatedStatusIcons";
 
 export function SplashScreen() {
     const { data: session, status } = useSession();
@@ -42,7 +43,7 @@ export function SplashScreen() {
 
             <div className="relative z-10 flex flex-col items-center animate-in zoom-in-95 duration-1000 ease-out">
                 <div className="w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center mb-6 ring-1 ring-blue-500/20 shadow-[0_0_30px_rgba(59,130,246,0.3)]">
-                    <Car className="w-12 h-12 text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+                    <AnimatedCar className="w-12 h-12 text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
                 </div>
 
                 {/* Dynamic Text Area - Fades in once session resolves to avoid jitter */}

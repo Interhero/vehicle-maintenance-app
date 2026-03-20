@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Car, Wrench, ShieldCheck, Gauge } from "lucide-react";
+import { Wrench, ShieldCheck, Gauge } from "lucide-react";
+import { AnimatedCar } from "@/components/AnimatedStatusIcons";
 
 export function LaunchingScreen() {
     const [progress, setProgress] = useState(0);
@@ -41,7 +42,7 @@ export function LaunchingScreen() {
                     {/* Core Shield & Car */}
                     <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-2xl flex items-center justify-center border border-zinc-700/50 shadow-2xl overflow-hidden group">
                         <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <Car className="w-10 h-10 text-white drop-shadow-[0_0_12px_rgba(59,130,246,0.6)] fill-blue-500/30" strokeWidth={1.5} />
+                        <AnimatedCar className="w-10 h-10 text-white drop-shadow-[0_0_12px_rgba(59,130,246,0.6)]" strokeWidth={1.5} />
                     </div>
                 </div>
 
