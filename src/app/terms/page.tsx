@@ -3,8 +3,8 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Terms of Service | Vehicle Hub",
-    description: "Terms of Service for Vehicle Hub",
+    title: "Terms of Service | Vehicle Maintenance App",
+    description: "Terms of Service for Vehicle Maintenance App",
 };
 
 export default function TermsOfService() {

@@ -363,7 +363,7 @@ export default function Home() {
             {/* Typography */}
             <div className="text-center space-y-3 mb-12">
               <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                Vehicle <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Hub</span>
+                Vehicle Maintenance <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">App</span>
               </h1>
               <p className="text-zinc-400 text-sm font-medium leading-relaxed max-w-[280px] mx-auto">
                 Your entire garage's maintenance history securely synced via Google Drive.
@@ -398,6 +398,13 @@ export default function Home() {
             <div className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Secure Sync</div>
             <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
             <div className="flex items-center gap-1.5"><Gauge className="w-4 h-4 text-blue-500" /> Fast Access</div>
+          </div>
+
+          {/* Mandatory Legal Links for Google OAuth Approval */}
+          <div className="mt-8 flex items-center justify-center gap-4 text-zinc-500 text-xs font-medium">
+            <a href="/privacy" className="hover:text-zinc-300 transition-colors">Privacy Policy</a>
+            <span className="text-zinc-700">•</span>
+            <a href="/terms" className="hover:text-zinc-300 transition-colors">Terms of Service</a>
           </div>
         </div>
       </div>

@@ -3,8 +3,8 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Privacy Policy | Vehicle Hub",
-    description: "Privacy policy and data handling for Vehicle Hub",
+    title: "Privacy Policy | Vehicle Maintenance App",
+    description: "Privacy policy and data handling for Vehicle Maintenance App",
 };
 
 export default function PrivacyPolicy() {
