@@ -35,8 +35,12 @@ export function SplashScreen() {
     const userName = session?.user?.name || "";
 
     return (
-        <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-opacity duration-700 ${welcomeFading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            <div className="flex flex-col items-center animate-in zoom-in duration-500 spring-bounce">
+        <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 overflow-hidden transition-all duration-1000 ease-out ${welcomeFading ? 'opacity-0 pointer-events-none blur-sm scale-105' : 'opacity-100 scale-100 blur-none'}`}>
+            {/* Ambient Background Gradients to seamlessly match LaunchingScreen */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[150px] mix-blend-screen opacity-60"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] mix-blend-screen opacity-40"></div>
+
+            <div className="relative z-10 flex flex-col items-center animate-in zoom-in-95 duration-1000 ease-out">
                 <div className="w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center mb-6 ring-1 ring-blue-500/20 shadow-[0_0_30px_rgba(59,130,246,0.3)]">
                     <Car className="w-12 h-12 text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
                 </div>

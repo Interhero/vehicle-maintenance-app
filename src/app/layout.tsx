@@ -4,6 +4,7 @@ import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SplashScreen } from "@/components/SplashScreen";
+import { UpdateNotifier } from "@/components/UpdateNotifier";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -25,6 +26,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Vehicle Maint",
   description: "Vehicle maintenance tracking app",
+  verification: {
+    google: "YOUR_VERIFICATION_CODE_HERE",
+  },
 };
 
 export default function RootLayout({
@@ -66,6 +70,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <SplashScreen />
+            <UpdateNotifier />
             {children}
           </AuthProvider>
         </ThemeProvider>

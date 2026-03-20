@@ -2,7 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, Car, Bike, Settings, Clock, CheckCircle2, XCircle, Trash2, Search, EyeOff, Camera, ChevronDown, ShieldCheck, Gauge } from 'lucide-react';
+import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, Car, Bike, Settings, Clock, CheckCircle2, XCircle, Trash2, Search, EyeOff, Camera, ChevronDown, ShieldCheck, Gauge, MessageSquare } from 'lucide-react';
 import { LaunchingScreen } from "@/components/LaunchingScreen";
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
@@ -534,6 +534,10 @@ export default function Home() {
           </div>
           <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3 sm:gap-4 mt-6 md:mt-0">
             <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+              <a href="mailto:developer@example.com" className="flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 py-3 sm:px-4 sm:py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 font-medium rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm whitespace-nowrap">
+                <MessageSquare className="w-4 h-4" />
+                <span className="hidden sm:inline">Contact</span>
+              </a>
               <button onClick={openManageModal} className="flex-1 sm:flex-none justify-center px-4 py-3 sm:px-5 sm:py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 font-medium rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm whitespace-nowrap">
                 Manage Vehicles
               </button>
@@ -1114,9 +1118,9 @@ export default function Home() {
           )}
 
           {(flash.type === "success" || flash.type === "mileage_success") && (
-            <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500 spring-bounce`}>
+            <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
-                <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
+                <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
               </div>
               <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">
                 {flash.type === "mileage_success" ? "Mileage Updated!" :
@@ -1127,9 +1131,9 @@ export default function Home() {
           )}
 
           {flash.type === "deleted" && (
-            <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-top-4 duration-500 spring-bounce`}>
+            <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-top-4 duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(244,63,94,0.4)] ring-4 ring-white/50 dark:ring-rose-400/50">
-                <Trash2 className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
+                <Trash2 className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
               </div>
               <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Vehicle Deleted</h2>
               <p className="text-rose-50 dark:text-rose-100 font-semibold text-lg drop-shadow-md">Removed from your garage.</p>

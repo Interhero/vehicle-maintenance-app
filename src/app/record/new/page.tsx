@@ -261,9 +261,9 @@ export default function NewRecord() {
                 )}
 
                 {flash.type === "success" && (
-                    <div className="flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500 spring-bounce">
+                    <div className="flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500">
                         <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
-                            <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[bounce_1s_ease-in-out_infinite]" />
+                            <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
                         </div>
                         <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Saved Successfully!</h2>
                         <p className="text-emerald-50 dark:text-emerald-100 font-semibold text-lg drop-shadow-md">Redirecting to garage...</p>
