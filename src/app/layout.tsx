@@ -24,7 +24,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vehicle Maint",
+  title: "Vehicle Maintenance App",
+  applicationName: "Vehicle Hub",
   description: "Vehicle maintenance tracking app",
   verification: {
     google: "KliH5w7irmchmxH_rgXNyZWBlfadJ_OHaj7xBRI39SM",
