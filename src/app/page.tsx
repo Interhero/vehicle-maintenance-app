@@ -6,6 +6,7 @@ import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calenda
 import { LaunchingScreen } from "@/components/LaunchingScreen";
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
+import { AnimatedCheck, AnimatedX, AnimatedTrash, AnimatedClock } from "@/components/AnimatedStatusIcons";
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -1105,7 +1106,7 @@ export default function Home() {
           {(flash.type === "saving" || flash.type === "mileage_saving" || flash.type === "deleting") && (
             <div className={`flex flex-col items-center animate-in zoom-in duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden ring-4 ring-white/30 dark:ring-transparent">
-                <Clock className="w-14 h-14 text-white dark:text-orange-200 animate-[spin_3s_linear_infinite]" />
+                <AnimatedClock className="w-14 h-14 text-white dark:text-orange-200" />
                 <div className="absolute inset-0 border-4 border-white/50 dark:border-orange-400/30 rounded-full border-t-white animate-spin"></div>
               </div>
               <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
@@ -1120,7 +1121,7 @@ export default function Home() {
           {(flash.type === "success" || flash.type === "mileage_success") && (
             <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
-                <CheckCircle2 className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+                <AnimatedCheck className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
               </div>
               <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">
                 {flash.type === "mileage_success" ? "Mileage Updated!" :
@@ -1133,7 +1134,7 @@ export default function Home() {
           {flash.type === "deleted" && (
             <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-top-4 duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(244,63,94,0.4)] ring-4 ring-white/50 dark:ring-rose-400/50">
-                <Trash2 className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+                <AnimatedTrash className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
               </div>
               <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Vehicle Deleted</h2>
               <p className="text-rose-50 dark:text-rose-100 font-semibold text-lg drop-shadow-md">Removed from your garage.</p>
@@ -1143,7 +1144,7 @@ export default function Home() {
           {flash.type === "error" && (
             <div className={`flex flex-col items-center animate-in shake duration-300`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(244,63,94,0.4)] ring-4 ring-white/50 dark:ring-rose-400/50">
-                <XCircle className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-[ping_1.5s_ease-in-out_infinite]" />
+                <AnimatedX className="w-16 h-16 text-white dark:text-rose-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
               </div>
               <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Action Failed</h2>
               <p className="text-rose-50 dark:text-rose-100 font-semibold text-lg max-w-sm text-center bg-rose-900/40 dark:bg-rose-950/50 p-4 rounded-xl border border-white/20 dark:border-rose-500/30 backdrop-blur-md">{errorMsg}</p>
