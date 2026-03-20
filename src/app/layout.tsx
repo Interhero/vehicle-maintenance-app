@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   title: "Vehicle Maint",
   description: "Vehicle maintenance tracking app",
   verification: {
-    google: "YOUR_VERIFICATION_CODE_HERE",
+    google: "KliH5w7irmchmxH_rgXNyZWBlfadJ_OHaj7xBRI39SM",
   },
 };
 
