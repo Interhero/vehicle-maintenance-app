@@ -79,6 +79,14 @@ export default function Home() {
   const [newMileage, setNewMileage] = useState("");
   const [mileageLoading, setMileageLoading] = useState(false);
 
+  // Renewal States
+  const [showRenewModal, setShowRenewModal] = useState(false);
+  const [isRenewModalClosing, setIsRenewModalClosing] = useState(false);
+  const [renewTarget, setRenewTarget] = useState<any>(null);
+  const [renewInterval, setRenewInterval] = useState<6 | 12>(12);
+  const [renewCompany, setRenewCompany] = useState("");
+  const [renewLoading, setRenewLoading] = useState(false);
+
   const openManageModal = () => {
     setShowManageModal(true);
     setIsManageModalClosing(false);
@@ -105,6 +113,23 @@ export default function Home() {
       setShowMileageModal(false);
       setIsMileageModalClosing(false);
       setMileageTarget(null);
+    }, 300);
+  };
+
+  const openRenewModal = (vehicle: any) => {
+    setRenewTarget(vehicle);
+    setRenewInterval(12);
+    setRenewCompany(vehicle.insuranceCompany || "");
+    setShowRenewModal(true);
+    setIsRenewModalClosing(false);
+  };
+
+  const closeRenewModal = () => {
+    setIsRenewModalClosing(true);
+    setTimeout(() => {
+      setShowRenewModal(false);
+      setIsRenewModalClosing(false);
+      setRenewTarget(null);
     }, 300);
   };
 
@@ -231,6 +256,53 @@ export default function Home() {
       }, 3000);
     } finally {
       setModalLoading(false);
+    }
+  };
+
+  const handleRenewService = async () => {
+    if (!renewTarget) return;
+    setRenewLoading(true);
+    closeRenewModal();
+    setFlash({ show: true, type: "saving" });
+    setErrorMsg("");
+
+    try {
+      const now = new Date();
+      now.setMonth(now.getMonth() + renewInterval);
+      const newDateStr = now.toISOString().split('T')[0];
+
+      const formData = new FormData();
+      formData.append("originalName", renewTarget.name);
+      formData.append("vehicleName", renewTarget.name);
+      formData.append("vehicleType", renewTarget.type);
+      formData.append("color", renewTarget.color);
+      formData.append("roadtaxExpiry", newDateStr);
+      formData.append("insuranceExpiry", newDateStr);
+      formData.append("insuranceCompany", renewCompany.trim());
+
+      const res = await fetch("/api/vehicles", {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${(session as any).accessToken}` },
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setDynamicVehicles(prev => prev.map(v => v.name === renewTarget.name ? data.vehicle : v));
+        setFlash({ show: true, type: "success" });
+        setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 2000);
+      } else {
+        const err = await res.json().catch(() => ({ error: "Unknown" }));
+        setErrorMsg(`Renewal failed: ${err.error}`);
+        setFlash({ show: true, type: "error" });
+        setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 3000);
+      }
+    } catch (e: any) {
+      setErrorMsg(`Connection Error: ${e.message}`);
+      setFlash({ show: true, type: "error" });
+      setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 3000);
+    } finally {
+      setRenewLoading(false);
     }
   };
 
@@ -429,7 +501,16 @@ export default function Home() {
   // Pre-fill with all dynamic vehicles so even those without records show up
   const initialVehicleData = dynamicVehicles.reduce((acc, v) => {
     if (v && v.name) {
-      acc[v.name] = { name: v.name, color: v.color, type: v.type, currentMileage: v.mileage || 0, services: {} };
+      acc[v.name] = {
+        name: v.name,
+        color: v.color,
+        type: v.type,
+        currentMileage: v.mileage || 0,
+        roadtaxExpiry: v.roadtaxExpiry || "",
+        insuranceExpiry: v.insuranceExpiry || "",
+        insuranceCompany: v.insuranceCompany || "",
+        services: {}
+      };
     }
     return acc;
   }, {} as Record<string, any>);
@@ -523,6 +604,41 @@ export default function Home() {
 
   const hasDismissed = Object.values(dismissedAlerts).some(a => a.status === 'dismissed');
   const hasAttended = Object.values(dismissedAlerts).some(a => a.status === 'attended');
+
+  useEffect(() => {
+    if (dynamicVehicles.length > 0 && typeof window !== "undefined" && "Notification" in window) {
+      const now = new Date();
+      const alerts: string[] = [];
+      dynamicVehicles.forEach(v => {
+        const rDate = new Date(v.roadtaxExpiry);
+        const iDate = new Date(v.insuranceExpiry);
+        if (v.roadtaxExpiry && !isNaN(rDate.getTime()) && (rDate.getTime() - now.getTime()) / 86400000 <= 14) {
+          alerts.push(`${v.name} Roadtax expires soon`);
+        }
+        if (v.insuranceExpiry && !isNaN(iDate.getTime()) && (iDate.getTime() - now.getTime()) / 86400000 <= 14) {
+          alerts.push(`${v.name} Insurance expires soon`);
+        }
+      });
+
+      if (alerts.length > 0) {
+        const lastNotified = localStorage.getItem("last_sys_notify");
+        const todayDate = now.toDateString();
+        if (lastNotified !== todayDate) {
+          if (Notification.permission === "granted") {
+            new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
+            localStorage.setItem("last_sys_notify", todayDate);
+          } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(perm => {
+              if (perm === "granted") {
+                new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
+                localStorage.setItem("last_sys_notify", todayDate);
+              }
+            });
+          }
+        }
+      }
+    }
+  }, [dynamicVehicles]);
 
   return (
     <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
@@ -690,11 +806,11 @@ export default function Home() {
                               </a>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 mb-2">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-2">
                               <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm">
-                                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Current Mileage</span>
+                                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Mileage</span>
                                 <div className="flex items-center justify-between">
-                                  <p className="font-mono text-xl text-zinc-800 dark:text-zinc-200">{v.currentMileage > 0 ? v.currentMileage.toLocaleString() : '--'} <span className="text-sm text-zinc-500">KM</span></p>
+                                  <p className="font-mono text-sm sm:text-base text-zinc-800 dark:text-zinc-200">{v.currentMileage > 0 ? v.currentMileage.toLocaleString() : '--'} <span className="text-[10px] text-zinc-500">KM</span></p>
                                   <button
                                     onClick={() => openMileageModal(v)}
                                     className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-800/40 px-2 py-1 rounded-md transition-colors border border-blue-200 dark:border-blue-800/50"
@@ -704,8 +820,16 @@ export default function Home() {
                                 </div>
                               </div>
                               <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm">
-                                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Tracked Services</span>
-                                <p className="font-mono text-xl text-blue-600 dark:text-blue-400">{Object.keys(v.services).length}</p>
+                                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Tracked</span>
+                                <p className="font-mono text-sm sm:text-base text-blue-600 dark:text-blue-400">{Object.keys(v.services).length} <span className="text-[10px] text-zinc-500">services</span></p>
+                              </div>
+                              <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm">
+                                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Roadtax</span>
+                                <p className="font-mono text-sm text-zinc-800 dark:text-zinc-200 truncate">{v.roadtaxExpiry || 'Not Set'}</p>
+                              </div>
+                              <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm overflow-hidden">
+                                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Insurance</span>
+                                <p className="font-mono text-sm text-zinc-800 dark:text-zinc-200 truncate" title={v.insuranceCompany || ""}>{v.insuranceExpiry || 'Not Set'}</p>
                               </div>
                             </div>
 
@@ -755,6 +879,12 @@ export default function Home() {
                                             <p className={`text-xs opacity-90 mt-1 font-medium inline-block px-2 py-0.5 rounded-md border ${chipStyle}`}>
                                               {isOverdue ? Math.abs(alert.days) + ' days ago' : alert.days + ' days left'}
                                             </p>
+                                            <button
+                                              onClick={() => openRenewModal(v)}
+                                              className="block mt-2 text-[10px] w-full font-bold bg-blue-600 hover:bg-blue-500 text-white px-2 py-1.5 rounded-lg transition-colors text-center shadow-sm whitespace-nowrap"
+                                            >
+                                              Renew Now
+                                            </button>
                                           </div>
                                         </div>
                                       </div>
@@ -1229,6 +1359,77 @@ export default function Home() {
               </div>
             </div>
           )
+        }
+
+        {/* Renewal Modal */}
+        {showRenewModal && renewTarget && (
+          <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ease-in-out animate-in fade-in ${isRenewModalClosing ? 'bg-black/0 backdrop-blur-none opacity-0' : 'bg-black/60 backdrop-blur-sm opacity-100'}`}>
+            <div className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-xl dark:shadow-2xl transition-all duration-500 ease-in-out animate-in zoom-in-95 fade-in ${isRenewModalClosing ? 'scale-95 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}`}>
+              <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-blue-500" />
+                  Renew Policy
+                </h3>
+                <button
+                  onClick={closeRenewModal}
+                  className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors p-1"
+                  disabled={renewLoading}
+                >
+                  <XCircle className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-6 space-y-5">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Renewing <strong className="text-zinc-900 dark:text-white">{renewTarget.name}</strong> will calculate your new Roadtax & Insurance expiry date from today.
+                </p>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Select Renewal Interval</label>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setRenewInterval(6)}
+                      className={`flex-1 py-3 text-sm font-bold rounded-xl border transition-all ${renewInterval === 6 ? "bg-blue-600 text-white border-blue-600 shadow-sm" : "bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900"}`}
+                    >
+                      6 Months
+                    </button>
+                    <button
+                      onClick={() => setRenewInterval(12)}
+                      className={`flex-1 py-3 text-sm font-bold rounded-xl border transition-all ${renewInterval === 12 ? "bg-blue-600 text-white border-blue-600 shadow-sm" : "bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900"}`}
+                    >
+                      12 Months
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Insurance Company</label>
+                  <input
+                    type="text"
+                    value={renewCompany}
+                    onChange={(e) => setRenewCompany(e.target.value)}
+                    placeholder="e.g. Allianz, Etiqa"
+                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-inner"
+                  />
+                </div>
+
+                <button
+                  onClick={handleRenewService}
+                  disabled={renewLoading}
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium rounded-xl p-3.5 transition-colors flex items-center justify-center relative overflow-hidden mt-4"
+                >
+                  <span className={`transition-all duration-300 flex items-center gap-2 ${renewLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+                    Confirm Renewal
+                  </span>
+                  {renewLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    </div>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )
         }
 
         {/* Status Flash Screen Overlay (Injected for Saving/Updating/Deleting Vehicles) */}
