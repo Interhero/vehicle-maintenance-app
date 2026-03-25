@@ -54,6 +54,9 @@ export default function Home() {
   const [newVehicleName, setNewVehicleName] = useState("");
   const [newVehicleType, setNewVehicleType] = useState("Car");
   const [newVehicleColor, setNewVehicleColor] = useState(CAR_COLORS[4]); // Default to Blue
+  const [newRoadtaxExpiry, setNewRoadtaxExpiry] = useState("");
+  const [newInsuranceExpiry, setNewInsuranceExpiry] = useState("");
+  const [newInsuranceCompany, setNewInsuranceCompany] = useState("");
   const [modalLoading, setModalLoading] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
   const [vehicleToEdit, setVehicleToEdit] = useState<string | null>(null);
@@ -171,6 +174,9 @@ export default function Home() {
       formData.append("vehicleName", newVehicleName.trim());
       formData.append("vehicleType", newVehicleType);
       formData.append("color", newVehicleColor);
+      formData.append("roadtaxExpiry", newRoadtaxExpiry);
+      formData.append("insuranceExpiry", newInsuranceExpiry);
+      formData.append("insuranceCompany", newInsuranceCompany);
 
       const method = vehicleToEdit ? "PUT" : "POST";
       const res = await fetch("/api/vehicles", {
@@ -197,6 +203,9 @@ export default function Home() {
           setNewVehicleName("");
           setNewVehicleColor(CAR_COLORS[4]);
           setNewVehicleType("Car");
+          setNewRoadtaxExpiry("");
+          setNewInsuranceExpiry("");
+          setNewInsuranceCompany("");
           setVehicleToEdit(null);
           setFlash(prev => ({ ...prev, show: false }));
         }, 2000);
@@ -230,6 +239,9 @@ export default function Home() {
     setNewVehicleName(v.name);
     setNewVehicleType(v.type);
     setNewVehicleColor(v.color || CAR_COLORS[4]);
+    setNewRoadtaxExpiry(v.roadtaxExpiry || "");
+    setNewInsuranceExpiry(v.insuranceExpiry || "");
+    setNewInsuranceCompany(v.insuranceCompany || "");
   };
 
   const cancelEdit = () => {
@@ -237,6 +249,9 @@ export default function Home() {
     setNewVehicleName("");
     setNewVehicleColor(CAR_COLORS[4]);
     setNewVehicleType("Car");
+    setNewRoadtaxExpiry("");
+    setNewInsuranceExpiry("");
+    setNewInsuranceCompany("");
   };
 
   const handleUpdateMileage = async () => {
@@ -436,6 +451,9 @@ export default function Home() {
         color: dv.color || "#3b82f6",
         type: dv.type || "Car",
         currentMileage: dv.mileage || 0,
+        roadtaxExpiry: dv.roadtaxExpiry || "",
+        insuranceExpiry: dv.insuranceExpiry || "",
+        insuranceCompany: dv.insuranceCompany || "",
         services: {}
       };
     }
@@ -624,9 +642,33 @@ export default function Home() {
                       const hasOverdue = vehicleJobs.some(job => job.remainingKm < 0);
                       const hasDueSoon = vehicleJobs.some(job => job.remainingKm >= 0 && job.remainingKm <= 500);
 
+                      const now = new Date();
+                      const getDaysLeft = (dateStr: string) => {
+                        if (!dateStr) return null;
+                        const target = new Date(dateStr);
+                        if (isNaN(target.getTime())) return null;
+                        const diffTime = target.getTime() - now.getTime();
+                        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                      };
+
+                      const roadtaxDays = getDaysLeft(v.roadtaxExpiry);
+                      const insuranceDays = getDaysLeft(v.insuranceExpiry);
+
+                      const expiryAlerts = [];
+                      if (roadtaxDays !== null && roadtaxDays <= 31) {
+                        expiryAlerts.push({ type: 'Roadtax', days: roadtaxDays, detail: v.roadtaxExpiry });
+                      }
+                      if (insuranceDays !== null && insuranceDays <= 31) {
+                        expiryAlerts.push({ type: 'Insurance', days: insuranceDays, detail: `${v.insuranceExpiry} ${v.insuranceCompany ? '(' + v.insuranceCompany + ')' : ''}` });
+                      }
+
+                      const hasExpiryOverdue = expiryAlerts.some(a => a.days <= 0);
+                      const hasExpiryCritical = expiryAlerts.some(a => a.days > 0 && a.days <= 3);
+                      const hasExpiryWarning = expiryAlerts.some(a => a.days > 3 && a.days <= 14);
+
                       let animationClass = "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700";
-                      if (hasOverdue) animationClass = "border-rose-300 dark:border-rose-500/50 animate-pulse-red hover:border-rose-400 shadow-lg shadow-rose-900/20";
-                      else if (hasDueSoon) animationClass = "border-amber-300 dark:border-amber-500/50 animate-pulse-orange hover:border-amber-400 shadow-lg shadow-amber-900/20";
+                      if (hasOverdue || hasExpiryOverdue || hasExpiryCritical) animationClass = "border-rose-300 dark:border-rose-500/50 animate-pulse-red hover:border-rose-400 shadow-lg shadow-rose-900/20";
+                      else if (hasDueSoon || hasExpiryWarning) animationClass = "border-amber-300 dark:border-amber-500/50 animate-pulse-orange hover:border-amber-400 shadow-lg shadow-amber-900/20";
 
                       return (
                         <div key={i} className={`relative overflow-hidden p-6 sm:p-8 rounded-3xl bg-white dark:bg-zinc-900/60 border transition-all shadow-md dark:shadow-none ${animationClass}`}>
@@ -666,6 +708,61 @@ export default function Home() {
                                 <p className="font-mono text-xl text-blue-600 dark:text-blue-400">{Object.keys(v.services).length}</p>
                               </div>
                             </div>
+
+                            {/* Embedded Expiry Alerts */}
+                            {expiryAlerts.length > 0 && (
+                              <div className="mt-6 pt-6 border-t border-zinc-200/60 dark:border-zinc-800/60 space-y-4">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <Clock className={`w-5 h-5 ${hasExpiryOverdue || hasExpiryCritical ? 'text-rose-500 dark:text-rose-400' : hasExpiryWarning ? 'text-amber-500 dark:text-amber-400' : 'text-zinc-500 dark:text-zinc-400'}`} />
+                                  <span className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Expiring Soon</span>
+                                </div>
+                                <div className="space-y-3">
+                                  {expiryAlerts.map((alert, idx) => {
+                                    const isOverdue = alert.days <= 0;
+                                    const isCritical = alert.days > 0 && alert.days <= 3;
+                                    const isWarning = alert.days > 3 && alert.days <= 14;
+                                    const isNotice = alert.days > 14 && alert.days <= 31;
+
+                                    let containerStyle = 'border-amber-200/60 dark:border-amber-900/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200';
+                                    let indicatorStyle = 'bg-amber-500';
+                                    let labelStyle = 'text-amber-600 dark:text-amber-400';
+                                    let chipStyle = 'bg-amber-100/50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-900/50';
+
+                                    if (isOverdue || isCritical) {
+                                      containerStyle = 'border-rose-200/60 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200';
+                                      indicatorStyle = 'bg-rose-500';
+                                      labelStyle = 'text-rose-600 dark:text-rose-400';
+                                      chipStyle = 'bg-rose-100/50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border-rose-200 dark:border-rose-900/50';
+                                    } else if (isNotice) {
+                                      containerStyle = 'border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50/80 dark:bg-zinc-900/40 text-zinc-900 dark:text-zinc-200';
+                                      indicatorStyle = 'bg-zinc-400 dark:bg-zinc-600';
+                                      labelStyle = 'text-zinc-600 dark:text-zinc-400';
+                                      chipStyle = 'bg-white/50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700/50';
+                                    }
+
+                                    return (
+                                      <div key={`expiry-${idx}`} className={`p-4 rounded-2xl border ${containerStyle} flex flex-col gap-2 relative overflow-hidden group/alert shadow-sm dark:shadow-lg backdrop-blur-md`}>
+                                        <div className={`absolute top-0 left-0 w-1.5 h-full ${indicatorStyle}`}></div>
+                                        <div className="flex justify-between items-start pl-3 pr-8">
+                                          <div>
+                                            <p className="font-bold text-base tracking-tight">{alert.type}</p>
+                                            <p className="text-xs opacity-80 mt-1 font-medium">{alert.detail}</p>
+                                          </div>
+                                          <div className="text-right shrink-0">
+                                            <p className={`text-sm font-mono font-bold uppercase ${labelStyle}`}>
+                                              {isOverdue ? 'EXPIRED' : isCritical ? 'CRITICAL' : isWarning ? 'WARNING' : 'NOTICE'}
+                                            </p>
+                                            <p className={`text-xs opacity-90 mt-1 font-medium inline-block px-2 py-0.5 rounded-md border ${chipStyle}`}>
+                                              {isOverdue ? Math.abs(alert.days) + ' days ago' : alert.days + ' days left'}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
 
                             {/* Embedded Action Required */}
                             {vehicleJobs.length > 0 && (
@@ -962,6 +1059,37 @@ export default function Home() {
                           </div>
                         </div>
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mt-1">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Roadtax Expiry</label>
+                        <input
+                          type="date"
+                          value={newRoadtaxExpiry}
+                          onChange={(e) => setNewRoadtaxExpiry(e.target.value)}
+                          className="w-[95%] bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-2 sm:p-2.5 text-sm text-zinc-900 dark:text-white outline-none transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Insurance Expiry</label>
+                        <input
+                          type="date"
+                          value={newInsuranceExpiry}
+                          onChange={(e) => setNewInsuranceExpiry(e.target.value)}
+                          className="w-[95%] bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-2 sm:p-2.5 text-sm text-zinc-900 dark:text-white outline-none transition-colors"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1 mb-2">
+                      <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Insurance Company</label>
+                      <input
+                        type="text"
+                        value={newInsuranceCompany}
+                        onChange={(e) => setNewInsuranceCompany(e.target.value)}
+                        placeholder="e.g. Allianz, Etiqa"
+                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-2 sm:p-2.5 text-sm text-zinc-900 dark:text-white outline-none transition-colors"
+                      />
                     </div>
 
                     <div className="flex gap-2 w-full">

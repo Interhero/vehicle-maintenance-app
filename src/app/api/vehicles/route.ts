@@ -32,13 +32,19 @@ export async function POST(request: Request) {
         const vehicleName = formData.get("vehicleName") as string;
         const vehicleType = formData.get("vehicleType") as string || "Car";
         const color = formData.get("color") as string || "#3b82f6";
+        const roadtaxExpiry = formData.get("roadtaxExpiry") as string || "";
+        const insuranceExpiry = formData.get("insuranceExpiry") as string || "";
+        const insuranceCompany = formData.get("insuranceCompany") as string || "";
 
         if (!vehicleName) return NextResponse.json({ error: "Name required" }, { status: 400 });
 
         const vehicleData: VehicleData = {
             name: vehicleName,
             color: color,
-            type: vehicleType
+            type: vehicleType,
+            roadtaxExpiry,
+            insuranceExpiry,
+            insuranceCompany
         };
 
         await addVehicle(accessToken, vehicleData);
@@ -80,13 +86,19 @@ export async function PUT(request: Request) {
         const vehicleName = formData.get("vehicleName") as string;
         const vehicleType = formData.get("vehicleType") as string || "Car";
         const color = formData.get("color") as string || "#3b82f6";
+        const roadtaxExpiry = formData.get("roadtaxExpiry") as string || "";
+        const insuranceExpiry = formData.get("insuranceExpiry") as string || "";
+        const insuranceCompany = formData.get("insuranceCompany") as string || "";
 
         if (!originalName || !vehicleName) return NextResponse.json({ error: "Original and New Name required" }, { status: 400 });
 
         const vehicleData: VehicleData = {
             name: vehicleName,
             color: color,
-            type: vehicleType
+            type: vehicleType,
+            roadtaxExpiry,
+            insuranceExpiry,
+            insuranceCompany
         };
 
         await updateVehicle(accessToken, originalName, vehicleData);

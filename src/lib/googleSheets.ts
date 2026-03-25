@@ -126,10 +126,10 @@ export async function resolveSpreadsheetId(accessToken: string): Promise<string>
 
     await sheets.spreadsheets.values.update({
         spreadsheetId: newSpreadsheetId,
-        range: "'Vehicles'!A1:D1",
+        range: "'Vehicles'!A1:G1",
         valueInputOption: "USER_ENTERED",
         requestBody: {
-            values: [["Vehicle Name", "Color", "Type", "Mileage"]]
+            values: [["Vehicle Name", "Color", "Type", "Mileage", "Roadtax Expiry", "Insurance Expiry", "Insurance Company"]]
         }
     });
 
@@ -307,13 +307,13 @@ async function ensureVehiclesTab(sheets: any, spreadsheetId: string) {
             });
             await sheets.spreadsheets.values.update({
                 spreadsheetId,
-                range: "'Vehicles'!A1:C3",
+                range: "'Vehicles'!A1:G3",
                 valueInputOption: "USER_ENTERED",
                 requestBody: {
                     values: [
-                        ["Vehicle Name", "Image URL", "Vehicle Type"],
-                        ["Honda City WXE7539", "", "Car"],
-                        ["Yamaha Y16ZR VKB6835", "", "Motorcycle"]
+                        ["Vehicle Name", "Image URL", "Vehicle Type", "Mileage", "Roadtax Expiry", "Insurance Expiry", "Insurance Company"],
+                        ["Honda City WXE7539", "", "Car", "0", "", "", ""],
+                        ["Yamaha Y16ZR VKB6835", "", "Motorcycle", "0", "", "", ""]
                     ]
                 }
             });
@@ -326,6 +326,9 @@ export interface VehicleData {
     color: string;
     type: string;
     mileage?: number;
+    roadtaxExpiry?: string;
+    insuranceExpiry?: string;
+    insuranceCompany?: string;
 }
 
 export async function fetchVehicles(accessToken: string): Promise<VehicleData[]> {
@@ -351,7 +354,10 @@ export async function fetchVehicles(accessToken: string): Promise<VehicleData[]>
                 name: row[0] || "",
                 color: colorVal,
                 type: row[2] || "Car",
-                mileage: isNaN(mileage) ? 0 : mileage
+                mileage: isNaN(mileage) ? 0 : mileage,
+                roadtaxExpiry: row[4] || "",
+                insuranceExpiry: row[5] || "",
+                insuranceCompany: row[6] || ""
             };
         }).filter(v => v.name.length > 0);
     } catch (error) {
@@ -369,10 +375,18 @@ export async function addVehicle(accessToken: string, vehicle: VehicleData) {
 
         await sheets.spreadsheets.values.append({
             spreadsheetId,
-            range: "'Vehicles'!A:D",
+            range: "'Vehicles'!A:G",
             valueInputOption: "USER_ENTERED",
             requestBody: {
-                values: [[vehicle.name, vehicle.color, vehicle.type, vehicle.mileage || 0]]
+                values: [[
+                    vehicle.name,
+                    vehicle.color,
+                    vehicle.type,
+                    vehicle.mileage || 0,
+                    vehicle.roadtaxExpiry || "",
+                    vehicle.insuranceExpiry || "",
+                    vehicle.insuranceCompany || ""
+                ]]
             },
         });
         return true;
@@ -404,7 +418,7 @@ export async function deleteVehicle(accessToken: string, vehicleName: string) {
         // Clear the entire column block
         await sheets.spreadsheets.values.clear({
             spreadsheetId,
-            range: "'Vehicles'!A2:D",
+            range: "'Vehicles'!A2:G",
         });
 
         if (newVehiclesRows.length > 0) {
@@ -440,9 +454,17 @@ export async function updateVehicle(accessToken: string, originalName: string, u
 
         for (let i = 0; i < vehicles.length; i++) {
             if (vehicles[i][0] === originalName) {
-                // Preserve existing mileage in column D
+                // Preserve existing mileage in column D if not overridden via some other flow, but here we just keep existing mileage.
                 const existingMileage = vehicles[i][3] || "0";
-                vehicles[i] = [updatedVehicle.name, updatedVehicle.color, updatedVehicle.type, existingMileage];
+                vehicles[i] = [
+                    updatedVehicle.name,
+                    updatedVehicle.color,
+                    updatedVehicle.type,
+                    existingMileage,
+                    updatedVehicle.roadtaxExpiry || "",
+                    updatedVehicle.insuranceExpiry || "",
+                    updatedVehicle.insuranceCompany || ""
+                ];
                 updated = true;
                 break;
             }
@@ -451,7 +473,7 @@ export async function updateVehicle(accessToken: string, originalName: string, u
         if (updated) {
             await sheets.spreadsheets.values.clear({
                 spreadsheetId,
-                range: "'Vehicles'!A2:D",
+                range: "'Vehicles'!A2:G",
             });
             await sheets.spreadsheets.values.update({
                 spreadsheetId,
