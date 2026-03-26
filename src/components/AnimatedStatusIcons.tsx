@@ -78,30 +78,43 @@ export function AnimatedPenLine({ className }: { className?: string }) {
 
 export function AnimatedOdometer({ className }: { className?: string }) {
     return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <rect x="2" y="8" width="20" height="8" rx="2" ry="2" pathLength="1" className="animate-draw" />
-            <line x1="8" y1="8" x2="8" y2="16" pathLength="1" className="animate-draw-delayed" />
-            <line x1="16" y1="8" x2="16" y2="16" pathLength="1" className="animate-draw-delayed" />
-            <line x1="5" y1="9" x2="5" y2="15" className="animate-roll-dashes" />
-            <line x1="12" y1="9" x2="12" y2="15" className="animate-roll-dashes" style={{ animationDelay: '0.7s' }} />
-            <line x1="19" y1="9" x2="19" y2="15" className="animate-roll-dashes" style={{ animationDelay: '0.8s' }} />
+        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <rect x="15" y="30" width="70" height="40" rx="4" pathLength="1" strokeWidth="4" className="animate-draw" />
+            <line x1="38" y1="30" x2="38" y2="70" strokeWidth="3" pathLength="1" className="animate-draw-delayed" />
+            <line x1="61" y1="30" x2="61" y2="70" strokeWidth="3" pathLength="1" className="animate-draw-delayed" />
+
+            <line x1="26.5" y1="32" x2="26.5" y2="68" strokeWidth="8" className="animate-roll-dashes-new" />
+            <line x1="49.5" y1="32" x2="49.5" y2="68" strokeWidth="8" className="animate-roll-dashes-new" style={{ animationDelay: '0.7s' }} />
+            <line x1="72.5" y1="32" x2="72.5" y2="68" strokeWidth="8" className="animate-roll-dashes-new" style={{ animationDelay: '0.8s' }} />
         </svg>
     );
 }
 
 export function AnimatedSpeedometer({ className }: { className?: string }) {
     return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <path d="M2.5 14 A 9.5 9.5 0 0 1 21.5 14" pathLength="1" className="animate-draw" />
-            <line x1="1" y1="14" x2="23" y2="14" pathLength="1" className="animate-draw" />
+        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <defs>
+                <linearGradient id="speed-grad" x1="0%" y1="100%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="50%" stopColor="#f59e0b" />
+                    <stop offset="100%" stopColor="#ef4444" />
+                </linearGradient>
+            </defs>
 
-            <line x1="12" y1="4.5" x2="12" y2="7.5" pathLength="1" className="animate-draw-delayed" />
-            <line x1="5" y1="7" x2="7.5" y2="9.5" pathLength="1" className="animate-draw-delayed" />
-            <line x1="19" y1="7" x2="16.5" y2="9.5" pathLength="1" className="animate-draw-delayed" />
+            <path d="M 15 70 A 35 35 0 0 1 85 70" stroke="currentColor" strokeWidth="8" className="opacity-20" />
+            <path d="M 15 70 A 35 35 0 0 1 85 70" stroke="url(#speed-grad)" strokeWidth="8" pathLength="1" className="animate-draw" />
+            <path d="M 28 70 A 22 22 0 0 1 72 70" stroke="currentColor" strokeWidth="3" className="opacity-40" />
 
-            <g style={{ transformOrigin: '12px 14px' }} className="animate-needle-swing">
-                <line x1="12" y1="14" x2="12" y2="4" />
-                <circle cx="12" cy="14" r="2.5" fill="currentColor" />
+            <line x1="15" y1="70" x2="22" y2="70" strokeWidth="4" className="animate-draw-delayed" />
+            <line x1="25.3" y1="45.3" x2="30.2" y2="50.2" strokeWidth="4" className="animate-draw-delayed" />
+            <line x1="50" y1="35" x2="50" y2="42" strokeWidth="4" className="animate-draw-delayed" />
+            <line x1="74.7" y1="45.3" x2="69.8" y2="50.2" strokeWidth="4" className="animate-draw-delayed" />
+            <line x1="85" y1="70" x2="78" y2="70" strokeWidth="4" className="animate-draw-delayed" />
+
+            <g style={{ transformOrigin: '50px 70px' }} className="animate-needle-swing">
+                <polygon points="47,70 53,70 50,30" fill="currentColor" stroke="none" />
+                <circle cx="50" cy="70" r="7" fill="currentColor" stroke="none" />
+                <circle cx="50" cy="70" r="3" fill="var(--background, #fff)" stroke="none" />
             </g>
         </svg>
     );

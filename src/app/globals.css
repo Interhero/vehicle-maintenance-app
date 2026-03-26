@@ -164,7 +164,7 @@ option {
 
 @keyframes odo-roll-dashes {
   0% {
-    stroke-dashoffset: 8;
+    stroke-dashoffset: 40;
     opacity: 1;
   }
 
@@ -174,8 +174,8 @@ option {
   }
 }
 
-.animate-roll-dashes {
-  stroke-dasharray: 2 6;
+.animate-roll-dashes-new {
+  stroke-dasharray: 10 30;
   opacity: 0;
   animation: odo-roll-dashes 0.4s linear infinite;
   animation-delay: 0.6s;
@@ -184,24 +184,24 @@ option {
 
 @keyframes needle-swing {
   0% {
-    transform: rotate(-75deg);
+    transform: rotate(-90deg);
   }
 
   50% {
-    transform: rotate(85deg);
+    transform: rotate(100deg);
   }
 
   75% {
-    transform: rotate(45deg);
+    transform: rotate(65deg);
   }
 
   100% {
-    transform: rotate(65deg);
+    transform: rotate(85deg);
   }
 }
 
 .animate-needle-swing {
-  transform: rotate(-75deg);
-  animation: needle-swing 1.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+  transform: rotate(-90deg);
+  animation: needle-swing 1.8s cubic-bezier(0.2, 1, 0.3, 1) forwards;
   animation-delay: 0.5s;
 }
