@@ -2,7 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, Car, Bike, Settings, Clock, CheckCircle2, XCircle, Trash2, Search, EyeOff, Camera, ChevronDown, ShieldCheck, Gauge, MessageSquare } from 'lucide-react';
+import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, CalendarCheck, PenLine, Car, Bike, Settings, Clock, CheckCircle2, XCircle, Trash2, Search, EyeOff, Camera, ChevronDown, ShieldCheck, Gauge, MessageSquare } from 'lucide-react';
 import { LaunchingScreen } from "@/components/LaunchingScreen";
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
@@ -64,7 +64,7 @@ export default function Home() {
   // Flash Screen States for Adding/Updating/Deleting Vehicles
   const [flash, setFlash] = useState<{
     show: boolean;
-    type: "idle" | "saving" | "mileage_saving" | "deleting" | "success" | "mileage_success" | "deleted" | "error"
+    type: "idle" | "saving" | "mileage_saving" | "deleting" | "success" | "mileage_success" | "deleted" | "error" | "renewing" | "renew_success"
   }>({ show: false, type: "idle" });
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -312,8 +312,7 @@ export default function Home() {
   const handleRenewService = async () => {
     if (!renewTarget) return;
     setRenewLoading(true);
-    closeRenewModal();
-    setFlash({ show: true, type: "saving" });
+    setFlash({ show: true, type: "renewing" });
     setErrorMsg("");
 
     try {
@@ -339,7 +338,7 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         setDynamicVehicles(prev => prev.map(v => v.name === renewTarget.name ? { ...v, ...data.vehicle } : v));
-        setFlash({ show: true, type: "success" });
+        setFlash({ show: true, type: "renew_success" });
         setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 2000);
       } else {
         const err = await res.json().catch(() => ({ error: "Unknown" }));
@@ -784,11 +783,20 @@ export default function Home() {
                       const insuranceDays = getDaysLeft(v.insuranceExpiry);
 
                       const expiryAlerts = [];
-                      if (roadtaxDays !== null && roadtaxDays <= 31) {
-                        expiryAlerts.push({ type: 'Roadtax', days: roadtaxDays, detail: v.roadtaxExpiry });
-                      }
-                      if (insuranceDays !== null && insuranceDays <= 31) {
-                        expiryAlerts.push({ type: 'Insurance', days: insuranceDays, detail: `${v.insuranceExpiry} ${v.insuranceCompany ? '(' + v.insuranceCompany + ')' : ''}` });
+                      if (roadtaxDays !== null && roadtaxDays <= 31 && insuranceDays !== null && insuranceDays <= 31) {
+                        const minDays = Math.min(roadtaxDays, insuranceDays);
+                        expiryAlerts.push({
+                          type: 'Roadtax & Insurance',
+                          days: minDays,
+                          detail: `Roadtax: ${v.roadtaxExpiry} • Ins: ${v.insuranceExpiry} ${v.insuranceCompany ? '(' + v.insuranceCompany + ')' : ''}`
+                        });
+                      } else {
+                        if (roadtaxDays !== null && roadtaxDays <= 31) {
+                          expiryAlerts.push({ type: 'Roadtax', days: roadtaxDays, detail: v.roadtaxExpiry });
+                        }
+                        if (insuranceDays !== null && insuranceDays <= 31) {
+                          expiryAlerts.push({ type: 'Insurance', days: insuranceDays, detail: `${v.insuranceExpiry} ${v.insuranceCompany ? '(' + v.insuranceCompany + ')' : ''}` });
+                        }
                       }
 
                       const hasExpiryOverdue = expiryAlerts.some(a => a.days <= 0);
@@ -1448,8 +1456,9 @@ export default function Home() {
         {/* Status Flash Screen Overlay (Injected for Saving/Updating/Deleting Vehicles) */}
         <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center backdrop-blur-xl transition-all duration-500 ease-in-out ${flash.show ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-105'
           } ${flash.type === "saving" || flash.type === "mileage_saving" || flash.type === "deleting" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-orange-500/95 to-amber-600/95 dark:from-orange-900/95 dark:to-orange-950/95" :
-            flash.type === "success" || flash.type === "mileage_success" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-emerald-500/95 to-teal-600/95 dark:from-emerald-900/95 dark:to-teal-950/95" :
-              flash.type === "deleted" || flash.type === "error" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-rose-500/95 to-red-600/95 dark:from-rose-900/95 dark:to-red-950/95" : "bg-transparent"
+            flash.type === "renewing" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-indigo-500/95 to-blue-600/95 dark:from-indigo-900/95 dark:to-blue-950/95" :
+              flash.type === "success" || flash.type === "mileage_success" || flash.type === "renew_success" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-emerald-500/95 to-teal-600/95 dark:from-emerald-900/95 dark:to-teal-950/95" :
+                flash.type === "deleted" || flash.type === "error" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-rose-500/95 to-red-600/95 dark:from-rose-900/95 dark:to-red-950/95" : "bg-transparent"
           }`}>
 
           {(flash.type === "saving" || flash.type === "mileage_saving" || flash.type === "deleting") && (
@@ -1467,14 +1476,32 @@ export default function Home() {
             </div>
           )}
 
-          {(flash.type === "success" || flash.type === "mileage_success") && (
+          {(flash.type === "renewing") && (
+            <div className={`flex flex-col items-center animate-in zoom-in duration-500`}>
+              <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden ring-4 ring-white/30 dark:ring-transparent">
+                <PenLine className="w-14 h-14 text-white dark:text-blue-200 animate-pulse" />
+                <div className="absolute inset-0 border-4 border-white/50 dark:border-blue-400/30 rounded-full border-t-white animate-spin"></div>
+              </div>
+              <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
+                Updating reminder...
+              </h2>
+              <p className="text-blue-50 dark:text-blue-200 mt-3 font-medium text-lg animate-pulse">Calculating dates</p>
+            </div>
+          )}
+
+          {(flash.type === "success" || flash.type === "mileage_success" || flash.type === "renew_success") && (
             <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
-                <AnimatedCheck className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+                {flash.type === "renew_success" ? (
+                  <CalendarCheck className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+                ) : (
+                  <AnimatedCheck className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+                )}
               </div>
               <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">
-                {flash.type === "mileage_success" ? "Mileage Updated!" :
-                  (vehicleToEdit ? "Vehicle Updated!" : "Vehicle Added!")}
+                {flash.type === "renew_success" ? "Reminder updated!" :
+                  flash.type === "mileage_success" ? "Mileage Updated!" :
+                    (vehicleToEdit ? "Vehicle Updated!" : "Vehicle Added!")}
               </h2>
               <p className="text-emerald-50 dark:text-emerald-100 font-semibold text-lg drop-shadow-md">Returning to dashboard...</p>
             </div>
