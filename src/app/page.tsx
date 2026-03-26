@@ -2,7 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, CalendarCheck, PenLine, Car, Bike, Settings, Clock, CheckCircle2, XCircle, Trash2, Search, EyeOff, Camera, ChevronDown, ShieldCheck, Gauge, MessageSquare } from 'lucide-react';
+import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, CalendarCheck, PenLine, Car, Bike, Settings, Clock, CheckCircle2, XCircle, Trash2, Search, EyeOff, Camera, ChevronDown, ShieldCheck, Gauge, MessageSquare, AlertTriangle, X } from 'lucide-react';
 import { LaunchingScreen } from "@/components/LaunchingScreen";
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
@@ -71,6 +71,10 @@ export default function Home() {
   // Login & Logout Animations
   const [loginFlash, setLoginFlash] = useState(false);
   const [logoutFlash, setLogoutFlash] = useState(false);
+
+  // In-App Push Notification Fallback
+  const [systemAlerts, setSystemAlerts] = useState<string[]>([]);
+  const [showSystemAlert, setShowSystemAlert] = useState(false);
 
   // Voluntary Mileage Update States
   const [showMileageModal, setShowMileageModal] = useState(false);
@@ -158,27 +162,35 @@ export default function Home() {
       });
 
       if (alerts.length > 0) {
+        setSystemAlerts(alerts);
         const lastNotified = localStorage.getItem("last_sys_notify");
         const todayDate = now.toDateString();
+
         if (lastNotified !== todayDate) {
+          setShowSystemAlert(true);
+
           if (Notification.permission === "granted") {
             try {
               new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
               localStorage.setItem("last_sys_notify", todayDate);
             } catch (e) {
               console.error("Browser obstructed direct Notification constructor:", e);
+              localStorage.setItem("last_sys_notify", todayDate);
             }
           } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then(perm => {
               if (perm === "granted") {
                 try {
                   new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
-                  localStorage.setItem("last_sys_notify", todayDate);
                 } catch (e) {
                   console.error("Browser obstructed direct Notification constructor:", e);
                 }
               }
+              localStorage.setItem("last_sys_notify", todayDate);
             }).catch(e => console.error("Permission request failed", e));
+          } else {
+            // Still mark it notified so the in-app toast only shows once per day per session
+            localStorage.setItem("last_sys_notify", todayDate);
           }
         }
       }
@@ -662,6 +674,24 @@ export default function Home() {
 
   return (
     <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
+      {/* In-App Notification Toast (Mobile Fallback) */}
+      <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[300] transition-all duration-500 ease-in-out w-[90vw] sm:w-[400px] ${showSystemAlert ? 'translate-y-0 opacity-100' : '-translate-y-24 opacity-0 pointer-events-none'}`}>
+        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-zinc-200 dark:border-zinc-800 shadow-2xl rounded-2xl p-4 flex items-start gap-4 ring-1 ring-black/5 dark:ring-white/10">
+          <div className="bg-rose-100 dark:bg-rose-500/20 p-2 rounded-xl text-rose-600 dark:text-rose-400 shrink-0 mt-0.5">
+            <AlertTriangle className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-bold text-zinc-900 dark:text-white text-sm">Action Required</h4>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+              {systemAlerts.join(" • ")}
+            </p>
+          </div>
+          <button onClick={() => setShowSystemAlert(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1.5 -mr-2 -mt-2 bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
       {/* Login Flash Overlay */}
       <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 bg-blue-600 transition-all duration-500 ease-in-out ${loginFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none delay-500'}`}>
         <div className={`relative ${loginFlash ? 'animate-vroom-in' : 'opacity-0'}`}>
