@@ -1652,7 +1652,7 @@ export default function Home() {
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
         <a
           href="/record/new"
-          className="pointer-events-auto p-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-2xl shadow-blue-500/40 hover:scale-110 active:scale-95 transition-all duration-300 flex items-center gap-3 group border border-blue-400/30"
+          className="pointer-events-auto p-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-xl shadow-blue-500/20 hover:scale-105 active:scale-90 active:translate-y-1 transition-all duration-200 flex items-center gap-3 group border border-blue-400/30 ring-1 ring-blue-400/20"
           title="Create New Record"
         >
           <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-500 ease-in-out font-bold text-sm">
