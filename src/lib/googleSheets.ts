@@ -340,7 +340,7 @@ export async function fetchVehicles(accessToken: string): Promise<VehicleData[]>
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: "'Vehicles'!A2:D",
+            range: "'Vehicles'!A2:G",
         });
 
         if (!response.data.values) return [];
@@ -405,7 +405,7 @@ export async function deleteVehicle(accessToken: string, vehicleName: string) {
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: "'Vehicles'!A2:D",
+            range: "'Vehicles'!A2:G",
         });
 
         let currentVehicles: any[] = [];
@@ -446,7 +446,7 @@ export async function updateVehicle(accessToken: string, originalName: string, u
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: "'Vehicles'!A2:D",
+            range: "'Vehicles'!A2:G",
         });
 
         let vehicles = response.data.values || [];
