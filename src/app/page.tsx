@@ -85,6 +85,7 @@ export default function Home() {
   const [renewTarget, setRenewTarget] = useState<any>(null);
   const [renewInterval, setRenewInterval] = useState<6 | 12>(12);
   const [renewCompany, setRenewCompany] = useState("");
+  const [renewStartDate, setRenewStartDate] = useState("");
   const [renewLoading, setRenewLoading] = useState(false);
 
   const openManageModal = () => {
@@ -120,6 +121,8 @@ export default function Home() {
     setRenewTarget(vehicle);
     setRenewInterval(12);
     setRenewCompany(vehicle.insuranceCompany || "");
+    const today = new Date();
+    setRenewStartDate(new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split('T')[0]);
     setShowRenewModal(true);
     setIsRenewModalClosing(false);
   };
@@ -316,9 +319,9 @@ export default function Home() {
     setErrorMsg("");
 
     try {
-      const now = new Date();
-      now.setMonth(now.getMonth() + renewInterval);
-      const newDateStr = now.toISOString().split('T')[0];
+      const start = renewStartDate ? new Date(renewStartDate) : new Date();
+      start.setMonth(start.getMonth() + renewInterval);
+      const newDateStr = start.toISOString().split('T')[0];
 
       const formData = new FormData();
       formData.append("originalName", renewTarget.name);
@@ -339,7 +342,10 @@ export default function Home() {
         const data = await res.json();
         setDynamicVehicles(prev => prev.map(v => v.name === renewTarget.name ? { ...v, ...data.vehicle } : v));
         setFlash({ show: true, type: "renew_success" });
-        setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 2000);
+        setTimeout(() => {
+          setFlash(prev => ({ ...prev, show: false }));
+          closeRenewModal();
+        }, 2000);
       } else {
         const err = await res.json().catch(() => ({ error: "Unknown" }));
         setErrorMsg(`Renewal failed: ${err.error}`);
@@ -1401,8 +1407,18 @@ export default function Home() {
               </div>
               <div className="p-6 space-y-5">
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Renewing <strong className="text-zinc-900 dark:text-white">{renewTarget.name}</strong> will calculate your new Roadtax & Insurance expiry date from today.
+                  Renewing <strong className="text-zinc-900 dark:text-white">{renewTarget.name}</strong> will calculate your new Roadtax & Insurance expiry date from the starting date below.
                 </p>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Starting Date</label>
+                  <input
+                    type="date"
+                    value={renewStartDate}
+                    onChange={(e) => setRenewStartDate(e.target.value)}
+                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-xl p-3 text-sm text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-inner"
+                  />
+                </div>
 
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Select Renewal Interval</label>
