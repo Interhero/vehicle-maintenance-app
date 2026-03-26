@@ -6,6 +6,7 @@ import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calenda
 import { LaunchingScreen } from "@/components/LaunchingScreen";
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
+import { PushSubscriber } from "@/components/PushSubscriber";
 import { AnimatedCheck, AnimatedX, AnimatedTrash, AnimatedClock, AnimatedCalendarCheck, AnimatedPenLine, AnimatedOdometer, AnimatedSpeedometer } from "@/components/AnimatedStatusIcons";
 
 function ThemeToggle() {
@@ -241,7 +242,15 @@ export default function Home() {
       })
         .then(res => res.json())
         .then(data => {
-          if (data.vehicles) setDynamicVehicles(data.vehicles);
+          if (data.vehicles) {
+            setDynamicVehicles(data.vehicles);
+            // Sync evaluated dates straight to Vercel KV for the offline Cron engine processing layer
+            fetch("/api/webpush/sync", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ vehicles: data.vehicles })
+            }).catch(console.error);
+          }
         })
         .catch(console.error);
 
@@ -725,10 +734,7 @@ export default function Home() {
           </div>
           <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3 sm:gap-4 mt-6 md:mt-0">
             <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-              <a href="mailto:ammarfaiz2011@hotmail.com" className="inline-flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 sm:px-4 h-11 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 font-medium text-sm rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm whitespace-nowrap">
-                <MessageSquare className="w-4 h-4" />
-                <span className="hidden sm:inline">Contact</span>
-              </a>
+              <PushSubscriber />
               <button onClick={openManageModal} className="inline-flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 sm:px-5 h-11 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 font-medium text-sm rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm whitespace-nowrap">
                 Manage Vehicles
               </button>
