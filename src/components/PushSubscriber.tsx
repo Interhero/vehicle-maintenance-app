@@ -84,17 +84,17 @@ export function PushSubscriber() {
             });
 
             if (res.ok) {
-                console.log("Backend sync successful.");
+                console.log("Backend subscription save successful.");
                 setIsSubscribed(true);
                 setSubscription(sub);
             } else {
                 const errorData = await res.json();
-                console.error("Backend sync failed:", errorData);
-                alert(`Backend sync failed: ${errorData.error || 'Unknown error'}`);
+                console.error("Subscription endpoint save failed:", errorData);
+                alert(`Device Registration Failed: ${errorData.error || 'Unknown error'}`);
             }
         } catch (err: any) {
-            console.error("Subscription process failed:", err);
-            alert(`Push subscription failed: ${err.message || 'Check console for details'}`);
+            console.error("Push subscription process failed:", err);
+            alert(`Native Permission/Push failed: ${err.message || 'Check console for details'}. Ensure you are on HTTPS!`);
         }
         setLoading(false);
     };
