@@ -738,8 +738,9 @@ export default function Home() {
               <button onClick={openManageModal} className="inline-flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 sm:px-5 h-11 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 font-medium text-sm rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm whitespace-nowrap">
                 Manage Vehicles
               </button>
-              <a href="/record/new" className="inline-flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 sm:px-5 h-11 bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm rounded-xl transition-colors border border-blue-600 hover:border-blue-500 shadow-sm shadow-blue-500/20 whitespace-nowrap">
-                + New Record
+              <a href="/record/new" className="hidden sm:inline-flex items-center justify-center gap-2 px-5 h-11 bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm rounded-xl transition-colors border border-blue-600 hover:border-blue-500 shadow-sm shadow-blue-500/20 whitespace-nowrap group">
+                <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
+                New Record
               </a>
             </div>
             <button
@@ -1646,6 +1647,20 @@ export default function Home() {
         }
 
       </div >
+
+      {/* Floating Action Button (Mobile & Desktop) */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
+        <a
+          href="/record/new"
+          className="pointer-events-auto p-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-2xl shadow-blue-500/40 hover:scale-110 active:scale-95 transition-all duration-300 flex items-center gap-3 group border border-blue-400/30"
+          title="Create New Record"
+        >
+          <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-500 ease-in-out font-bold text-sm">
+            New Record
+          </span>
+          <Plus className="w-6 h-6 sm:w-7 sm:h-7" />
+        </a>
+      </div>
     </div >
   );
 }
