@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, BellOff, Loader2 } from "lucide-react";
+import { Bell, BellOff, Loader2, Monitor } from "lucide-react";
 
 const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
@@ -117,31 +117,65 @@ export function PushSubscriber() {
         setLoading(false);
     };
 
+    const sendTestPush = async () => {
+        if (!isSubscribed || !subscription) return;
+        setLoading(true);
+        try {
+            const res = await fetch("/api/cron/notify", {
+                headers: { "Authorization": `Bearer 38171fb6cafdf47b348a4ad9722286b8` }
+            });
+            if (res.ok) {
+                alert("Test Trigger Sent! Close the app NOW to see if the background push arrives on your lock screen.");
+            } else {
+                alert("Trigger failed. Check if you added the CRON_SECRET to Vercel.");
+            }
+        } catch (e) {
+            alert("Connection error.");
+        }
+        setLoading(false);
+    };
+
     if (!publicVapidKey) return null;
 
     return (
-        <button
-            onClick={isSubscribed ? unsubscribeButtonOnClick : subscribeButtonOnClick}
-            disabled={loading}
-            title={isSubscribed ? "Disable Background Alerts" : "Enable Background Alerts"}
-            className={`inline-flex items-center justify-center p-2 sm:px-4 sm:py-2.5 rounded-xl border transition-all h-11 shadow-sm gap-2 ${isSubscribed
-                ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400"
-                : "bg-zinc-100 text-zinc-500 border-zinc-200 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:border-zinc-700 dark:text-zinc-400"
-                }`}
-        >
-            {loading ? (
-                <Loader2 className="w-5 h-5 sm:w-4 sm:h-4 animate-spin" />
-            ) : isSubscribed ? (
-                <>
-                    <Bell className="w-5 h-5 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline font-medium text-sm">Alerts On</span>
-                </>
-            ) : (
-                <>
-                    <BellOff className="w-5 h-5 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline font-medium text-sm">Alerts Off</span>
-                </>
+        <div className="flex items-center gap-2">
+            <button
+                onClick={isSubscribed ? unsubscribeButtonOnClick : subscribeButtonOnClick}
+                disabled={loading}
+                title={isSubscribed ? "Disable Background Alerts" : "Enable Background Alerts"}
+                className={`inline-flex items-center justify-center p-2 sm:px-4 sm:py-2.5 rounded-xl border transition-all h-11 shadow-sm gap-2 ${isSubscribed
+                    ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400"
+                    : "bg-zinc-100 text-zinc-500 border-zinc-200 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:border-zinc-700 dark:text-zinc-400"
+                    }`}
+            >
+                {loading ? (
+                    <Loader2 className="w-5 h-5 sm:w-4 sm:h-4 animate-spin" />
+                ) : isSubscribed ? (
+                    <>
+                        <Bell className="w-5 h-5 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline font-medium text-sm">Alerts On</span>
+                    </>
+                ) : (
+                    <>
+                        <BellOff className="w-5 h-5 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline font-medium text-sm">Alerts Off</span>
+                    </>
+                )}
+            </button>
+
+            {isSubscribed && (
+                <button
+                    onClick={sendTestPush}
+                    disabled={loading}
+                    className="p-2.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                    title="Send Test Notification"
+                >
+                    <div className="flex items-center gap-2 px-1">
+                        <Monitor className="w-4 h-4" />
+                        <span className="text-xs font-bold uppercase tracking-wider">Test</span>
+                    </div>
+                </button>
             )}
-        </button>
+        </div>
     );
 }
