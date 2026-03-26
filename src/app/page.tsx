@@ -6,7 +6,7 @@ import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calenda
 import { LaunchingScreen } from "@/components/LaunchingScreen";
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
-import { AnimatedCheck, AnimatedX, AnimatedTrash, AnimatedClock, AnimatedCalendarCheck, AnimatedPenLine } from "@/components/AnimatedStatusIcons";
+import { AnimatedCheck, AnimatedX, AnimatedTrash, AnimatedClock, AnimatedCalendarCheck, AnimatedPenLine, AnimatedOdometer, AnimatedSpeedometer } from "@/components/AnimatedStatusIcons";
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -1477,18 +1477,28 @@ export default function Home() {
                 flash.type === "deleted" || flash.type === "error" ? "bg-white/95 dark:bg-zinc-900/95 bg-gradient-to-br from-rose-500/95 to-red-600/95 dark:from-rose-900/95 dark:to-red-950/95" : "bg-transparent"
           }`}>
 
-          {(flash.type === "saving" || flash.type === "mileage_saving" || flash.type === "deleting") && (
+          {(flash.type === "saving" || flash.type === "deleting") && (
             <div className={`flex flex-col items-center animate-in zoom-in duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden ring-4 ring-white/30 dark:ring-transparent">
                 <AnimatedClock className="w-14 h-14 text-white dark:text-orange-200" />
                 <div className="absolute inset-0 border-4 border-white/50 dark:border-orange-400/30 rounded-full border-t-white animate-spin"></div>
               </div>
               <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
-                {flash.type === "saving" ? "Writing to Database..." :
-                  flash.type === "mileage_saving" ? "Updating Mileage..." :
-                    "Removing Vehicle..."}
+                {flash.type === "saving" ? "Writing to Database..." : "Removing Vehicle..."}
               </h2>
               <p className="text-orange-50 dark:text-orange-200 mt-3 font-medium text-lg animate-pulse">Syncing with Garage</p>
+            </div>
+          )}
+
+          {(flash.type === "mileage_saving") && (
+            <div className={`flex flex-col items-center animate-in zoom-in duration-500`}>
+              <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden">
+                <AnimatedOdometer className="w-16 h-16 text-white dark:text-orange-200" />
+              </div>
+              <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
+                Updating Mileage...
+              </h2>
+              <p className="text-orange-50 dark:text-orange-200 mt-3 font-medium text-lg animate-pulse">Rolling the distance</p>
             </div>
           )}
 
@@ -1505,7 +1515,7 @@ export default function Home() {
             </div>
           )}
 
-          {(flash.type === "success" || flash.type === "mileage_success" || flash.type === "renew_success") && (
+          {(flash.type === "success" || flash.type === "renew_success") && (
             <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
                 {flash.type === "renew_success" ? (
@@ -1516,9 +1526,18 @@ export default function Home() {
               </div>
               <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">
                 {flash.type === "renew_success" ? "Reminder updated!" :
-                  flash.type === "mileage_success" ? "Mileage Updated!" :
-                    (vehicleToEdit ? "Vehicle Updated!" : "Vehicle Added!")}
+                  (vehicleToEdit ? "Vehicle Updated!" : "Vehicle Added!")}
               </h2>
+              <p className="text-emerald-50 dark:text-emerald-100 font-semibold text-lg drop-shadow-md">Returning to dashboard...</p>
+            </div>
+          )}
+
+          {(flash.type === "mileage_success") && (
+            <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500`}>
+              <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
+                <AnimatedSpeedometer className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+              </div>
+              <h2 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">Mileage Updated!</h2>
               <p className="text-emerald-50 dark:text-emerald-100 font-semibold text-lg drop-shadow-md">Returning to dashboard...</p>
             </div>
           )}

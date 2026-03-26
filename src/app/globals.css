@@ -161,3 +161,40 @@ option {
   opacity: 0;
   animation: draw-path 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
 }
+
+@keyframes odo-spin {
+  0% {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(4px);
+    opacity: 0;
+  }
+}
+
+.animate-odo-spin {
+  animation: odo-spin 0.4s linear infinite;
+  animation-delay: 0.6s;
+}
+
+@keyframes needle-swing {
+  0% {
+    transform: rotate(-50deg);
+  }
+
+  100% {
+    transform: rotate(50deg);
+  }
+}
+
+.animate-needle-swing {
+  transform: rotate(-50deg);
+  animation: needle-swing 1s cubic-bezier(0.3, 1.5, 0.5, 1) forwards;
+  animation-delay: 0.6s;
+}
