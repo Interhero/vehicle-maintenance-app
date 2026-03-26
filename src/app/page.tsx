@@ -1649,16 +1649,16 @@ export default function Home() {
       </div >
 
       {/* Floating Action Button (Mobile & Desktop) */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
+      <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
         <a
           href="/record/new"
-          className="pointer-events-auto p-4 bg-blue-600 hover:bg-blue-500 text-white rounded-[20px] shadow-2xl shadow-blue-500/40 hover:scale-105 active:scale-90 active:translate-y-1 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex items-center gap-0 hover:gap-3 group border border-white/20 ring-1 ring-blue-400/20"
+          className="pointer-events-auto flex items-center h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-2xl shadow-blue-500/40 hover:scale-105 active:scale-90 active:translate-y-1 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group border border-white/20 px-4 gap-0 hover:gap-3 overflow-hidden"
           title="Create New Record"
         >
-          <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-500 ease-in-out font-bold text-sm">
+          <Plus className="w-7 h-7 flex-shrink-0 transition-transform duration-700 group-hover:rotate-90" />
+          <span className="max-w-0 opacity-0 whitespace-nowrap group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-500 ease-in-out font-bold text-base pointer-events-none">
             New Record
           </span>
-          <Plus className="w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-500 group-hover:rotate-90" />
         </a>
       </div>
     </div >

@@ -118,19 +118,27 @@ export function PushSubscriber() {
     };
 
     const sendTestPush = async () => {
-        if (!isSubscribed || !subscription) return;
+        console.log("Manual test push triggered. Sub exists:", !!subscription);
+        if (!isSubscribed || !subscription) {
+            alert("Error: You must enable 'Alerts On' (the Bell icon) before you can test!");
+            return;
+        }
         setLoading(true);
         try {
             const res = await fetch("/api/cron/notify", {
                 headers: { "Authorization": `Bearer 38171fb6cafdf47b348a4ad9722286b8` }
             });
+            const data = await res.json();
+            console.log("Cron notify response:", data);
+
             if (res.ok) {
-                alert("Test Trigger Sent! Close the app NOW to see if the background push arrives on your lock screen.");
+                alert("SUCCESS: Test Trigger Sent to Vercel! \n\nNOW: Close the app/browser or lock your screen immediately and wait 10 seconds. \n\n(Processed: " + (data.processed?.length || 0) + " devices)");
             } else {
-                alert("Trigger failed. Check if you added the CRON_SECRET to Vercel.");
+                alert("SERVER ERROR: " + (data.error || "Unknown") + "\n\nTip: Ensure you added CRON_SECRET to your Vercel Environment Variables!");
             }
-        } catch (e) {
-            alert("Connection error.");
+        } catch (e: any) {
+            console.error("Test trigger network error:", e);
+            alert("NETWORK ERROR: Could not reach the server. Check your internet or Vercel logs.");
         }
         setLoading(false);
     };
