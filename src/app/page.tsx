@@ -255,7 +255,7 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         if (vehicleToEdit) {
-          setDynamicVehicles(dynamicVehicles.map(v => v.name === vehicleToEdit ? data.vehicle : v));
+          setDynamicVehicles(dynamicVehicles.map(v => v.name === vehicleToEdit ? { ...v, ...data.vehicle } : v));
           if (vehicleToEdit !== newVehicleName.trim()) {
             setRecords(records.map(r => r.vehicle === vehicleToEdit ? { ...r, vehicle: newVehicleName.trim() } : r));
           }
@@ -329,7 +329,7 @@ export default function Home() {
 
       if (res.ok) {
         const data = await res.json();
-        setDynamicVehicles(prev => prev.map(v => v.name === renewTarget.name ? data.vehicle : v));
+        setDynamicVehicles(prev => prev.map(v => v.name === renewTarget.name ? { ...v, ...data.vehicle } : v));
         setFlash({ show: true, type: "success" });
         setTimeout(() => setFlash(prev => ({ ...prev, show: false })), 2000);
       } else {
