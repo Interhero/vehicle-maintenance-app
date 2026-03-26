@@ -2,17 +2,29 @@ import { NextResponse } from "next/server";
 import { kv } from "@vercel/kv";
 import webpush from "web-push";
 
-// Initialize web-push with VAPID keys from environment
-const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!;
-const privateVapidKey = process.env.VAPID_PRIVATE_KEY!;
+// Initialize web-push with VAPID keys dynamically to prevent build-time crashes
+function initWebPush() {
+    const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    const privateVapidKey = process.env.VAPID_PRIVATE_KEY;
 
-webpush.setVapidDetails(
-    'mailto:ammarfaiz2011@hotmail.com',
-    publicVapidKey,
-    privateVapidKey
-);
+    if (!publicVapidKey || !privateVapidKey) {
+        console.warn("Web-Push VAPID keys are missing. Push notifications will be skipped.");
+        return false;
+    }
+
+    webpush.setVapidDetails(
+        'mailto:ammarfaiz2011@hotmail.com',
+        publicVapidKey,
+        privateVapidKey
+    );
+    return true;
+}
 
 export async function GET(req: Request) {
+    if (!initWebPush()) {
+        return NextResponse.json({ error: "Push services not configured on server" }, { status: 503 });
+    }
+
     // 1. Verify Cron Security
     const authHeader = req.headers.get('authorization');
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && process.env.NODE_ENV === 'production') {
