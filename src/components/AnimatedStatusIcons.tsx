@@ -93,16 +93,8 @@ export function AnimatedOdometer({ className }: { className?: string }) {
 export function AnimatedSpeedometer({ className }: { className?: string }) {
     return (
         <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <defs>
-                <linearGradient id="speed-grad" x1="0%" y1="100%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#10b981" />
-                    <stop offset="50%" stopColor="#f59e0b" />
-                    <stop offset="100%" stopColor="#ef4444" />
-                </linearGradient>
-            </defs>
-
             <path d="M 15 70 A 35 35 0 0 1 85 70" stroke="currentColor" strokeWidth="8" className="opacity-20" />
-            <path d="M 15 70 A 35 35 0 0 1 85 70" stroke="url(#speed-grad)" strokeWidth="8" pathLength="1" className="animate-draw" />
+            <path d="M 15 70 A 35 35 0 0 1 85 70" stroke="currentColor" strokeWidth="8" pathLength="1" className="animate-draw" />
             <path d="M 28 70 A 22 22 0 0 1 72 70" stroke="currentColor" strokeWidth="3" className="opacity-40" />
 
             <line x1="15" y1="70" x2="22" y2="70" strokeWidth="4" className="animate-draw-delayed" />
