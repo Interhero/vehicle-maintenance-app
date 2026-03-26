@@ -834,17 +834,19 @@ export default function Home() {
                             </div>
 
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-2">
-                              <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm">
-                                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Mileage</span>
+                              <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm overflow-hidden">
                                 <div className="flex items-center justify-between">
-                                  <p className="font-mono text-sm sm:text-base text-zinc-800 dark:text-zinc-200">{v.currentMileage > 0 ? v.currentMileage.toLocaleString() : '--'} <span className="text-[10px] text-zinc-500">KM</span></p>
+                                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Mileage</span>
                                   <button
                                     onClick={() => openMileageModal(v)}
-                                    className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-800/40 px-2 py-1 rounded-md transition-colors border border-blue-200 dark:border-blue-800/50"
+                                    className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-800/40 px-2 py-0.5 rounded-md transition-colors border border-blue-200 dark:border-blue-800/50"
                                   >
                                     Update
                                   </button>
                                 </div>
+                                <p className="font-mono text-sm sm:text-base text-zinc-800 dark:text-zinc-200 truncate" title={v.currentMileage > 0 ? v.currentMileage.toLocaleString() + ' KM' : ''}>
+                                  {v.currentMileage > 0 ? v.currentMileage.toLocaleString() : '--'} <span className="text-[10px] text-zinc-500">KM</span>
+                                </p>
                               </div>
                               <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm">
                                 <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Tracked</span>
