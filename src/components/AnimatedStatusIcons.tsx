@@ -54,3 +54,24 @@ export function AnimatedCar({ className, strokeWidth = 2 }: { className?: string
         </svg>
     );
 }
+
+export function AnimatedCalendarCheck({ className }: { className?: string }) {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" pathLength="1" className="animate-draw" />
+            <line x1="16" x2="16" y1="2" y2="6" pathLength="1" className="animate-draw" />
+            <line x1="8" x2="8" y1="2" y2="6" pathLength="1" className="animate-draw" />
+            <line x1="3" x2="21" y1="10" y2="10" pathLength="1" className="animate-draw-delayed" />
+            <path d="m9 16 2 2 4-4" pathLength="1" className="animate-draw-delayed" />
+        </svg>
+    );
+}
+
+export function AnimatedPenLine({ className }: { className?: string }) {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 Z" pathLength="1" className="animate-draw" />
+            <path d="M12 20h9" pathLength="1" className="animate-draw-delayed" />
+        </svg>
+    );
+}

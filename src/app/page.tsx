@@ -6,7 +6,7 @@ import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calenda
 import { LaunchingScreen } from "@/components/LaunchingScreen";
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
-import { AnimatedCheck, AnimatedX, AnimatedTrash, AnimatedClock } from "@/components/AnimatedStatusIcons";
+import { AnimatedCheck, AnimatedX, AnimatedTrash, AnimatedClock, AnimatedCalendarCheck, AnimatedPenLine } from "@/components/AnimatedStatusIcons";
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -1479,7 +1479,7 @@ export default function Home() {
           {(flash.type === "renewing") && (
             <div className={`flex flex-col items-center animate-in zoom-in duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(255,255,255,0.1)] relative overflow-hidden ring-4 ring-white/30 dark:ring-transparent">
-                <PenLine className="w-14 h-14 text-white dark:text-blue-200 animate-pulse" />
+                <AnimatedPenLine className="w-14 h-14 text-white dark:text-blue-200" />
                 <div className="absolute inset-0 border-4 border-white/50 dark:border-blue-400/30 rounded-full border-t-white animate-spin"></div>
               </div>
               <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
@@ -1493,7 +1493,7 @@ export default function Home() {
             <div className={`flex flex-col items-center animate-in zoom-in slide-in-from-bottom-4 duration-500`}>
               <div className="w-28 h-28 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.3)] dark:shadow-[0_0_50px_rgba(16,185,129,0.4)] ring-4 ring-white/50 dark:ring-emerald-400/50">
                 {flash.type === "renew_success" ? (
-                  <CalendarCheck className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+                  <AnimatedCalendarCheck className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
                 ) : (
                   <AnimatedCheck className="w-16 h-16 text-white dark:text-emerald-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
                 )}
