@@ -834,17 +834,18 @@ export default function Home() {
                             </div>
 
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-2">
-                              <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm overflow-hidden">
-                                <div className="flex items-center justify-between">
+                              <div className="space-y-1 bg-white/40 dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm overflow-hidden group">
+                                <div className="flex items-start justify-between gap-2">
                                   <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">Mileage</span>
                                   <button
                                     onClick={() => openMileageModal(v)}
-                                    className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-800/40 px-2 py-0.5 rounded-md transition-colors border border-blue-200 dark:border-blue-800/50"
+                                    title="Update Mileage"
+                                    className="p-1 -mt-1 -mr-1 text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 bg-white/50 dark:bg-zinc-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-all border border-transparent hover:border-blue-200 dark:hover:border-blue-800/50 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 flex-shrink-0"
                                   >
-                                    Update
+                                    <PenLine className="w-3 h-3" />
                                   </button>
                                 </div>
-                                <p className="font-mono text-sm sm:text-base text-zinc-800 dark:text-zinc-200 truncate" title={v.currentMileage > 0 ? v.currentMileage.toLocaleString() + ' KM' : ''}>
+                                <p className="font-mono text-sm sm:text-base text-zinc-800 dark:text-zinc-200 truncate pr-1" title={v.currentMileage > 0 ? v.currentMileage.toLocaleString() + ' KM' : ''}>
                                   {v.currentMileage > 0 ? v.currentMileage.toLocaleString() : '--'} <span className="text-[10px] text-zinc-500">KM</span>
                                 </p>
                               </div>
