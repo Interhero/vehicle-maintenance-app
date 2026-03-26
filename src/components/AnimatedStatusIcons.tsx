@@ -79,21 +79,13 @@ export function AnimatedPenLine({ className }: { className?: string }) {
 export function AnimatedOdometer({ className }: { className?: string }) {
     return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <defs>
-                <clipPath id="odo-clip">
-                    <rect x="2" y="8" width="20" height="8" rx="2" ry="2" />
-                </clipPath>
-            </defs>
             <rect x="2" y="8" width="20" height="8" rx="2" ry="2" pathLength="1" className="animate-draw" />
             <line x1="8" y1="8" x2="8" y2="16" pathLength="1" className="animate-draw-delayed" />
             <line x1="16" y1="8" x2="16" y2="16" pathLength="1" className="animate-draw-delayed" />
-            <g clipPath="url(#odo-clip)">
-                <g className="animate-odo-spin" style={{ opacity: 0 }}>
-                    <path d="M5 2v4 M5 10v4 M5 18v4 M5 26v4" />
-                    <path d="M12 4v4 M12 12v4 M12 20v4 M12 28v4" />
-                    <path d="M19 0v4 M19 8v4 M19 16v4 M19 24v4" />
-                </g>
-            </g>
+
+            <line x1="5" y1="10" x2="5" y2="14" className="animate-roll-dashes" />
+            <line x1="12" y1="10" x2="12" y2="14" className="animate-roll-dashes" style={{ animationDelay: '0.7s' }} />
+            <line x1="19" y1="10" x2="19" y2="14" className="animate-roll-dashes" style={{ animationDelay: '0.8s' }} />
         </svg>
     );
 }
@@ -106,9 +98,11 @@ export function AnimatedSpeedometer({ className }: { className?: string }) {
             <path d="M3.34 16.66 2 18" pathLength="1" className="animate-draw-delayed" />
             <path d="m22 18-1.34-1.34" pathLength="1" className="animate-draw-delayed" />
             <path d="M7 16h10" pathLength="1" className="animate-draw-delayed" />
-            <g style={{ transformOrigin: '12px 14px' }} className="animate-needle-swing">
-                <path d="m12 14 4-5" />
-                <circle cx="12" cy="14" r="1.5" fill="currentColor" />
+
+            <g className="origin-center animate-needle-swing">
+                <rect x="0" y="4" width="24" height="20" fill="transparent" stroke="none" />
+                <path d="m12 14 4-4" />
+                <circle cx="12" cy="14" r="2" fill="currentColor" />
             </g>
         </svg>
     );
