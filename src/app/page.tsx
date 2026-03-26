@@ -274,6 +274,7 @@ export default function Home() {
           setNewInsuranceCompany("");
           setVehicleToEdit(null);
           setFlash(prev => ({ ...prev, show: false }));
+          closeManageModal();
         }, 2000);
 
       } else {
