@@ -133,6 +133,47 @@ export default function Home() {
     }, 300);
   };
 
+  const [nowDate, setNowDate] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setNowDate(new Date());
+  }, []);
+
+  useEffect(() => {
+    if (dynamicVehicles.length > 0 && typeof window !== "undefined" && "Notification" in window) {
+      const now = new Date();
+      const alerts: string[] = [];
+      dynamicVehicles.forEach(v => {
+        const rDate = new Date(v.roadtaxExpiry);
+        const iDate = new Date(v.insuranceExpiry);
+        if (v.roadtaxExpiry && !isNaN(rDate.getTime()) && (rDate.getTime() - now.getTime()) / 86400000 <= 14) {
+          alerts.push(`${v.name} Roadtax expires soon`);
+        }
+        if (v.insuranceExpiry && !isNaN(iDate.getTime()) && (iDate.getTime() - now.getTime()) / 86400000 <= 14) {
+          alerts.push(`${v.name} Insurance expires soon`);
+        }
+      });
+
+      if (alerts.length > 0) {
+        const lastNotified = localStorage.getItem("last_sys_notify");
+        const todayDate = now.toDateString();
+        if (lastNotified !== todayDate) {
+          if (Notification.permission === "granted") {
+            new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
+            localStorage.setItem("last_sys_notify", todayDate);
+          } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(perm => {
+              if (perm === "granted") {
+                new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
+                localStorage.setItem("last_sys_notify", todayDate);
+              }
+            });
+          }
+        }
+      }
+    }
+  }, [dynamicVehicles]);
+
   useEffect(() => {
     // Load dismissed alerts from local storage purely on client
     const saved = localStorage.getItem("vehicle_dismissals");
@@ -605,44 +646,8 @@ export default function Home() {
   const hasDismissed = Object.values(dismissedAlerts).some(a => a.status === 'dismissed');
   const hasAttended = Object.values(dismissedAlerts).some(a => a.status === 'attended');
 
-  useEffect(() => {
-    if (dynamicVehicles.length > 0 && typeof window !== "undefined" && "Notification" in window) {
-      const now = new Date();
-      const alerts: string[] = [];
-      dynamicVehicles.forEach(v => {
-        const rDate = new Date(v.roadtaxExpiry);
-        const iDate = new Date(v.insuranceExpiry);
-        if (v.roadtaxExpiry && !isNaN(rDate.getTime()) && (rDate.getTime() - now.getTime()) / 86400000 <= 14) {
-          alerts.push(`${v.name} Roadtax expires soon`);
-        }
-        if (v.insuranceExpiry && !isNaN(iDate.getTime()) && (iDate.getTime() - now.getTime()) / 86400000 <= 14) {
-          alerts.push(`${v.name} Insurance expires soon`);
-        }
-      });
-
-      if (alerts.length > 0) {
-        const lastNotified = localStorage.getItem("last_sys_notify");
-        const todayDate = now.toDateString();
-        if (lastNotified !== todayDate) {
-          if (Notification.permission === "granted") {
-            new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
-            localStorage.setItem("last_sys_notify", todayDate);
-          } else if (Notification.permission !== "denied") {
-            Notification.requestPermission().then(perm => {
-              if (perm === "granted") {
-                new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
-                localStorage.setItem("last_sys_notify", todayDate);
-              }
-            });
-          }
-        }
-      }
-    }
-  }, [dynamicVehicles]);
-
   return (
     <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 p-4 sm:p-8 transition-colors">
-
       {/* Login Flash Overlay */}
       <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 bg-blue-600 transition-all duration-500 ease-in-out ${loginFlash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none delay-500'}`}>
         <div className={`relative ${loginFlash ? 'animate-vroom-in' : 'opacity-0'}`}>
@@ -758,12 +763,11 @@ export default function Home() {
                       const hasOverdue = vehicleJobs.some(job => job.remainingKm < 0);
                       const hasDueSoon = vehicleJobs.some(job => job.remainingKm >= 0 && job.remainingKm <= 500);
 
-                      const now = new Date();
                       const getDaysLeft = (dateStr: string) => {
-                        if (!dateStr) return null;
+                        if (!nowDate || !dateStr) return null;
                         const target = new Date(dateStr);
                         if (isNaN(target.getTime())) return null;
-                        const diffTime = target.getTime() - now.getTime();
+                        const diffTime = target.getTime() - nowDate.getTime();
                         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                       };
 
