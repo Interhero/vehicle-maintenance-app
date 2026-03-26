@@ -47,14 +47,34 @@ export function PushSubscriber() {
     }, []);
 
     const subscribeButtonOnClick = async () => {
-        if (!registration || !publicVapidKey) return;
+        console.log("Subscribe clicked. Registration:", !!registration, "VAPID key:", !!publicVapidKey);
+
+        if (!registration) {
+            alert("Error: Service Worker not ready yet. Please refresh.");
+            return;
+        }
+        if (!publicVapidKey) {
+            alert("Error: VAPID Public Key missing from environment.");
+            return;
+        }
+
         setLoading(true);
         try {
+            console.log("Checking current permission:", Notification.permission);
+            if (Notification.permission === "denied") {
+                alert("Notification permission is DENIED. Please reset permissions in your browser settings to enable alerts.");
+                setLoading(false);
+                return;
+            }
+
             // Trigger the native OS permission prompt!
+            console.log("Attempting pushManager.subscribe...");
             const sub = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
             });
+
+            console.log("Subscription successful locally. Syncing to backend...");
 
             // Post the secure endpoint safely to the Vercel KV DB
             const res = await fetch("/api/webpush/subscribe", {
@@ -64,11 +84,17 @@ export function PushSubscriber() {
             });
 
             if (res.ok) {
+                console.log("Backend sync successful.");
                 setIsSubscribed(true);
                 setSubscription(sub);
+            } else {
+                const errorData = await res.json();
+                console.error("Backend sync failed:", errorData);
+                alert(`Backend sync failed: ${errorData.error || 'Unknown error'}`);
             }
-        } catch (err) {
-            console.error("User denied or PushManager failed", err);
+        } catch (err: any) {
+            console.error("Subscription process failed:", err);
+            alert(`Push subscription failed: ${err.message || 'Check console for details'}`);
         }
         setLoading(false);
     };
@@ -99,8 +125,8 @@ export function PushSubscriber() {
             disabled={loading}
             title={isSubscribed ? "Disable Background Alerts" : "Enable Background Alerts"}
             className={`inline-flex items-center justify-center p-2 sm:px-4 sm:py-2.5 rounded-xl border transition-all h-11 shadow-sm gap-2 ${isSubscribed
-                    ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400"
-                    : "bg-zinc-100 text-zinc-500 border-zinc-200 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:border-zinc-700 dark:text-zinc-400"
+                ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400"
+                : "bg-zinc-100 text-zinc-500 border-zinc-200 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:border-zinc-700 dark:text-zinc-400"
                 }`}
         >
             {loading ? (
