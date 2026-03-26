@@ -1652,13 +1652,17 @@ export default function Home() {
       <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
         <a
           href="/record/new"
-          className="pointer-events-auto flex items-center h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-2xl shadow-blue-500/40 hover:scale-105 active:scale-90 active:translate-y-1 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group border border-white/20 px-4 gap-0 hover:gap-3 overflow-hidden"
+          className="pointer-events-auto flex items-center h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-2xl shadow-blue-500/40 hover:scale-105 active:scale-90 active:translate-y-1 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group border border-white/20 px-4 group overflow-hidden"
           title="Create New Record"
         >
           <Plus className="w-7 h-7 flex-shrink-0 transition-transform duration-700 group-hover:rotate-90" />
-          <span className="max-w-0 opacity-0 whitespace-nowrap group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-500 ease-in-out font-bold text-base pointer-events-none">
-            New Record
-          </span>
+          <div className="grid grid-cols-[0fr] group-hover:grid-cols-[1fr] transition-[grid-template-columns] duration-500 ease-in-out">
+            <div className="overflow-hidden whitespace-nowrap">
+              <span className="pl-3 font-bold text-base opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                New Record
+              </span>
+            </div>
+          </div>
         </a>
       </div>
     </div >
