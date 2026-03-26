@@ -162,39 +162,46 @@ option {
   animation: draw-path 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
 }
 
-@keyframes odo-spin {
+@keyframes odo-roll-dashes {
   0% {
-    transform: translateY(-4px);
-    opacity: 0;
-  }
-
-  50% {
+    stroke-dashoffset: 8;
     opacity: 1;
   }
 
   100% {
-    transform: translateY(4px);
-    opacity: 0;
+    stroke-dashoffset: 0;
+    opacity: 1;
   }
 }
 
-.animate-odo-spin {
-  animation: odo-spin 0.4s linear infinite;
+.animate-roll-dashes {
+  stroke-dasharray: 2 6;
+  opacity: 0;
+  animation: odo-roll-dashes 0.4s linear infinite;
   animation-delay: 0.6s;
+  animation-fill-mode: forwards;
 }
 
 @keyframes needle-swing {
   0% {
-    transform: rotate(-50deg);
+    transform: rotate(-75deg);
+  }
+
+  50% {
+    transform: rotate(85deg);
+  }
+
+  75% {
+    transform: rotate(45deg);
   }
 
   100% {
-    transform: rotate(50deg);
+    transform: rotate(65deg);
   }
 }
 
 .animate-needle-swing {
-  transform: rotate(-50deg);
-  animation: needle-swing 1s cubic-bezier(0.3, 1.5, 0.5, 1) forwards;
-  animation-delay: 0.6s;
+  transform: rotate(-75deg);
+  animation: needle-swing 1.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+  animation-delay: 0.5s;
 }
