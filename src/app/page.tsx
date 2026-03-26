@@ -159,15 +159,23 @@ export default function Home() {
         const todayDate = now.toDateString();
         if (lastNotified !== todayDate) {
           if (Notification.permission === "granted") {
-            new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
-            localStorage.setItem("last_sys_notify", todayDate);
+            try {
+              new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
+              localStorage.setItem("last_sys_notify", todayDate);
+            } catch (e) {
+              console.error("Browser obstructed direct Notification constructor:", e);
+            }
           } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then(perm => {
               if (perm === "granted") {
-                new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
-                localStorage.setItem("last_sys_notify", todayDate);
+                try {
+                  new Notification("Vehicle Maintenance App", { body: alerts.join(", "), icon: "/icon.svg" });
+                  localStorage.setItem("last_sys_notify", todayDate);
+                } catch (e) {
+                  console.error("Browser obstructed direct Notification constructor:", e);
+                }
               }
-            });
+            }).catch(e => console.error("Permission request failed", e));
           }
         }
       }
