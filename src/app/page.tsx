@@ -1184,7 +1184,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                <div className="px-4 py-3 sm:p-6 overflow-y-auto overflow-x-hidden flex flex-col gap-4 sm:gap-6">
+                <div className="px-4 pt-3 pb-2 sm:px-6 sm:pt-6 sm:pb-3 overflow-y-auto overflow-x-hidden flex flex-col gap-4 sm:gap-6">
                   {/* Add New / Edit */}
                   <div className="flex flex-col gap-2 sm:gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-800/80 order-2">
                     <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{vehicleToEdit ? "Edit Vehicle" : "Add New Vehicle"}</p>
