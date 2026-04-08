@@ -1185,8 +1185,54 @@ export default function Home() {
                 </div>
 
                 <div className="px-4 pt-3 pb-2 sm:px-6 sm:pt-6 sm:pb-3 overflow-y-auto overflow-x-hidden flex flex-col gap-4 sm:gap-6">
+                  {/* List */}
+                  <div className="space-y-1.5 sm:space-y-2 pb-1">
+                    <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 sm:mb-3">Your Vehicles</p>
+                    {dynamicVehicles.length === 0 ? (
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-3 bg-zinc-50 dark:bg-zinc-950/50 rounded-lg border border-zinc-200 dark:border-zinc-800/50">No vehicles tracked yet.</p>
+                    ) : (
+                      dynamicVehicles.map((v, i) => (
+                        <div key={i} className="flex justify-between items-center p-2.5 sm:p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors animate-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}>
+                          <div className="flex items-center gap-2.5 sm:gap-3">
+                            <div
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-md border border-zinc-300 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-inner"
+                              style={{ backgroundColor: v.color || "#3b82f6" }}
+                            >
+                              {v.type === "Motorcycle" ? (
+                                <Bike className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 drop-shadow-md" />
+                              ) : (
+                                <Car className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 drop-shadow-md" />
+                              )}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs sm:text-sm font-medium text-zinc-800 dark:text-zinc-200">{v.name}</span>
+                              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">{v.type}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => startEditVehicle(v)}
+                              disabled={modalLoading || vehicleToEdit === v.name}
+                              className="text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 p-1.5 sm:p-2 rounded-lg transition-all"
+                              title="Edit vehicle"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                            </button>
+                            <button
+                              onClick={() => setVehicleToDelete(v.name)}
+                              disabled={modalLoading || vehicleToEdit === v.name}
+                              className="text-rose-500/70 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-400/10 p-1.5 sm:p-2 rounded-lg transition-all"
+                              title="Remove tracking"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                   {/* Add New / Edit */}
-                  <div className="flex flex-col gap-2 sm:gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-800/80 order-2">
+                  <div className="flex flex-col gap-2 sm:gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-800/80">
                     <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{vehicleToEdit ? "Edit Vehicle" : "Add New Vehicle"}</p>
                     <input
                       type="text"
@@ -1326,52 +1372,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* List */}
-                  <div className="space-y-1.5 sm:space-y-2 pb-1 order-1">
-                    <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 sm:mb-3">Your Vehicles</p>
-                    {dynamicVehicles.length === 0 ? (
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-3 bg-zinc-50 dark:bg-zinc-950/50 rounded-lg border border-zinc-200 dark:border-zinc-800/50">No vehicles tracked yet.</p>
-                    ) : (
-                      dynamicVehicles.map((v, i) => (
-                        <div key={i} className="flex justify-between items-center p-2.5 sm:p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors animate-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}>
-                          <div className="flex items-center gap-2.5 sm:gap-3">
-                            <div
-                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-md border border-zinc-300 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-inner"
-                              style={{ backgroundColor: v.color || "#3b82f6" }}
-                            >
-                              {v.type === "Motorcycle" ? (
-                                <Bike className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 drop-shadow-md" />
-                              ) : (
-                                <Car className="w-4 h-4 sm:w-5 sm:h-5 text-white/90 drop-shadow-md" />
-                              )}
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-xs sm:text-sm font-medium text-zinc-800 dark:text-zinc-200">{v.name}</span>
-                              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">{v.type}</span>
-                            </div>
-                          </div>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => startEditVehicle(v)}
-                              disabled={modalLoading || vehicleToEdit === v.name}
-                              className="text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 p-1.5 sm:p-2 rounded-lg transition-all"
-                              title="Edit vehicle"
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
-                            </button>
-                            <button
-                              onClick={() => setVehicleToDelete(v.name)}
-                              disabled={modalLoading || vehicleToEdit === v.name}
-                              className="text-rose-500/70 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-400/10 p-1.5 sm:p-2 rounded-lg transition-all"
-                              title="Remove tracking"
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
                 </div>
               </div>
             </div>
