@@ -1014,38 +1014,42 @@ export default function Home() {
                                               {isOverdue ? Math.abs(job.remainingKm).toLocaleString() + ' KM ago' : 'in ' + job.remainingKm.toLocaleString() + ' KM'}
                                             </p>
                                             
-                                            {/* Action Button inside flow layout to prevent overlap */}
-                                            <button
-                                              onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                if (isOverdue) {
-                                                  setResolvingAlert(job);
-                                                } else {
-                                                  const alertId = `${job.vehicle}-${job.serviceType}-${job.nextDue}`;
-                                                  const newDismissals: Record<string, { status: 'dismissed' | 'attended', timestamp: number }> = {
-                                                    ...dismissedAlerts,
-                                                    [alertId]: { status: 'dismissed', timestamp: Date.now() }
-                                                  };
-                                                  setDismissedAlerts(newDismissals);
-                                                  localStorage.setItem("vehicle_dismissals", JSON.stringify(newDismissals));
-                                                }
-                                              }}
-                                              className={`mt-2 w-full justify-center opacity-0 group-hover/alert:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-900/90 rounded-lg px-3 py-1.5 backdrop-blur-md border shadow-sm flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider hover:scale-105 active:scale-95 ${buttonStyle}`}
-                                              title={isOverdue ? "Take Action on Alert" : "Dismiss Alert"}
-                                            >
-                                              {isOverdue ? (
-                                                <>
-                                                  <Settings className="w-3.5 h-3.5" />
-                                                  Take Action
-                                                </>
-                                              ) : (
-                                                <>
-                                                  <X className="w-3.5 h-3.5" />
-                                                  Dismiss
-                                                </>
-                                              )}
-                                            </button>
+                                            {/* Action Button grid trick to remove layout gap when hidden */}
+                                            <div className="grid grid-rows-[0fr] group-hover/alert:grid-rows-[1fr] transition-[grid-template-rows] duration-300 ease-in-out w-full mt-0 group-hover/alert:mt-2">
+                                              <div className="overflow-hidden flex w-full">
+                                                <button
+                                                  onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    if (isOverdue) {
+                                                      setResolvingAlert(job);
+                                                    } else {
+                                                      const alertId = `${job.vehicle}-${job.serviceType}-${job.nextDue}`;
+                                                      const newDismissals: Record<string, { status: 'dismissed' | 'attended', timestamp: number }> = {
+                                                        ...dismissedAlerts,
+                                                        [alertId]: { status: 'dismissed', timestamp: Date.now() }
+                                                      };
+                                                      setDismissedAlerts(newDismissals);
+                                                      localStorage.setItem("vehicle_dismissals", JSON.stringify(newDismissals));
+                                                    }
+                                                  }}
+                                                  className={`w-full justify-center opacity-0 group-hover/alert:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-900/90 rounded-lg px-3 py-1.5 backdrop-blur-md border shadow-sm flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider hover:scale-105 active:scale-95 ${buttonStyle}`}
+                                                  title={isOverdue ? "Take Action on Alert" : "Dismiss Alert"}
+                                                >
+                                                  {isOverdue ? (
+                                                    <>
+                                                      <Settings className="w-3.5 h-3.5" />
+                                                      Take Action
+                                                    </>
+                                                  ) : (
+                                                    <>
+                                                      <X className="w-3.5 h-3.5" />
+                                                      Dismiss
+                                                    </>
+                                                  )}
+                                                </button>
+                                              </div>
+                                            </div>
                                           </div>
                                         </div>
 
