@@ -1000,52 +1000,52 @@ export default function Home() {
                                       <div key={j} className={`p-4 rounded-2xl border ${containerStyle} flex flex-col gap-2 relative overflow-hidden group/alert shadow-sm dark:shadow-lg backdrop-blur-md`}>
                                         <div className={`absolute top-0 left-0 w-1.5 h-full ${indicatorStyle}`}></div>
 
-                                        {/* Dismiss/Resolve Button */}
-                                        <button
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            if (isOverdue) {
-                                              setResolvingAlert(job);
-                                            } else {
-                                              const alertId = `${job.vehicle}-${job.serviceType}-${job.nextDue}`;
-                                              const newDismissals: Record<string, { status: 'dismissed' | 'attended', timestamp: number }> = {
-                                                ...dismissedAlerts,
-                                                [alertId]: { status: 'dismissed', timestamp: Date.now() }
-                                              };
-                                              setDismissedAlerts(newDismissals);
-                                              localStorage.setItem("vehicle_dismissals", JSON.stringify(newDismissals));
-                                            }
-                                          }}
-                                          className={`absolute top-2 right-2 opacity-0 group-hover/alert:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-900/90 rounded-lg px-3 py-1.5 backdrop-blur-md border shadow-sm flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider hover:scale-105 active:scale-95 ${buttonStyle}`}
-                                          title={isOverdue ? "Take Action on Alert" : "Dismiss Alert"}
-                                        >
-                                          {isOverdue ? (
-                                            <>
-                                              <Settings className="w-3.5 h-3.5" />
-                                              Take Action
-                                            </>
-                                          ) : (
-                                            <>
-                                              <X className="w-3.5 h-3.5" />
-                                              Dismiss
-                                            </>
-                                          )}
-                                        </button>
-
-                                        <div className="flex justify-between items-start pl-3 pr-8">
+                                        <div className="flex justify-between items-start pl-3 pr-2">
                                           <div>
                                             <p className="font-bold text-base tracking-tight">
                                               {job.serviceType}
                                             </p>
                                           </div>
-                                          <div className="text-right shrink-0">
+                                          <div className="text-right shrink-0 flex flex-col items-end">
                                             <p className={`text-sm font-mono font-bold uppercase ${labelStyle}`}>
                                               {isOverdue ? 'OVERDUE' : isDueSoon ? 'DUE SOON' : 'SCHEDULED'} <span className="opacity-80 dark:opacity-60 text-xs font-normal ml-1">@ {job.nextDue.toLocaleString()} KM</span>
                                             </p>
                                             <p className={`text-xs opacity-90 mt-1 font-medium inline-block px-2 py-0.5 rounded-md border ${chipStyle}`}>
                                               {isOverdue ? Math.abs(job.remainingKm).toLocaleString() + ' KM ago' : 'in ' + job.remainingKm.toLocaleString() + ' KM'}
                                             </p>
+                                            
+                                            {/* Action Button inside flow layout to prevent overlap */}
+                                            <button
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (isOverdue) {
+                                                  setResolvingAlert(job);
+                                                } else {
+                                                  const alertId = `${job.vehicle}-${job.serviceType}-${job.nextDue}`;
+                                                  const newDismissals: Record<string, { status: 'dismissed' | 'attended', timestamp: number }> = {
+                                                    ...dismissedAlerts,
+                                                    [alertId]: { status: 'dismissed', timestamp: Date.now() }
+                                                  };
+                                                  setDismissedAlerts(newDismissals);
+                                                  localStorage.setItem("vehicle_dismissals", JSON.stringify(newDismissals));
+                                                }
+                                              }}
+                                              className={`mt-2 w-full justify-center opacity-0 group-hover/alert:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-900/90 rounded-lg px-3 py-1.5 backdrop-blur-md border shadow-sm flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider hover:scale-105 active:scale-95 ${buttonStyle}`}
+                                              title={isOverdue ? "Take Action on Alert" : "Dismiss Alert"}
+                                            >
+                                              {isOverdue ? (
+                                                <>
+                                                  <Settings className="w-3.5 h-3.5" />
+                                                  Take Action
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <X className="w-3.5 h-3.5" />
+                                                  Dismiss
+                                                </>
+                                              )}
+                                            </button>
                                           </div>
                                         </div>
 
