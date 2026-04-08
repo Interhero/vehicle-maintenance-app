@@ -811,8 +811,8 @@ export default function Home() {
                       const vehicleJobs = upcomingServices.filter(
                         job => job.vehicle === v.name && !dismissedAlerts[`${job.vehicle}-${job.serviceType}-${job.nextDue}`]
                       );
-                      const hasOverdue = vehicleJobs.some(job => job.remainingKm < 0);
-                      const hasDueSoon = vehicleJobs.some(job => job.remainingKm >= 0 && job.remainingKm <= 500);
+                      const hasOverdue = vehicleJobs.some(job => job.remainingKm <= 500);
+                      const hasDueSoon = vehicleJobs.some(job => job.remainingKm > 500 && job.remainingKm <= 1000);
 
                       const getDaysLeft = (dateStr: string) => {
                         if (!nowDate || !dateStr) return null;
@@ -971,9 +971,9 @@ export default function Home() {
 
                                 <div className="space-y-3">
                                   {vehicleJobs.map((job, j) => {
-                                    const isOverdue = job.remainingKm < 0;
-                                    const isDueSoon = job.remainingKm >= 0 && job.remainingKm <= 500;
-                                    const isScheduled = job.remainingKm > 500;
+                                    const isOverdue = job.remainingKm <= 500;
+                                    const isDueSoon = job.remainingKm > 500 && job.remainingKm <= 1000;
+                                    const isScheduled = job.remainingKm > 1000;
                                     const alertId = `${job.vehicle}-${job.serviceType}-${job.nextDue}`;
 
                                     let containerStyle = 'border-amber-200/60 dark:border-amber-900/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200';
@@ -1017,13 +1017,19 @@ export default function Home() {
                                               localStorage.setItem("vehicle_dismissals", JSON.stringify(newDismissals));
                                             }
                                           }}
-                                          className={`absolute top-2 right-2 opacity-0 group-hover/alert:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-900/90 rounded-lg p-1.5 backdrop-blur-md border shadow-sm ${buttonStyle}`}
-                                          title={isOverdue ? "Resolve Overdue Alert" : "Dismiss Alert"}
+                                          className={`absolute top-2 right-2 opacity-0 group-hover/alert:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-900/90 rounded-lg px-3 py-1.5 backdrop-blur-md border shadow-sm flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider hover:scale-105 active:scale-95 ${buttonStyle}`}
+                                          title={isOverdue ? "Take Action on Alert" : "Dismiss Alert"}
                                         >
                                           {isOverdue ? (
-                                            <Settings className="w-4 h-4" />
+                                            <>
+                                              <Settings className="w-3.5 h-3.5" />
+                                              Take Action
+                                            </>
                                           ) : (
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                                            <>
+                                              <X className="w-3.5 h-3.5" />
+                                              Dismiss
+                                            </>
                                           )}
                                         </button>
 
@@ -1646,6 +1652,12 @@ export default function Home() {
           )
         }
 
+        {/* Footer Signature */}
+        <div className="mt-16 pb-8 text-center opacity-60 hover:opacity-100 transition-opacity">
+          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            System engineered and owned by <span className="font-bold text-zinc-800 dark:text-zinc-200">Ammar Faiz Bin Ahmad</span>
+          </p>
+        </div>
       </div >
 
       {/* Floating Action Button (Mobile & Desktop) */}
