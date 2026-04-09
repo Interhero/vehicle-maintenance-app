@@ -1184,9 +1184,9 @@ export default function Home() {
                   </button>
                 </div>
 
-                <div className="px-4 pt-3 pb-0 sm:px-6 sm:pt-6 sm:pb-1 overflow-y-auto overflow-x-hidden flex flex-col gap-4 sm:gap-6">
+                <div className="px-4 pt-3 pb-0 sm:px-6 sm:pt-6 sm:pb-0 overflow-y-auto overflow-x-hidden block">
                   {/* List */}
-                  <div className="space-y-1.5 sm:space-y-2 pb-0">
+                  <div className="space-y-1.5 sm:space-y-2 pb-0 mb-5 sm:mb-6">
                     <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 sm:mb-3">Your Vehicles</p>
                     {dynamicVehicles.length === 0 ? (
                       <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-3 bg-zinc-50 dark:bg-zinc-950/50 rounded-lg border border-zinc-200 dark:border-zinc-800/50">No vehicles tracked yet.</p>
@@ -1232,7 +1232,7 @@ export default function Home() {
                     )}
                   </div>
                   {/* Add New / Edit */}
-                  <div className="flex flex-col gap-2 sm:gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-3 pb-2 sm:p-4 sm:pb-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/80 mb-2 sm:mb-3">
+                  <div className="flex flex-col gap-2 sm:gap-3 relative z-10 bg-zinc-50 dark:bg-zinc-950/30 p-3 pb-2 sm:p-4 sm:pb-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/80">
                     <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{vehicleToEdit ? "Edit Vehicle" : "Add New Vehicle"}</p>
                     <input
                       type="text"
