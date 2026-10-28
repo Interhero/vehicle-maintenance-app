@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   title: "Vehicle Maintenance App",
   applicationName: "Vehicle Maintenance App",
   appleWebApp: {
-    title: "Vehicle Hub",
+    title: "Vehicle Maintenance App",
   },
   description: "Vehicle maintenance tracking app",
   verification: {
