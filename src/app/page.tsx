@@ -47,6 +47,7 @@ export default function Home() {
   const { data: session, status } = useSession();
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fabOpen, setFabOpen] = useState(false);
   const [showManageModal, setShowManageModal] = useState(false);
   const [isManageModalClosing, setIsManageModalClosing] = useState(false);
   const [dynamicVehicles, setDynamicVehicles] = useState<any[]>([]);
@@ -1711,31 +1712,44 @@ export default function Home() {
         </div>
       </div >
 
-      {/* Floating Action Buttons (Mobile & Desktop Dual Quick Access) */}
+      {/* Expandable Single Floating Action Button */}
       <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
-        {/* Floating Workshop Finder Button */}
-        <a
-          href="/workshops"
-          className="pointer-events-auto flex items-center h-12 sm:h-14 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-xl shadow-emerald-600/30 hover:scale-105 active:scale-90 active:translate-y-1 transition-all duration-300 border border-white/20 px-4 group"
-          title="Find Nearest Workshop (A* Route)"
-        >
-          <MapPin className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 text-emerald-100 group-hover:scale-110 transition-transform" />
-          <span className="pl-2 font-bold text-xs sm:text-sm whitespace-nowrap">
-            Find Workshop
-          </span>
-        </a>
+        {/* Backdrop for closing when tapping outside */}
+        {fabOpen && (
+          <div
+            className="fixed inset-0 bg-black/30 backdrop-blur-xs pointer-events-auto z-[-1] animate-in fade-in duration-200"
+            onClick={() => setFabOpen(false)}
+          />
+        )}
 
-        {/* Floating New Record Button */}
-        <a
-          href="/record/new"
-          className="pointer-events-auto flex items-center h-13 sm:h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-2xl shadow-blue-500/40 hover:scale-105 active:scale-90 active:translate-y-1 transition-all duration-300 border border-white/20 px-4 group"
-          title="Create New Record"
+        {/* Expanded Options (shown only when clicked) */}
+        {fabOpen && (
+          <div className="flex flex-col items-end gap-2.5 pointer-events-auto animate-in slide-in-from-bottom-3 fade-in duration-200">
+            <a
+              href="/workshops"
+              className="flex items-center gap-2.5 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-xl shadow-emerald-600/30 px-4 text-sm font-bold border border-white/20 active:scale-95 transition-all"
+            >
+              <MapPin className="w-4 h-4 text-emerald-100" />
+              <span>Find Workshop (A*)</span>
+            </a>
+            <a
+              href="/record/new"
+              className="flex items-center gap-2.5 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-xl shadow-blue-600/30 px-4 text-sm font-bold border border-white/20 active:scale-95 transition-all"
+            >
+              <Plus className="w-4 h-4 text-blue-100" />
+              <span>New Record</span>
+            </a>
+          </div>
+        )}
+
+        {/* The ONLY visible floating button */}
+        <button
+          onClick={() => setFabOpen(!fabOpen)}
+          className={`pointer-events-auto flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 ${fabOpen ? 'bg-zinc-800 text-white rotate-45' : 'bg-blue-600 hover:bg-blue-500 text-white'} rounded-2xl shadow-2xl shadow-blue-500/40 hover:scale-105 active:scale-90 transition-all duration-300 border border-white/20`}
+          title={fabOpen ? "Close Menu" : "Quick Actions"}
         >
-          <Plus className="w-5 h-5 sm:w-7 sm:h-7 flex-shrink-0 transition-transform duration-500 group-hover:rotate-90" />
-          <span className="pl-2 font-bold text-xs sm:text-base whitespace-nowrap">
-            New Record
-          </span>
-        </a>
+          <Plus className="w-7 h-7 transition-transform duration-300" />
+        </button>
       </div>
     </div >
   );
