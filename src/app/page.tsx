@@ -2,7 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Loader2, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, CalendarCheck, PenLine, Car, Bike, Settings, Clock, CheckCircle2, XCircle, Trash2, Search, EyeOff, Camera, ChevronDown, ShieldCheck, Gauge, MessageSquare, AlertTriangle, X } from 'lucide-react';
+import { Loader2, MapPin, Plus, LogOut, Moon, Sun, Monitor, AlertCircle, Wrench, Calendar, CalendarCheck, PenLine, Car, Bike, Settings, Clock, CheckCircle2, XCircle, Trash2, Search, EyeOff, Camera, ChevronDown, ShieldCheck, Gauge, MessageSquare, AlertTriangle, X } from 'lucide-react';
 import { LaunchingScreen } from "@/components/LaunchingScreen";
 import { useTheme } from "@/components/ThemeProvider";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
@@ -735,6 +735,10 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3 sm:gap-4 mt-6 md:mt-0">
             <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
               <PushSubscriber />
+              <a href="/workshops" className="inline-flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 sm:px-5 h-11 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm rounded-xl transition-all shadow-sm shadow-emerald-600/20 whitespace-nowrap group">
+                <MapPin className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
+                Workshop Finder
+              </a>
               <button onClick={openManageModal} className="inline-flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 sm:px-5 h-11 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 font-medium text-sm rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm whitespace-nowrap">
                 Manage Vehicles
               </button>

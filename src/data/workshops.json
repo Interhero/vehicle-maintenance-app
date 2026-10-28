@@ -1,0 +1,202 @@
+[
+  {
+    "workshop_id": 1,
+    "name": "Chendering Auto Specialist",
+    "latitude": 5.25841,
+    "longitude": 103.17025,
+    "baseline_repair_cost": 350.00,
+    "service_quality": 8.4,
+    "capacity": 8,
+    "address": "Jalan Kubang Ikan, Kawasan Perindustrian Chendering, 21080 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 2,
+    "name": "Bengkel Maju Jaya Chendering",
+    "latitude": 5.26650,
+    "longitude": 103.17510,
+    "baseline_repair_cost": 180.00,
+    "service_quality": 6.8,
+    "capacity": 6,
+    "address": "Kampung Chendering Laut, 21080 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 3,
+    "name": "Pusat Servis Kereta Ibai Indah",
+    "latitude": 5.28910,
+    "longitude": 103.17120,
+    "baseline_repair_cost": 420.00,
+    "service_quality": 8.9,
+    "capacity": 10,
+    "address": "Jalan Tok Adis, Kuala Ibai, 20400 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 4,
+    "name": "Batu Burok Speed Auto Repair",
+    "latitude": 5.31820,
+    "longitude": 103.15540,
+    "baseline_repair_cost": 580.00,
+    "service_quality": 7.5,
+    "capacity": 12,
+    "address": "Jalan Sultan Mahmud, Batu Burok, 20400 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 5,
+    "name": "Ladang Tyre & Mechanical Care",
+    "latitude": 5.32890,
+    "longitude": 103.14250,
+    "baseline_repair_cost": 310.00,
+    "service_quality": 7.2,
+    "capacity": 6,
+    "address": "Jalan Ladang Sekolah, 20000 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 6,
+    "name": "Pusat Servis City Waterfront",
+    "latitude": 5.33450,
+    "longitude": 103.12980,
+    "baseline_repair_cost": 650.00,
+    "service_quality": 9.2,
+    "capacity": 15,
+    "address": "Jalan Hiliran, Pulau Kambing, 20300 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 7,
+    "name": "Wakaf Mempelam Economy Workshop",
+    "latitude": 5.29540,
+    "longitude": 103.11890,
+    "baseline_repair_cost": 120.00,
+    "service_quality": 5.8,
+    "capacity": 5,
+    "address": "Jalan Pengadang Baru, Wakaf Mempelam, 20050 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 8,
+    "name": "Bukit Payung Dynamic Autoworks",
+    "latitude": 5.24120,
+    "longitude": 103.09850,
+    "baseline_repair_cost": 240.00,
+    "service_quality": 7.9,
+    "capacity": 8,
+    "address": "Pekan Bukit Payung, 21400 Marang, Terengganu"
+  },
+  {
+    "workshop_id": 9,
+    "name": "Marang Coastal Garage",
+    "latitude": 5.20560,
+    "longitude": 103.20810,
+    "baseline_repair_cost": 210.00,
+    "service_quality": 6.5,
+    "capacity": 7,
+    "address": "Jalan Pantai, Seberang Marang, 21600 Marang, Terengganu"
+  },
+  {
+    "workshop_id": 10,
+    "name": "Panji Alam Precision Auto",
+    "latitude": 5.31200,
+    "longitude": 103.13600,
+    "baseline_repair_cost": 490.00,
+    "service_quality": 8.7,
+    "capacity": 10,
+    "address": "Jalan Panji Alam, 21100 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 11,
+    "name": "Manir Riverside Auto Care",
+    "latitude": 5.32100,
+    "longitude": 103.08500,
+    "baseline_repair_cost": 150.00,
+    "service_quality": 7.1,
+    "capacity": 6,
+    "address": "Kampung Teluk Menara, Manir, 21200 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 12,
+    "name": "Durian Burung Express Workshop",
+    "latitude": 5.30500,
+    "longitude": 103.12500,
+    "baseline_repair_cost": 280.00,
+    "service_quality": 6.9,
+    "capacity": 5,
+    "address": "Jalan Durian Burung, 20050 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 13,
+    "name": "Gong Badak Premier Motor Service",
+    "latitude": 5.38500,
+    "longitude": 103.10200,
+    "baseline_repair_cost": 780.00,
+    "service_quality": 9.6,
+    "capacity": 14,
+    "address": "Jalan Lapangan Terbang, Gong Badak, 21300 Kuala Nerus"
+  },
+  {
+    "workshop_id": 14,
+    "name": "Seberang Takir Friendly Mechanics",
+    "latitude": 5.35200,
+    "longitude": 103.12100,
+    "baseline_repair_cost": 190.00,
+    "service_quality": 7.4,
+    "capacity": 6,
+    "address": "Seberang Takir, 21300 Kuala Nerus"
+  },
+  {
+    "workshop_id": 15,
+    "name": "Losong Heritage Auto Repair",
+    "latitude": 5.32000,
+    "longitude": 103.11100,
+    "baseline_repair_cost": 220.00,
+    "service_quality": 6.2,
+    "capacity": 8,
+    "address": "Kampung Losong Haji Su, 20540 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 16,
+    "name": "Padang Hiliran Turbo & Engine",
+    "latitude": 5.32500,
+    "longitude": 103.12800,
+    "baseline_repair_cost": 720.00,
+    "service_quality": 9.0,
+    "capacity": 12,
+    "address": "Kawasan Perindustrian Padang Hiliran, 21100 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 17,
+    "name": "Kuala Berang Highway Workshop",
+    "latitude": 5.19500,
+    "longitude": 103.05500,
+    "baseline_repair_cost": 95.00,
+    "service_quality": 5.2,
+    "capacity": 7,
+    "address": "Jalan Ajil - Kuala Terengganu, Kampung Wakaf Tapai, 21040 Marang"
+  },
+  {
+    "workshop_id": 18,
+    "name": "Gong Kapas Budget Garage",
+    "latitude": 5.31600,
+    "longitude": 103.14100,
+    "baseline_repair_cost": 140.00,
+    "service_quality": 6.0,
+    "capacity": 6,
+    "address": "Jalan Gong Kapas, 20400 Kuala Terengganu"
+  },
+  {
+    "workshop_id": 19,
+    "name": "Batu Rakit Northern Workshop",
+    "latitude": 5.43500,
+    "longitude": 103.04500,
+    "baseline_repair_cost": 260.00,
+    "service_quality": 8.1,
+    "capacity": 6,
+    "address": "Jalan Pantai Batu Rakit, 21020 Kuala Nerus"
+  },
+  {
+    "workshop_id": 20,
+    "name": "Elite Continental Car Centre",
+    "latitude": 5.31400,
+    "longitude": 103.13100,
+    "baseline_repair_cost": 920.00,
+    "service_quality": 9.8,
+    "capacity": 16,
+    "address": "Jalan Bukit Besar, 20050 Kuala Terengganu"
+  }
+]

@@ -1,0 +1,2322 @@
+{
+    "metadata": {
+        "region": "Kuala Terengganu, Malaysia",
+        "center": {
+            "lat": 5.26197,
+            "lng": 103.16551
+        },
+        "radius_km": 15,
+        "total_nodes": 50,
+        "total_edges": 81,
+        "created_at": "2026-10-14 02:54:02"
+    },
+    "nodes": {
+        "J_UITM": {
+            "id": "J_UITM",
+            "name": "UiTM Chendering Main Gate",
+            "lat": 5.26197,
+            "lng": 103.16551
+        },
+        "J_CHEND_IND": {
+            "id": "J_CHEND_IND",
+            "name": "Chendering Industrial Area",
+            "lat": 5.25841,
+            "lng": 103.17025
+        },
+        "J_CHEND_LAUT": {
+            "id": "J_CHEND_LAUT",
+            "name": "Chendering Coastal Junction",
+            "lat": 5.2665,
+            "lng": 103.1751
+        },
+        "J_KUBANG_BUAYA": {
+            "id": "J_KUBANG_BUAYA",
+            "name": "Kubang Buaya Inland Link",
+            "lat": 5.25,
+            "lng": 103.155
+        },
+        "J_ATAS_TOL": {
+            "id": "J_ATAS_TOL",
+            "name": "Simpang Atas Tol",
+            "lat": 5.27,
+            "lng": 103.135
+        },
+        "J_KUALA_IBAI_S": {
+            "id": "J_KUALA_IBAI_S",
+            "name": "Kuala Ibai South (Tok Adis)",
+            "lat": 5.28,
+            "lng": 103.171
+        },
+        "J_KUALA_IBAI_N": {
+            "id": "J_KUALA_IBAI_N",
+            "name": "Masjid Terapung Kuala Ibai Bridge",
+            "lat": 5.2925,
+            "lng": 103.169
+        },
+        "J_PENGADANG_BARU": {
+            "id": "J_PENGADANG_BARU",
+            "name": "Pengadang Baru Highway Junction",
+            "lat": 5.285,
+            "lng": 103.122
+        },
+        "J_PASIR_PANJANG": {
+            "id": "J_PASIR_PANJANG",
+            "name": "Pasir Panjang Coastal Rd",
+            "lat": 5.308,
+            "lng": 103.149
+        },
+        "J_BATU_BUROK": {
+            "id": "J_BATU_BUROK",
+            "name": "Batu Burok Beach \/ HSNZ",
+            "lat": 5.3182,
+            "lng": 103.1554
+        },
+        "J_GONG_KAPAS": {
+            "id": "J_GONG_KAPAS",
+            "name": "Gong Kapas Commercial Area",
+            "lat": 5.316,
+            "lng": 103.141
+        },
+        "J_PANJI_ALAM": {
+            "id": "J_PANJI_ALAM",
+            "name": "Simpang Panji Alam",
+            "lat": 5.312,
+            "lng": 103.136
+        },
+        "J_BUKIT_BESAR": {
+            "id": "J_BUKIT_BESAR",
+            "name": "Simpang Bukit Besar",
+            "lat": 5.314,
+            "lng": 103.131
+        },
+        "J_DURIAN_BURUNG": {
+            "id": "J_DURIAN_BURUNG",
+            "name": "Durian Burung Junction",
+            "lat": 5.305,
+            "lng": 103.125
+        },
+        "J_WAKAF_MEMPELAM": {
+            "id": "J_WAKAF_MEMPELAM",
+            "name": "Wakaf Mempelam Junction",
+            "lat": 5.2954,
+            "lng": 103.1189
+        },
+        "J_BUKIT_PAYUNG": {
+            "id": "J_BUKIT_PAYUNG",
+            "name": "Pekan Bukit Payung Hub",
+            "lat": 5.2412,
+            "lng": 103.0985
+        },
+        "J_WAKAF_TAPAI": {
+            "id": "J_WAKAF_TAPAI",
+            "name": "Wakaf Tapai Junction",
+            "lat": 5.195,
+            "lng": 103.055
+        },
+        "J_MARANG_N": {
+            "id": "J_MARANG_N",
+            "name": "Marang North Approach",
+            "lat": 5.225,
+            "lng": 103.195
+        },
+        "J_MARANG_TOWN": {
+            "id": "J_MARANG_TOWN",
+            "name": "Pekan Marang Town & Jetty",
+            "lat": 5.2056,
+            "lng": 103.2081
+        },
+        "J_LADANG": {
+            "id": "J_LADANG",
+            "name": "Ladang Town Center",
+            "lat": 5.3289,
+            "lng": 103.1425
+        },
+        "J_WATERFRONT": {
+            "id": "J_WATERFRONT",
+            "name": "KT Waterfront & Pasar Payang",
+            "lat": 5.3345,
+            "lng": 103.1298
+        },
+        "J_PULAU_KAMBING": {
+            "id": "J_PULAU_KAMBING",
+            "name": "Pulau Kambing \/ Padang Hiliran",
+            "lat": 5.325,
+            "lng": 103.128
+        },
+        "J_LOSONG": {
+            "id": "J_LOSONG",
+            "name": "Losong Heritage & Muzium Negeri",
+            "lat": 5.32,
+            "lng": 103.111
+        },
+        "J_MANIR_BRIDGE": {
+            "id": "J_MANIR_BRIDGE",
+            "name": "Manir Bridge \/ Teluk Menara",
+            "lat": 5.321,
+            "lng": 103.085
+        },
+        "J_SEBERANG_TAKIR": {
+            "id": "J_SEBERANG_TAKIR",
+            "name": "Drawbridge \/ Seberang Takir",
+            "lat": 5.352,
+            "lng": 103.121
+        },
+        "J_TELUK_KETAPANG": {
+            "id": "J_TELUK_KETAPANG",
+            "name": "Teluk Ketapang Junction",
+            "lat": 5.37,
+            "lng": 103.115
+        },
+        "J_GONG_BADAK_AIRPORT": {
+            "id": "J_GONG_BADAK_AIRPORT",
+            "name": "Sultan Mahmud Airport \/ Gong Badak",
+            "lat": 5.385,
+            "lng": 103.102
+        },
+        "J_UMT": {
+            "id": "J_UMT",
+            "name": "UMT \/ UniSZA Education Hub",
+            "lat": 5.405,
+            "lng": 103.088
+        },
+        "J_BATU_RAKIT": {
+            "id": "J_BATU_RAKIT",
+            "name": "Batu Rakit Coastal Junction",
+            "lat": 5.435,
+            "lng": 103.045
+        },
+        "J_TELEMUNG_LINK": {
+            "id": "J_TELEMUNG_LINK",
+            "name": "Telemong West Connector",
+            "lat": 5.335,
+            "lng": 103.06
+        },
+        "WS_1": {
+            "id": "WS_1",
+            "workshop_id": 1,
+            "name": "Chendering Auto Specialist",
+            "lat": 5.25841,
+            "lng": 103.17025,
+            "is_workshop": true
+        },
+        "WS_2": {
+            "id": "WS_2",
+            "workshop_id": 2,
+            "name": "Bengkel Maju Jaya Chendering",
+            "lat": 5.2665,
+            "lng": 103.1751,
+            "is_workshop": true
+        },
+        "WS_3": {
+            "id": "WS_3",
+            "workshop_id": 3,
+            "name": "Pusat Servis Kereta Ibai Indah",
+            "lat": 5.2891,
+            "lng": 103.1712,
+            "is_workshop": true
+        },
+        "WS_4": {
+            "id": "WS_4",
+            "workshop_id": 4,
+            "name": "Batu Burok Speed Auto Repair",
+            "lat": 5.3182,
+            "lng": 103.1554,
+            "is_workshop": true
+        },
+        "WS_5": {
+            "id": "WS_5",
+            "workshop_id": 5,
+            "name": "Ladang Tyre & Mechanical Care",
+            "lat": 5.3289,
+            "lng": 103.1425,
+            "is_workshop": true
+        },
+        "WS_6": {
+            "id": "WS_6",
+            "workshop_id": 6,
+            "name": "Pusat Servis City Waterfront",
+            "lat": 5.3345,
+            "lng": 103.1298,
+            "is_workshop": true
+        },
+        "WS_7": {
+            "id": "WS_7",
+            "workshop_id": 7,
+            "name": "Wakaf Mempelam Economy Workshop",
+            "lat": 5.2954,
+            "lng": 103.1189,
+            "is_workshop": true
+        },
+        "WS_8": {
+            "id": "WS_8",
+            "workshop_id": 8,
+            "name": "Bukit Payung Dynamic Autoworks",
+            "lat": 5.2412,
+            "lng": 103.0985,
+            "is_workshop": true
+        },
+        "WS_9": {
+            "id": "WS_9",
+            "workshop_id": 9,
+            "name": "Marang Coastal Garage",
+            "lat": 5.2056,
+            "lng": 103.2081,
+            "is_workshop": true
+        },
+        "WS_10": {
+            "id": "WS_10",
+            "workshop_id": 10,
+            "name": "Panji Alam Precision Auto",
+            "lat": 5.312,
+            "lng": 103.136,
+            "is_workshop": true
+        },
+        "WS_11": {
+            "id": "WS_11",
+            "workshop_id": 11,
+            "name": "Manir Riverside Auto Care",
+            "lat": 5.321,
+            "lng": 103.085,
+            "is_workshop": true
+        },
+        "WS_12": {
+            "id": "WS_12",
+            "workshop_id": 12,
+            "name": "Durian Burung Express Workshop",
+            "lat": 5.305,
+            "lng": 103.125,
+            "is_workshop": true
+        },
+        "WS_13": {
+            "id": "WS_13",
+            "workshop_id": 13,
+            "name": "Gong Badak Premier Motor Service",
+            "lat": 5.385,
+            "lng": 103.102,
+            "is_workshop": true
+        },
+        "WS_14": {
+            "id": "WS_14",
+            "workshop_id": 14,
+            "name": "Seberang Takir Friendly Mechanics",
+            "lat": 5.352,
+            "lng": 103.121,
+            "is_workshop": true
+        },
+        "WS_15": {
+            "id": "WS_15",
+            "workshop_id": 15,
+            "name": "Losong Heritage Auto Repair",
+            "lat": 5.32,
+            "lng": 103.111,
+            "is_workshop": true
+        },
+        "WS_16": {
+            "id": "WS_16",
+            "workshop_id": 16,
+            "name": "Padang Hiliran Turbo & Engine",
+            "lat": 5.325,
+            "lng": 103.128,
+            "is_workshop": true
+        },
+        "WS_17": {
+            "id": "WS_17",
+            "workshop_id": 17,
+            "name": "Kuala Berang Highway Workshop",
+            "lat": 5.195,
+            "lng": 103.055,
+            "is_workshop": true
+        },
+        "WS_18": {
+            "id": "WS_18",
+            "workshop_id": 18,
+            "name": "Gong Kapas Budget Garage",
+            "lat": 5.316,
+            "lng": 103.141,
+            "is_workshop": true
+        },
+        "WS_19": {
+            "id": "WS_19",
+            "workshop_id": 19,
+            "name": "Batu Rakit Northern Workshop",
+            "lat": 5.435,
+            "lng": 103.045,
+            "is_workshop": true
+        },
+        "WS_20": {
+            "id": "WS_20",
+            "workshop_id": 20,
+            "name": "Elite Continental Car Centre",
+            "lat": 5.314,
+            "lng": 103.131,
+            "is_workshop": true
+        }
+    },
+    "edges": [
+        {
+            "from": "J_UITM",
+            "to": "J_CHEND_IND",
+            "distance": 0.736,
+            "coordinates": [
+                [
+                    5.26197,
+                    103.16551
+                ],
+                [
+                    5.25841,
+                    103.17025
+                ]
+            ]
+        },
+        {
+            "from": "J_UITM",
+            "to": "J_CHEND_LAUT",
+            "distance": 1.316,
+            "coordinates": [
+                [
+                    5.26197,
+                    103.16551
+                ],
+                [
+                    5.2665,
+                    103.1751
+                ]
+            ]
+        },
+        {
+            "from": "J_UITM",
+            "to": "J_KUBANG_BUAYA",
+            "distance": 1.98,
+            "coordinates": [
+                [
+                    5.26197,
+                    103.16551
+                ],
+                [
+                    5.25,
+                    103.155
+                ]
+            ]
+        },
+        {
+            "from": "J_CHEND_IND",
+            "to": "J_MARANG_N",
+            "distance": 5.171,
+            "coordinates": [
+                [
+                    5.25841,
+                    103.17025
+                ],
+                [
+                    5.225,
+                    103.195
+                ]
+            ]
+        },
+        {
+            "from": "J_CHEND_IND",
+            "to": "J_CHEND_LAUT",
+            "distance": 1.174,
+            "coordinates": [
+                [
+                    5.25841,
+                    103.17025
+                ],
+                [
+                    5.2665,
+                    103.1751
+                ]
+            ]
+        },
+        {
+            "from": "J_CHEND_LAUT",
+            "to": "J_KUALA_IBAI_S",
+            "distance": 1.756,
+            "coordinates": [
+                [
+                    5.2665,
+                    103.1751
+                ],
+                [
+                    5.28,
+                    103.171
+                ]
+            ]
+        },
+        {
+            "from": "J_KUBANG_BUAYA",
+            "to": "J_ATAS_TOL",
+            "distance": 3.515,
+            "coordinates": [
+                [
+                    5.25,
+                    103.155
+                ],
+                [
+                    5.27,
+                    103.135
+                ]
+            ]
+        },
+        {
+            "from": "J_KUBANG_BUAYA",
+            "to": "J_MARANG_N",
+            "distance": 5.856,
+            "coordinates": [
+                [
+                    5.25,
+                    103.155
+                ],
+                [
+                    5.225,
+                    103.195
+                ]
+            ]
+        },
+        {
+            "from": "J_MARANG_N",
+            "to": "J_MARANG_TOWN",
+            "distance": 2.912,
+            "coordinates": [
+                [
+                    5.225,
+                    103.195
+                ],
+                [
+                    5.2056,
+                    103.2081
+                ]
+            ]
+        },
+        {
+            "from": "J_MARANG_TOWN",
+            "to": "J_WAKAF_TAPAI",
+            "distance": 19.034,
+            "coordinates": [
+                [
+                    5.2056,
+                    103.2081
+                ],
+                [
+                    5.195,
+                    103.055
+                ]
+            ]
+        },
+        {
+            "from": "J_ATAS_TOL",
+            "to": "J_PENGADANG_BARU",
+            "distance": 2.467,
+            "coordinates": [
+                [
+                    5.27,
+                    103.135
+                ],
+                [
+                    5.285,
+                    103.122
+                ]
+            ]
+        },
+        {
+            "from": "J_ATAS_TOL",
+            "to": "J_BUKIT_PAYUNG",
+            "distance": 5.776,
+            "coordinates": [
+                [
+                    5.27,
+                    103.135
+                ],
+                [
+                    5.2412,
+                    103.0985
+                ]
+            ]
+        },
+        {
+            "from": "J_BUKIT_PAYUNG",
+            "to": "J_WAKAF_TAPAI",
+            "distance": 7.887,
+            "coordinates": [
+                [
+                    5.2412,
+                    103.0985
+                ],
+                [
+                    5.195,
+                    103.055
+                ]
+            ]
+        },
+        {
+            "from": "J_BUKIT_PAYUNG",
+            "to": "J_WAKAF_MEMPELAM",
+            "distance": 7.208,
+            "coordinates": [
+                [
+                    5.2412,
+                    103.0985
+                ],
+                [
+                    5.2954,
+                    103.1189
+                ]
+            ]
+        },
+        {
+            "from": "J_KUALA_IBAI_S",
+            "to": "J_KUALA_IBAI_N",
+            "distance": 1.576,
+            "coordinates": [
+                [
+                    5.28,
+                    103.171
+                ],
+                [
+                    5.2925,
+                    103.169
+                ]
+            ]
+        },
+        {
+            "from": "J_KUALA_IBAI_N",
+            "to": "J_PASIR_PANJANG",
+            "distance": 3.143,
+            "coordinates": [
+                [
+                    5.2925,
+                    103.169
+                ],
+                [
+                    5.308,
+                    103.149
+                ]
+            ]
+        },
+        {
+            "from": "J_KUALA_IBAI_N",
+            "to": "J_DURIAN_BURUNG",
+            "distance": 5.674,
+            "coordinates": [
+                [
+                    5.2925,
+                    103.169
+                ],
+                [
+                    5.305,
+                    103.125
+                ]
+            ]
+        },
+        {
+            "from": "J_PASIR_PANJANG",
+            "to": "J_BATU_BUROK",
+            "distance": 1.497,
+            "coordinates": [
+                [
+                    5.308,
+                    103.149
+                ],
+                [
+                    5.3182,
+                    103.1554
+                ]
+            ]
+        },
+        {
+            "from": "J_PASIR_PANJANG",
+            "to": "J_GONG_KAPAS",
+            "distance": 1.406,
+            "coordinates": [
+                [
+                    5.308,
+                    103.149
+                ],
+                [
+                    5.316,
+                    103.141
+                ]
+            ]
+        },
+        {
+            "from": "J_BATU_BUROK",
+            "to": "J_LADANG",
+            "distance": 2.082,
+            "coordinates": [
+                [
+                    5.3182,
+                    103.1554
+                ],
+                [
+                    5.3289,
+                    103.1425
+                ]
+            ]
+        },
+        {
+            "from": "J_BATU_BUROK",
+            "to": "J_GONG_KAPAS",
+            "distance": 1.807,
+            "coordinates": [
+                [
+                    5.3182,
+                    103.1554
+                ],
+                [
+                    5.316,
+                    103.141
+                ]
+            ]
+        },
+        {
+            "from": "J_GONG_KAPAS",
+            "to": "J_PANJI_ALAM",
+            "distance": 0.795,
+            "coordinates": [
+                [
+                    5.316,
+                    103.141
+                ],
+                [
+                    5.312,
+                    103.136
+                ]
+            ]
+        },
+        {
+            "from": "J_PANJI_ALAM",
+            "to": "J_BUKIT_BESAR",
+            "distance": 0.669,
+            "coordinates": [
+                [
+                    5.312,
+                    103.136
+                ],
+                [
+                    5.314,
+                    103.131
+                ]
+            ]
+        },
+        {
+            "from": "J_PANJI_ALAM",
+            "to": "J_DURIAN_BURUNG",
+            "distance": 1.618,
+            "coordinates": [
+                [
+                    5.312,
+                    103.136
+                ],
+                [
+                    5.305,
+                    103.125
+                ]
+            ]
+        },
+        {
+            "from": "J_BUKIT_BESAR",
+            "to": "J_LADANG",
+            "distance": 2.341,
+            "coordinates": [
+                [
+                    5.314,
+                    103.131
+                ],
+                [
+                    5.3289,
+                    103.1425
+                ]
+            ]
+        },
+        {
+            "from": "J_BUKIT_BESAR",
+            "to": "J_PULAU_KAMBING",
+            "distance": 1.419,
+            "coordinates": [
+                [
+                    5.314,
+                    103.131
+                ],
+                [
+                    5.325,
+                    103.128
+                ]
+            ]
+        },
+        {
+            "from": "J_DURIAN_BURUNG",
+            "to": "J_WAKAF_MEMPELAM",
+            "distance": 1.415,
+            "coordinates": [
+                [
+                    5.305,
+                    103.125
+                ],
+                [
+                    5.2954,
+                    103.1189
+                ]
+            ]
+        },
+        {
+            "from": "J_WAKAF_MEMPELAM",
+            "to": "J_PENGADANG_BARU",
+            "distance": 1.351,
+            "coordinates": [
+                [
+                    5.2954,
+                    103.1189
+                ],
+                [
+                    5.285,
+                    103.122
+                ]
+            ]
+        },
+        {
+            "from": "J_WAKAF_MEMPELAM",
+            "to": "J_LOSONG",
+            "distance": 3.217,
+            "coordinates": [
+                [
+                    5.2954,
+                    103.1189
+                ],
+                [
+                    5.32,
+                    103.111
+                ]
+            ]
+        },
+        {
+            "from": "J_LADANG",
+            "to": "J_WATERFRONT",
+            "distance": 1.723,
+            "coordinates": [
+                [
+                    5.3289,
+                    103.1425
+                ],
+                [
+                    5.3345,
+                    103.1298
+                ]
+            ]
+        },
+        {
+            "from": "J_WATERFRONT",
+            "to": "J_PULAU_KAMBING",
+            "distance": 1.204,
+            "coordinates": [
+                [
+                    5.3345,
+                    103.1298
+                ],
+                [
+                    5.325,
+                    103.128
+                ]
+            ]
+        },
+        {
+            "from": "J_WATERFRONT",
+            "to": "J_SEBERANG_TAKIR",
+            "distance": 2.437,
+            "coordinates": [
+                [
+                    5.3345,
+                    103.1298
+                ],
+                [
+                    5.352,
+                    103.121
+                ]
+            ]
+        },
+        {
+            "from": "J_PULAU_KAMBING",
+            "to": "J_LOSONG",
+            "distance": 2.199,
+            "coordinates": [
+                [
+                    5.325,
+                    103.128
+                ],
+                [
+                    5.32,
+                    103.111
+                ]
+            ]
+        },
+        {
+            "from": "J_LOSONG",
+            "to": "J_MANIR_BRIDGE",
+            "distance": 3.227,
+            "coordinates": [
+                [
+                    5.32,
+                    103.111
+                ],
+                [
+                    5.321,
+                    103.085
+                ]
+            ]
+        },
+        {
+            "from": "J_MANIR_BRIDGE",
+            "to": "J_TELEMUNG_LINK",
+            "distance": 3.557,
+            "coordinates": [
+                [
+                    5.321,
+                    103.085
+                ],
+                [
+                    5.335,
+                    103.06
+                ]
+            ]
+        },
+        {
+            "from": "J_MANIR_BRIDGE",
+            "to": "J_GONG_BADAK_AIRPORT",
+            "distance": 8.244,
+            "coordinates": [
+                [
+                    5.321,
+                    103.085
+                ],
+                [
+                    5.385,
+                    103.102
+                ]
+            ]
+        },
+        {
+            "from": "J_SEBERANG_TAKIR",
+            "to": "J_TELUK_KETAPANG",
+            "distance": 2.362,
+            "coordinates": [
+                [
+                    5.352,
+                    103.121
+                ],
+                [
+                    5.37,
+                    103.115
+                ]
+            ]
+        },
+        {
+            "from": "J_TELUK_KETAPANG",
+            "to": "J_GONG_BADAK_AIRPORT",
+            "distance": 2.467,
+            "coordinates": [
+                [
+                    5.37,
+                    103.115
+                ],
+                [
+                    5.385,
+                    103.102
+                ]
+            ]
+        },
+        {
+            "from": "J_GONG_BADAK_AIRPORT",
+            "to": "J_UMT",
+            "distance": 3.036,
+            "coordinates": [
+                [
+                    5.385,
+                    103.102
+                ],
+                [
+                    5.405,
+                    103.088
+                ]
+            ]
+        },
+        {
+            "from": "J_UMT",
+            "to": "J_BATU_RAKIT",
+            "distance": 6.511,
+            "coordinates": [
+                [
+                    5.405,
+                    103.088
+                ],
+                [
+                    5.435,
+                    103.045
+                ]
+            ]
+        },
+        {
+            "from": "J_TELEMUNG_LINK",
+            "to": "J_BATU_RAKIT",
+            "distance": 12.592,
+            "coordinates": [
+                [
+                    5.335,
+                    103.06
+                ],
+                [
+                    5.435,
+                    103.045
+                ]
+            ]
+        },
+        {
+            "from": "WS_1",
+            "to": "J_CHEND_IND",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.25841,
+                    103.17025
+                ],
+                [
+                    5.25841,
+                    103.17025
+                ]
+            ]
+        },
+        {
+            "from": "WS_1",
+            "to": "J_UITM",
+            "distance": 0.736,
+            "coordinates": [
+                [
+                    5.25841,
+                    103.17025
+                ],
+                [
+                    5.26197,
+                    103.16551
+                ]
+            ]
+        },
+        {
+            "from": "WS_2",
+            "to": "J_CHEND_LAUT",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.2665,
+                    103.1751
+                ],
+                [
+                    5.2665,
+                    103.1751
+                ]
+            ]
+        },
+        {
+            "from": "WS_2",
+            "to": "J_UITM",
+            "distance": 1.316,
+            "coordinates": [
+                [
+                    5.2665,
+                    103.1751
+                ],
+                [
+                    5.26197,
+                    103.16551
+                ]
+            ]
+        },
+        {
+            "from": "WS_3",
+            "to": "J_KUALA_IBAI_S",
+            "distance": 1.133,
+            "coordinates": [
+                [
+                    5.2891,
+                    103.1712
+                ],
+                [
+                    5.28,
+                    103.171
+                ]
+            ]
+        },
+        {
+            "from": "WS_3",
+            "to": "J_KUALA_IBAI_N",
+            "distance": 0.504,
+            "coordinates": [
+                [
+                    5.2891,
+                    103.1712
+                ],
+                [
+                    5.2925,
+                    103.169
+                ]
+            ]
+        },
+        {
+            "from": "WS_4",
+            "to": "J_BATU_BUROK",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.3182,
+                    103.1554
+                ],
+                [
+                    5.3182,
+                    103.1554
+                ]
+            ]
+        },
+        {
+            "from": "WS_4",
+            "to": "J_PASIR_PANJANG",
+            "distance": 1.497,
+            "coordinates": [
+                [
+                    5.3182,
+                    103.1554
+                ],
+                [
+                    5.308,
+                    103.149
+                ]
+            ]
+        },
+        {
+            "from": "WS_5",
+            "to": "J_LADANG",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.3289,
+                    103.1425
+                ],
+                [
+                    5.3289,
+                    103.1425
+                ]
+            ]
+        },
+        {
+            "from": "WS_5",
+            "to": "J_BUKIT_BESAR",
+            "distance": 2.341,
+            "coordinates": [
+                [
+                    5.3289,
+                    103.1425
+                ],
+                [
+                    5.314,
+                    103.131
+                ]
+            ]
+        },
+        {
+            "from": "WS_6",
+            "to": "J_WATERFRONT",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.3345,
+                    103.1298
+                ],
+                [
+                    5.3345,
+                    103.1298
+                ]
+            ]
+        },
+        {
+            "from": "WS_6",
+            "to": "J_PULAU_KAMBING",
+            "distance": 1.204,
+            "coordinates": [
+                [
+                    5.3345,
+                    103.1298
+                ],
+                [
+                    5.325,
+                    103.128
+                ]
+            ]
+        },
+        {
+            "from": "WS_7",
+            "to": "J_WAKAF_MEMPELAM",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.2954,
+                    103.1189
+                ],
+                [
+                    5.2954,
+                    103.1189
+                ]
+            ]
+        },
+        {
+            "from": "WS_7",
+            "to": "J_PENGADANG_BARU",
+            "distance": 1.351,
+            "coordinates": [
+                [
+                    5.2954,
+                    103.1189
+                ],
+                [
+                    5.285,
+                    103.122
+                ]
+            ]
+        },
+        {
+            "from": "WS_8",
+            "to": "J_BUKIT_PAYUNG",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.2412,
+                    103.0985
+                ],
+                [
+                    5.2412,
+                    103.0985
+                ]
+            ]
+        },
+        {
+            "from": "WS_8",
+            "to": "J_ATAS_TOL",
+            "distance": 5.776,
+            "coordinates": [
+                [
+                    5.2412,
+                    103.0985
+                ],
+                [
+                    5.27,
+                    103.135
+                ]
+            ]
+        },
+        {
+            "from": "WS_9",
+            "to": "J_MARANG_TOWN",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.2056,
+                    103.2081
+                ],
+                [
+                    5.2056,
+                    103.2081
+                ]
+            ]
+        },
+        {
+            "from": "WS_9",
+            "to": "J_MARANG_N",
+            "distance": 2.912,
+            "coordinates": [
+                [
+                    5.2056,
+                    103.2081
+                ],
+                [
+                    5.225,
+                    103.195
+                ]
+            ]
+        },
+        {
+            "from": "WS_10",
+            "to": "J_PANJI_ALAM",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.312,
+                    103.136
+                ],
+                [
+                    5.312,
+                    103.136
+                ]
+            ]
+        },
+        {
+            "from": "WS_10",
+            "to": "J_GONG_KAPAS",
+            "distance": 0.795,
+            "coordinates": [
+                [
+                    5.312,
+                    103.136
+                ],
+                [
+                    5.316,
+                    103.141
+                ]
+            ]
+        },
+        {
+            "from": "WS_11",
+            "to": "J_MANIR_BRIDGE",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.321,
+                    103.085
+                ],
+                [
+                    5.321,
+                    103.085
+                ]
+            ]
+        },
+        {
+            "from": "WS_11",
+            "to": "J_LOSONG",
+            "distance": 3.227,
+            "coordinates": [
+                [
+                    5.321,
+                    103.085
+                ],
+                [
+                    5.32,
+                    103.111
+                ]
+            ]
+        },
+        {
+            "from": "WS_12",
+            "to": "J_DURIAN_BURUNG",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.305,
+                    103.125
+                ],
+                [
+                    5.305,
+                    103.125
+                ]
+            ]
+        },
+        {
+            "from": "WS_12",
+            "to": "J_WAKAF_MEMPELAM",
+            "distance": 1.415,
+            "coordinates": [
+                [
+                    5.305,
+                    103.125
+                ],
+                [
+                    5.2954,
+                    103.1189
+                ]
+            ]
+        },
+        {
+            "from": "WS_13",
+            "to": "J_GONG_BADAK_AIRPORT",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.385,
+                    103.102
+                ],
+                [
+                    5.385,
+                    103.102
+                ]
+            ]
+        },
+        {
+            "from": "WS_13",
+            "to": "J_TELUK_KETAPANG",
+            "distance": 2.467,
+            "coordinates": [
+                [
+                    5.385,
+                    103.102
+                ],
+                [
+                    5.37,
+                    103.115
+                ]
+            ]
+        },
+        {
+            "from": "WS_14",
+            "to": "J_SEBERANG_TAKIR",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.352,
+                    103.121
+                ],
+                [
+                    5.352,
+                    103.121
+                ]
+            ]
+        },
+        {
+            "from": "WS_14",
+            "to": "J_WATERFRONT",
+            "distance": 2.437,
+            "coordinates": [
+                [
+                    5.352,
+                    103.121
+                ],
+                [
+                    5.3345,
+                    103.1298
+                ]
+            ]
+        },
+        {
+            "from": "WS_15",
+            "to": "J_LOSONG",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.32,
+                    103.111
+                ],
+                [
+                    5.32,
+                    103.111
+                ]
+            ]
+        },
+        {
+            "from": "WS_15",
+            "to": "J_PULAU_KAMBING",
+            "distance": 2.199,
+            "coordinates": [
+                [
+                    5.32,
+                    103.111
+                ],
+                [
+                    5.325,
+                    103.128
+                ]
+            ]
+        },
+        {
+            "from": "WS_16",
+            "to": "J_PULAU_KAMBING",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.325,
+                    103.128
+                ],
+                [
+                    5.325,
+                    103.128
+                ]
+            ]
+        },
+        {
+            "from": "WS_16",
+            "to": "J_LADANG",
+            "distance": 1.863,
+            "coordinates": [
+                [
+                    5.325,
+                    103.128
+                ],
+                [
+                    5.3289,
+                    103.1425
+                ]
+            ]
+        },
+        {
+            "from": "WS_17",
+            "to": "J_WAKAF_TAPAI",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.195,
+                    103.055
+                ],
+                [
+                    5.195,
+                    103.055
+                ]
+            ]
+        },
+        {
+            "from": "WS_17",
+            "to": "J_BUKIT_PAYUNG",
+            "distance": 7.887,
+            "coordinates": [
+                [
+                    5.195,
+                    103.055
+                ],
+                [
+                    5.2412,
+                    103.0985
+                ]
+            ]
+        },
+        {
+            "from": "WS_18",
+            "to": "J_GONG_KAPAS",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.316,
+                    103.141
+                ],
+                [
+                    5.316,
+                    103.141
+                ]
+            ]
+        },
+        {
+            "from": "WS_18",
+            "to": "J_BATU_BUROK",
+            "distance": 1.807,
+            "coordinates": [
+                [
+                    5.316,
+                    103.141
+                ],
+                [
+                    5.3182,
+                    103.1554
+                ]
+            ]
+        },
+        {
+            "from": "WS_19",
+            "to": "J_BATU_RAKIT",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.435,
+                    103.045
+                ],
+                [
+                    5.435,
+                    103.045
+                ]
+            ]
+        },
+        {
+            "from": "WS_19",
+            "to": "J_UMT",
+            "distance": 6.511,
+            "coordinates": [
+                [
+                    5.435,
+                    103.045
+                ],
+                [
+                    5.405,
+                    103.088
+                ]
+            ]
+        },
+        {
+            "from": "WS_20",
+            "to": "J_BUKIT_BESAR",
+            "distance": 0.2,
+            "coordinates": [
+                [
+                    5.314,
+                    103.131
+                ],
+                [
+                    5.314,
+                    103.131
+                ]
+            ]
+        },
+        {
+            "from": "WS_20",
+            "to": "J_PANJI_ALAM",
+            "distance": 0.669,
+            "coordinates": [
+                [
+                    5.314,
+                    103.131
+                ],
+                [
+                    5.312,
+                    103.136
+                ]
+            ]
+        }
+    ],
+    "graph": {
+        "J_UITM": [
+            {
+                "to": "J_CHEND_IND",
+                "distance": 0.736
+            },
+            {
+                "to": "J_CHEND_LAUT",
+                "distance": 1.316
+            },
+            {
+                "to": "J_KUBANG_BUAYA",
+                "distance": 1.98
+            },
+            {
+                "to": "WS_1",
+                "distance": 0.736
+            },
+            {
+                "to": "WS_2",
+                "distance": 1.316
+            }
+        ],
+        "J_CHEND_IND": [
+            {
+                "to": "J_UITM",
+                "distance": 0.736
+            },
+            {
+                "to": "J_MARANG_N",
+                "distance": 5.171
+            },
+            {
+                "to": "J_CHEND_LAUT",
+                "distance": 1.174
+            },
+            {
+                "to": "WS_1",
+                "distance": 0.2
+            }
+        ],
+        "J_CHEND_LAUT": [
+            {
+                "to": "J_UITM",
+                "distance": 1.316
+            },
+            {
+                "to": "J_CHEND_IND",
+                "distance": 1.174
+            },
+            {
+                "to": "J_KUALA_IBAI_S",
+                "distance": 1.756
+            },
+            {
+                "to": "WS_2",
+                "distance": 0.2
+            }
+        ],
+        "J_KUBANG_BUAYA": [
+            {
+                "to": "J_UITM",
+                "distance": 1.98
+            },
+            {
+                "to": "J_ATAS_TOL",
+                "distance": 3.515
+            },
+            {
+                "to": "J_MARANG_N",
+                "distance": 5.856
+            }
+        ],
+        "J_ATAS_TOL": [
+            {
+                "to": "J_KUBANG_BUAYA",
+                "distance": 3.515
+            },
+            {
+                "to": "J_PENGADANG_BARU",
+                "distance": 2.467
+            },
+            {
+                "to": "J_BUKIT_PAYUNG",
+                "distance": 5.776
+            },
+            {
+                "to": "WS_8",
+                "distance": 5.776
+            }
+        ],
+        "J_KUALA_IBAI_S": [
+            {
+                "to": "J_CHEND_LAUT",
+                "distance": 1.756
+            },
+            {
+                "to": "J_KUALA_IBAI_N",
+                "distance": 1.576
+            },
+            {
+                "to": "WS_3",
+                "distance": 1.133
+            }
+        ],
+        "J_KUALA_IBAI_N": [
+            {
+                "to": "J_KUALA_IBAI_S",
+                "distance": 1.576
+            },
+            {
+                "to": "J_PASIR_PANJANG",
+                "distance": 3.143
+            },
+            {
+                "to": "J_DURIAN_BURUNG",
+                "distance": 5.674
+            },
+            {
+                "to": "WS_3",
+                "distance": 0.504
+            }
+        ],
+        "J_PENGADANG_BARU": [
+            {
+                "to": "J_ATAS_TOL",
+                "distance": 2.467
+            },
+            {
+                "to": "J_WAKAF_MEMPELAM",
+                "distance": 1.351
+            },
+            {
+                "to": "WS_7",
+                "distance": 1.351
+            }
+        ],
+        "J_PASIR_PANJANG": [
+            {
+                "to": "J_KUALA_IBAI_N",
+                "distance": 3.143
+            },
+            {
+                "to": "J_BATU_BUROK",
+                "distance": 1.497
+            },
+            {
+                "to": "J_GONG_KAPAS",
+                "distance": 1.406
+            },
+            {
+                "to": "WS_4",
+                "distance": 1.497
+            }
+        ],
+        "J_BATU_BUROK": [
+            {
+                "to": "J_PASIR_PANJANG",
+                "distance": 1.497
+            },
+            {
+                "to": "J_LADANG",
+                "distance": 2.082
+            },
+            {
+                "to": "J_GONG_KAPAS",
+                "distance": 1.807
+            },
+            {
+                "to": "WS_4",
+                "distance": 0.2
+            },
+            {
+                "to": "WS_18",
+                "distance": 1.807
+            }
+        ],
+        "J_GONG_KAPAS": [
+            {
+                "to": "J_PASIR_PANJANG",
+                "distance": 1.406
+            },
+            {
+                "to": "J_BATU_BUROK",
+                "distance": 1.807
+            },
+            {
+                "to": "J_PANJI_ALAM",
+                "distance": 0.795
+            },
+            {
+                "to": "WS_10",
+                "distance": 0.795
+            },
+            {
+                "to": "WS_18",
+                "distance": 0.2
+            }
+        ],
+        "J_PANJI_ALAM": [
+            {
+                "to": "J_GONG_KAPAS",
+                "distance": 0.795
+            },
+            {
+                "to": "J_BUKIT_BESAR",
+                "distance": 0.669
+            },
+            {
+                "to": "J_DURIAN_BURUNG",
+                "distance": 1.618
+            },
+            {
+                "to": "WS_10",
+                "distance": 0.2
+            },
+            {
+                "to": "WS_20",
+                "distance": 0.669
+            }
+        ],
+        "J_BUKIT_BESAR": [
+            {
+                "to": "J_PANJI_ALAM",
+                "distance": 0.669
+            },
+            {
+                "to": "J_LADANG",
+                "distance": 2.341
+            },
+            {
+                "to": "J_PULAU_KAMBING",
+                "distance": 1.419
+            },
+            {
+                "to": "WS_5",
+                "distance": 2.341
+            },
+            {
+                "to": "WS_20",
+                "distance": 0.2
+            }
+        ],
+        "J_DURIAN_BURUNG": [
+            {
+                "to": "J_KUALA_IBAI_N",
+                "distance": 5.674
+            },
+            {
+                "to": "J_PANJI_ALAM",
+                "distance": 1.618
+            },
+            {
+                "to": "J_WAKAF_MEMPELAM",
+                "distance": 1.415
+            },
+            {
+                "to": "WS_12",
+                "distance": 0.2
+            }
+        ],
+        "J_WAKAF_MEMPELAM": [
+            {
+                "to": "J_BUKIT_PAYUNG",
+                "distance": 7.208
+            },
+            {
+                "to": "J_DURIAN_BURUNG",
+                "distance": 1.415
+            },
+            {
+                "to": "J_PENGADANG_BARU",
+                "distance": 1.351
+            },
+            {
+                "to": "J_LOSONG",
+                "distance": 3.217
+            },
+            {
+                "to": "WS_7",
+                "distance": 0.2
+            },
+            {
+                "to": "WS_12",
+                "distance": 1.415
+            }
+        ],
+        "J_BUKIT_PAYUNG": [
+            {
+                "to": "J_ATAS_TOL",
+                "distance": 5.776
+            },
+            {
+                "to": "J_WAKAF_TAPAI",
+                "distance": 7.887
+            },
+            {
+                "to": "J_WAKAF_MEMPELAM",
+                "distance": 7.208
+            },
+            {
+                "to": "WS_8",
+                "distance": 0.2
+            },
+            {
+                "to": "WS_17",
+                "distance": 7.887
+            }
+        ],
+        "J_WAKAF_TAPAI": [
+            {
+                "to": "J_MARANG_TOWN",
+                "distance": 19.034
+            },
+            {
+                "to": "J_BUKIT_PAYUNG",
+                "distance": 7.887
+            },
+            {
+                "to": "WS_17",
+                "distance": 0.2
+            }
+        ],
+        "J_MARANG_N": [
+            {
+                "to": "J_CHEND_IND",
+                "distance": 5.171
+            },
+            {
+                "to": "J_KUBANG_BUAYA",
+                "distance": 5.856
+            },
+            {
+                "to": "J_MARANG_TOWN",
+                "distance": 2.912
+            },
+            {
+                "to": "WS_9",
+                "distance": 2.912
+            }
+        ],
+        "J_MARANG_TOWN": [
+            {
+                "to": "J_MARANG_N",
+                "distance": 2.912
+            },
+            {
+                "to": "J_WAKAF_TAPAI",
+                "distance": 19.034
+            },
+            {
+                "to": "WS_9",
+                "distance": 0.2
+            }
+        ],
+        "J_LADANG": [
+            {
+                "to": "J_BATU_BUROK",
+                "distance": 2.082
+            },
+            {
+                "to": "J_BUKIT_BESAR",
+                "distance": 2.341
+            },
+            {
+                "to": "J_WATERFRONT",
+                "distance": 1.723
+            },
+            {
+                "to": "WS_5",
+                "distance": 0.2
+            },
+            {
+                "to": "WS_16",
+                "distance": 1.863
+            }
+        ],
+        "J_WATERFRONT": [
+            {
+                "to": "J_LADANG",
+                "distance": 1.723
+            },
+            {
+                "to": "J_PULAU_KAMBING",
+                "distance": 1.204
+            },
+            {
+                "to": "J_SEBERANG_TAKIR",
+                "distance": 2.437
+            },
+            {
+                "to": "WS_6",
+                "distance": 0.2
+            },
+            {
+                "to": "WS_14",
+                "distance": 2.437
+            }
+        ],
+        "J_PULAU_KAMBING": [
+            {
+                "to": "J_BUKIT_BESAR",
+                "distance": 1.419
+            },
+            {
+                "to": "J_WATERFRONT",
+                "distance": 1.204
+            },
+            {
+                "to": "J_LOSONG",
+                "distance": 2.199
+            },
+            {
+                "to": "WS_6",
+                "distance": 1.204
+            },
+            {
+                "to": "WS_15",
+                "distance": 2.199
+            },
+            {
+                "to": "WS_16",
+                "distance": 0.2
+            }
+        ],
+        "J_LOSONG": [
+            {
+                "to": "J_WAKAF_MEMPELAM",
+                "distance": 3.217
+            },
+            {
+                "to": "J_PULAU_KAMBING",
+                "distance": 2.199
+            },
+            {
+                "to": "J_MANIR_BRIDGE",
+                "distance": 3.227
+            },
+            {
+                "to": "WS_11",
+                "distance": 3.227
+            },
+            {
+                "to": "WS_15",
+                "distance": 0.2
+            }
+        ],
+        "J_MANIR_BRIDGE": [
+            {
+                "to": "J_LOSONG",
+                "distance": 3.227
+            },
+            {
+                "to": "J_TELEMUNG_LINK",
+                "distance": 3.557
+            },
+            {
+                "to": "J_GONG_BADAK_AIRPORT",
+                "distance": 8.244
+            },
+            {
+                "to": "WS_11",
+                "distance": 0.2
+            }
+        ],
+        "J_SEBERANG_TAKIR": [
+            {
+                "to": "J_WATERFRONT",
+                "distance": 2.437
+            },
+            {
+                "to": "J_TELUK_KETAPANG",
+                "distance": 2.362
+            },
+            {
+                "to": "WS_14",
+                "distance": 0.2
+            }
+        ],
+        "J_TELUK_KETAPANG": [
+            {
+                "to": "J_SEBERANG_TAKIR",
+                "distance": 2.362
+            },
+            {
+                "to": "J_GONG_BADAK_AIRPORT",
+                "distance": 2.467
+            },
+            {
+                "to": "WS_13",
+                "distance": 2.467
+            }
+        ],
+        "J_GONG_BADAK_AIRPORT": [
+            {
+                "to": "J_MANIR_BRIDGE",
+                "distance": 8.244
+            },
+            {
+                "to": "J_TELUK_KETAPANG",
+                "distance": 2.467
+            },
+            {
+                "to": "J_UMT",
+                "distance": 3.036
+            },
+            {
+                "to": "WS_13",
+                "distance": 0.2
+            }
+        ],
+        "J_UMT": [
+            {
+                "to": "J_GONG_BADAK_AIRPORT",
+                "distance": 3.036
+            },
+            {
+                "to": "J_BATU_RAKIT",
+                "distance": 6.511
+            },
+            {
+                "to": "WS_19",
+                "distance": 6.511
+            }
+        ],
+        "J_BATU_RAKIT": [
+            {
+                "to": "J_UMT",
+                "distance": 6.511
+            },
+            {
+                "to": "J_TELEMUNG_LINK",
+                "distance": 12.592
+            },
+            {
+                "to": "WS_19",
+                "distance": 0.2
+            }
+        ],
+        "J_TELEMUNG_LINK": [
+            {
+                "to": "J_MANIR_BRIDGE",
+                "distance": 3.557
+            },
+            {
+                "to": "J_BATU_RAKIT",
+                "distance": 12.592
+            }
+        ],
+        "WS_1": [
+            {
+                "to": "J_CHEND_IND",
+                "distance": 0.2
+            },
+            {
+                "to": "J_UITM",
+                "distance": 0.736
+            }
+        ],
+        "WS_2": [
+            {
+                "to": "J_CHEND_LAUT",
+                "distance": 0.2
+            },
+            {
+                "to": "J_UITM",
+                "distance": 1.316
+            }
+        ],
+        "WS_3": [
+            {
+                "to": "J_KUALA_IBAI_S",
+                "distance": 1.133
+            },
+            {
+                "to": "J_KUALA_IBAI_N",
+                "distance": 0.504
+            }
+        ],
+        "WS_4": [
+            {
+                "to": "J_BATU_BUROK",
+                "distance": 0.2
+            },
+            {
+                "to": "J_PASIR_PANJANG",
+                "distance": 1.497
+            }
+        ],
+        "WS_5": [
+            {
+                "to": "J_LADANG",
+                "distance": 0.2
+            },
+            {
+                "to": "J_BUKIT_BESAR",
+                "distance": 2.341
+            }
+        ],
+        "WS_6": [
+            {
+                "to": "J_WATERFRONT",
+                "distance": 0.2
+            },
+            {
+                "to": "J_PULAU_KAMBING",
+                "distance": 1.204
+            }
+        ],
+        "WS_7": [
+            {
+                "to": "J_WAKAF_MEMPELAM",
+                "distance": 0.2
+            },
+            {
+                "to": "J_PENGADANG_BARU",
+                "distance": 1.351
+            }
+        ],
+        "WS_8": [
+            {
+                "to": "J_BUKIT_PAYUNG",
+                "distance": 0.2
+            },
+            {
+                "to": "J_ATAS_TOL",
+                "distance": 5.776
+            }
+        ],
+        "WS_9": [
+            {
+                "to": "J_MARANG_TOWN",
+                "distance": 0.2
+            },
+            {
+                "to": "J_MARANG_N",
+                "distance": 2.912
+            }
+        ],
+        "WS_10": [
+            {
+                "to": "J_PANJI_ALAM",
+                "distance": 0.2
+            },
+            {
+                "to": "J_GONG_KAPAS",
+                "distance": 0.795
+            }
+        ],
+        "WS_11": [
+            {
+                "to": "J_MANIR_BRIDGE",
+                "distance": 0.2
+            },
+            {
+                "to": "J_LOSONG",
+                "distance": 3.227
+            }
+        ],
+        "WS_12": [
+            {
+                "to": "J_DURIAN_BURUNG",
+                "distance": 0.2
+            },
+            {
+                "to": "J_WAKAF_MEMPELAM",
+                "distance": 1.415
+            }
+        ],
+        "WS_13": [
+            {
+                "to": "J_GONG_BADAK_AIRPORT",
+                "distance": 0.2
+            },
+            {
+                "to": "J_TELUK_KETAPANG",
+                "distance": 2.467
+            }
+        ],
+        "WS_14": [
+            {
+                "to": "J_SEBERANG_TAKIR",
+                "distance": 0.2
+            },
+            {
+                "to": "J_WATERFRONT",
+                "distance": 2.437
+            }
+        ],
+        "WS_15": [
+            {
+                "to": "J_LOSONG",
+                "distance": 0.2
+            },
+            {
+                "to": "J_PULAU_KAMBING",
+                "distance": 2.199
+            }
+        ],
+        "WS_16": [
+            {
+                "to": "J_PULAU_KAMBING",
+                "distance": 0.2
+            },
+            {
+                "to": "J_LADANG",
+                "distance": 1.863
+            }
+        ],
+        "WS_17": [
+            {
+                "to": "J_WAKAF_TAPAI",
+                "distance": 0.2
+            },
+            {
+                "to": "J_BUKIT_PAYUNG",
+                "distance": 7.887
+            }
+        ],
+        "WS_18": [
+            {
+                "to": "J_GONG_KAPAS",
+                "distance": 0.2
+            },
+            {
+                "to": "J_BATU_BUROK",
+                "distance": 1.807
+            }
+        ],
+        "WS_19": [
+            {
+                "to": "J_BATU_RAKIT",
+                "distance": 0.2
+            },
+            {
+                "to": "J_UMT",
+                "distance": 6.511
+            }
+        ],
+        "WS_20": [
+            {
+                "to": "J_BUKIT_BESAR",
+                "distance": 0.2
+            },
+            {
+                "to": "J_PANJI_ALAM",
+                "distance": 0.669
+            }
+        ]
+    }
+}
