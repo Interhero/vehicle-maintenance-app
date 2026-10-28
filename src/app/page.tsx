@@ -724,42 +724,85 @@ export default function Home() {
       <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Header */}
-        <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-xl shadow-sm dark:shadow-none">
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-3">
-              Dashboard
-              <ThemeToggle />
-            </h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Welcome back, {session.user?.name}</p>
-          </div>
-          <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3 sm:gap-4 mt-6 md:mt-0">
-            <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-              <PushSubscriber />
-              <a href="/workshops" className="inline-flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 sm:px-5 h-11 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm rounded-xl transition-all shadow-sm shadow-emerald-600/20 whitespace-nowrap group">
-                <MapPin className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
-                Workshop Finder
-              </a>
-              <button onClick={openManageModal} className="inline-flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 sm:px-5 h-11 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 font-medium text-sm rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm whitespace-nowrap">
-                Manage Vehicles
-              </button>
-              <a href="/record/new" className="hidden sm:inline-flex items-center justify-center gap-2 px-5 h-11 bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm rounded-xl transition-colors border border-blue-600 hover:border-blue-500 shadow-sm shadow-blue-500/20 whitespace-nowrap group">
-                <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
-                New Record
-              </a>
+        <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 glass-panel p-5 sm:p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-xl shadow-sm dark:shadow-none">
+          <div className="w-full md:w-auto flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold flex items-center gap-3">
+                Dashboard
+                <ThemeToggle />
+              </h1>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Welcome back, {session.user?.name}</p>
             </div>
+            {/* Mobile Sign Out button */}
             <button
               onClick={() => {
                 setLogoutFlash(true);
                 sessionStorage.removeItem("hasLoggedIn");
                 setTimeout(() => signOut(), 1200);
               }}
-              className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-rose-600 hover:text-white dark:text-rose-400 bg-rose-50 hover:bg-rose-500 dark:bg-rose-500/10 dark:hover:bg-rose-600 transition-colors px-4 h-11 rounded-xl border border-rose-200 dark:border-rose-500/20 w-full sm:w-auto mt-1 sm:mt-0 shadow-sm"
+              className="md:hidden p-2.5 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl border border-rose-200 dark:border-rose-500/20 transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Desktop Navigation Group */}
+          <div className="hidden md:flex items-center gap-3">
+            <PushSubscriber />
+            <a href="/workshops" className="inline-flex items-center justify-center gap-2 px-5 h-11 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm rounded-xl transition-all shadow-sm shadow-emerald-600/20 whitespace-nowrap group">
+              <MapPin className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
+              Workshop Finder
+            </a>
+            <button onClick={openManageModal} className="inline-flex items-center justify-center gap-2 px-5 h-11 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 font-medium text-sm rounded-xl transition-colors border border-zinc-200 dark:border-zinc-700 shadow-sm whitespace-nowrap">
+              Manage Vehicles
+            </button>
+            <a href="/record/new" className="inline-flex items-center justify-center gap-2 px-5 h-11 bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm rounded-xl transition-colors border border-blue-600 hover:border-blue-500 shadow-sm shadow-blue-500/20 whitespace-nowrap group">
+              <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
+              New Record
+            </a>
+            <button
+              onClick={() => {
+                setLogoutFlash(true);
+                sessionStorage.removeItem("hasLoggedIn");
+                setTimeout(() => signOut(), 1200);
+              }}
+              className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-rose-600 hover:text-white dark:text-rose-400 bg-rose-50 hover:bg-rose-500 dark:bg-rose-500/10 dark:hover:bg-rose-600 transition-colors px-4 h-11 rounded-xl border border-rose-200 dark:border-rose-500/20 shadow-sm"
             >
               <LogOut className="w-4 h-4" />
               Sign Out
             </button>
           </div>
         </header>
+
+        {/* Mobile Quick Action Buttons Bar (Prominent touch-friendly cards) */}
+        <div className="grid grid-cols-2 gap-3 md:hidden">
+          <a
+            href="/workshops"
+            className="flex items-center gap-3 p-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-95 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/25 transition-all border border-emerald-400/30"
+          >
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+              <MapPin className="w-5 h-5 text-white" />
+            </div>
+            <div className="text-left overflow-hidden">
+              <div className="text-sm font-black leading-tight truncate">Find Workshop</div>
+              <div className="text-[11px] text-emerald-100 font-semibold opacity-90">A* Router</div>
+            </div>
+          </a>
+
+          <button
+            onClick={openManageModal}
+            className="flex items-center gap-3 p-3.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white active:scale-95 font-bold rounded-2xl shadow-sm transition-all border border-zinc-200 dark:border-zinc-700"
+          >
+            <div className="w-10 h-10 rounded-xl bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center flex-shrink-0">
+              <Car className="w-5 h-5 text-zinc-700 dark:text-zinc-200" />
+            </div>
+            <div className="text-left overflow-hidden">
+              <div className="text-sm font-black leading-tight truncate">My Garage</div>
+              <div className="text-[11px] text-zinc-500 dark:text-zinc-400 font-semibold">Manage</div>
+            </div>
+          </button>
+        </div>
 
         <div className="relative min-h-[50vh]">
           <div className={`absolute inset-0 z-10 bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center items-center transition-all duration-700 ease-in-out ${loading ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
@@ -1668,21 +1711,30 @@ export default function Home() {
         </div>
       </div >
 
-      {/* Floating Action Button (Mobile & Desktop) */}
+      {/* Floating Action Buttons (Mobile & Desktop Dual Quick Access) */}
       <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
+        {/* Floating Workshop Finder Button */}
+        <a
+          href="/workshops"
+          className="pointer-events-auto flex items-center h-12 sm:h-14 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-xl shadow-emerald-600/30 hover:scale-105 active:scale-90 active:translate-y-1 transition-all duration-300 border border-white/20 px-4 group"
+          title="Find Nearest Workshop (A* Route)"
+        >
+          <MapPin className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 text-emerald-100 group-hover:scale-110 transition-transform" />
+          <span className="pl-2 font-bold text-xs sm:text-sm whitespace-nowrap">
+            Find Workshop
+          </span>
+        </a>
+
+        {/* Floating New Record Button */}
         <a
           href="/record/new"
-          className="pointer-events-auto flex items-center h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-2xl shadow-blue-500/40 hover:scale-105 active:scale-90 active:translate-y-1 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group border border-white/20 px-4 group overflow-hidden"
+          className="pointer-events-auto flex items-center h-13 sm:h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-2xl shadow-blue-500/40 hover:scale-105 active:scale-90 active:translate-y-1 transition-all duration-300 border border-white/20 px-4 group"
           title="Create New Record"
         >
-          <Plus className="w-7 h-7 flex-shrink-0 transition-transform duration-700 group-hover:rotate-90" />
-          <div className="grid grid-cols-[0fr] group-hover:grid-cols-[1fr] transition-[grid-template-columns] duration-500 ease-in-out">
-            <div className="overflow-hidden whitespace-nowrap">
-              <span className="pl-3 font-bold text-base opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                New Record
-              </span>
-            </div>
-          </div>
+          <Plus className="w-5 h-5 sm:w-7 sm:h-7 flex-shrink-0 transition-transform duration-500 group-hover:rotate-90" />
+          <span className="pl-2 font-bold text-xs sm:text-base whitespace-nowrap">
+            New Record
+          </span>
         </a>
       </div>
     </div >
