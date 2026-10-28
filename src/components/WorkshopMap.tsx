@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
+import 'leaflet/dist/leaflet.css';
 import type { CandidateWorkshop } from '@/lib/algorithms/MultiCriteriaEngine';
 import type { Waypoint } from '@/lib/algorithms/AStarRouter';
 
@@ -34,22 +35,13 @@ export default function WorkshopMap({
         import('leaflet').then((L) => {
             if (!isMounted || !mapContainerRef.current) return;
 
-            // Import Leaflet CSS dynamically if not loaded
-            if (!document.getElementById('leaflet-css')) {
-                const link = document.createElement('link');
-                link.id = 'leaflet-css';
-                link.rel = 'stylesheet';
-                link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-                document.head.appendChild(link);
-            }
-
             if (!mapInstanceRef.current) {
                 const map = L.map(mapContainerRef.current).setView([startLocation.lat, startLocation.lng], 12);
                 mapInstanceRef.current = map;
 
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-                    subdomains: 'abcd',
+                // Standard OpenStreetMap Tile Layer (Clean, 100% Free, No API Key required)
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                     maxZoom: 19
                 }).addTo(map);
 
@@ -74,19 +66,20 @@ export default function WorkshopMap({
             // Update Start Marker
             if (!startMarkerRef.current) {
                 const startIcon = L.divIcon({
-                    className: 'custom-start-marker',
+                    className: '!bg-transparent !border-0',
                     html: `
-                        <div style="background: #2563eb; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-weight: bold; font-size: 14px;">
+                        <div style="background: #2563eb; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 12px rgba(37,99,235,0.5); font-weight: bold; font-size: 16px; cursor: grab;">
                             📍
                         </div>
                     `,
-                    iconSize: [34, 34],
-                    iconAnchor: [17, 34]
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 18]
                 });
 
                 const marker = L.marker([startLocation.lat, startLocation.lng], {
                     draggable: true,
-                    icon: startIcon
+                    icon: startIcon,
+                    zIndexOffset: 2000
                 }).addTo(map);
 
                 marker.on('dragend', () => {
@@ -108,29 +101,33 @@ export default function WorkshopMap({
                 const isRec = recommendedWorkshop?.workshop_id === ws.workshop_id;
                 const isBase = baselineWorkshop?.workshop_id === ws.workshop_id;
 
-                let pinColor = '#64748b';
+                let pinColor = '#475569';
                 let zIndex = 100;
-                let badgeText = '';
+                let badgeHtml = '';
 
                 if (isRec && isBase) {
                     pinColor = '#10b981';
                     zIndex = 1000;
-                    badgeText = '★ #1';
+                    badgeHtml = '<span style="background: #047857; padding: 1px 6px; border-radius: 9999px; font-size: 10px;">★ #1 Rec</span>';
                 } else if (isRec) {
                     pinColor = '#10b981';
                     zIndex = 950;
-                    badgeText = '★ Rec';
+                    badgeHtml = '<span style="background: #047857; padding: 1px 6px; border-radius: 9999px; font-size: 10px;">★ Rec</span>';
                 } else if (isBase) {
                     pinColor = '#f59e0b';
                     zIndex = 900;
-                    badgeText = 'Nearest';
+                    badgeHtml = '<span style="background: #b45309; padding: 1px 6px; border-radius: 9999px; font-size: 10px;">Nearest</span>';
                 }
 
+                const displayName = ws.name.length > 22 ? ws.name.slice(0, 20) + '...' : ws.name;
+
                 const wsIcon = L.divIcon({
-                    className: 'custom-ws-pin',
+                    className: '!bg-transparent !border-0',
                     html: `
-                        <div style="background: ${pinColor}; color: white; padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.25); white-space: nowrap; transform: translate(-50%, -100%);">
-                            🔧 ${ws.name.split(' ')[0]} ${badgeText ? `[${badgeText}]` : ''}
+                        <div style="background: ${pinColor}; color: white; padding: 4px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.3); white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; transform: translate(-50%, -100%); cursor: pointer;">
+                            <span style="font-size: 12px;">🔧</span>
+                            <span>${displayName}</span>
+                            ${badgeHtml}
                         </div>
                     `,
                     iconSize: [0, 0],
@@ -143,12 +140,18 @@ export default function WorkshopMap({
                 }).addTo(map);
 
                 marker.bindPopup(`
-                    <div style="font-family: inherit; font-size: 13px; line-height: 1.4;">
-                        <strong>${ws.name}</strong><br>
+                    <div style="font-family: inherit; font-size: 13px; line-height: 1.4; min-width: 180px;">
+                        <strong style="color: #0f172a; font-size: 14px;">${ws.name}</strong><br>
                         <small style="color: #64748b;">${ws.address}</small><br>
-                        <hr style="margin: 6px 0; border: none; border-top: 1px solid #e2e8f0;">
-                        <div>Cost: <strong>RM ${Number(ws.baseline_repair_cost).toFixed(2)}</strong></div>
-                        <div>Quality: <strong>⭐ ${Number(ws.service_quality).toFixed(1)} / 10</strong></div>
+                        <hr style="margin: 8px 0; border: none; border-top: 1px solid #e2e8f0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span style="color: #64748b;">Cost:</span>
+                            <strong style="color: #059669;">RM ${Number(ws.baseline_repair_cost).toFixed(2)}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #64748b;">Quality:</span>
+                            <strong style="color: #d97706;">⭐ ${Number(ws.service_quality).toFixed(1)} / 10</strong>
+                        </div>
                     </div>
                 `);
 
@@ -189,10 +192,11 @@ export default function WorkshopMap({
     }, [startLocation, workshops, recommendedWorkshop, baselineWorkshop, onLocationChange]);
 
     return (
-        <div className="relative w-full h-[520px] rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-md">
+        <div className="relative w-full h-[540px] rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-lg">
             <div ref={mapContainerRef} className="w-full h-full" />
-            <div className="absolute bottom-3 left-3 z-[1000] bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 shadow-sm pointer-events-none">
-                💡 Click anywhere or drag the 📍 pin to change starting position
+            <div className="absolute bottom-3 left-3 z-[1000] bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-700 dark:text-zinc-300 shadow-md pointer-events-none flex items-center gap-2">
+                <span>📍</span>
+                <span>Drag the pin or click anywhere on the road network to relocate your vehicle</span>
             </div>
         </div>
     );
