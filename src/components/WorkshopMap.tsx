@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import type { CandidateWorkshop } from '@/lib/algorithms/MultiCriteriaEngine';
 import type { Waypoint } from '@/lib/algorithms/AStarRouter';
@@ -11,6 +11,30 @@ interface WorkshopMapProps {
     recommendedWorkshop: CandidateWorkshop | null;
     baselineWorkshop: CandidateWorkshop | null;
     onLocationChange: (lat: number, lng: number) => void;
+}
+
+// Fetch real road curvature from OSRM to follow actual streets
+async function fetchRoadGeometry(waypoints: Waypoint[]): Promise<[number, number][] | null> {
+    if (!waypoints || waypoints.length < 2) return null;
+    try {
+        const coordStr = waypoints.map(w => `${w.lng},${w.lat}`).join(';');
+        const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 7000);
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data.code === 'Ok' && data.routes && data.routes[0]?.geometry?.coordinates) {
+            // Convert GeoJSON [lng, lat] to Leaflet [lat, lng]
+            return data.routes[0].geometry.coordinates.map((c: [number, number]) => [c[1], c[0]]);
+        }
+    } catch (e) {
+        // Fallback to straight waypoint lines if OSRM is unreachable
+    }
+    return null;
 }
 
 export default function WorkshopMap({
@@ -26,20 +50,21 @@ export default function WorkshopMap({
     const workshopMarkersRef = useRef<any[]>([]);
     const mcPolylineRef = useRef<any>(null);
     const basePolylineRef = useRef<any>(null);
+    const [snappingToRoads, setSnappingToRoads] = useState(false);
 
     useEffect(() => {
         if (!mapContainerRef.current) return;
 
         let isMounted = true;
 
-        import('leaflet').then((L) => {
+        import('leaflet').then(async (L) => {
             if (!isMounted || !mapContainerRef.current) return;
 
             if (!mapInstanceRef.current) {
-                const map = L.map(mapContainerRef.current).setView([startLocation.lat, startLocation.lng], 12);
+                const map = L.map(mapContainerRef.current).setView([startLocation.lat, startLocation.lng], 13);
                 mapInstanceRef.current = map;
 
-                // Standard OpenStreetMap Tile Layer (Clean, 100% Free, No API Key required)
+                // Standard OpenStreetMap Tile Layer (Clean, 100% Free, No Watermark or API Key)
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                     maxZoom: 19
@@ -68,12 +93,12 @@ export default function WorkshopMap({
                 const startIcon = L.divIcon({
                     className: '!bg-transparent !border-0',
                     html: `
-                        <div style="background: #2563eb; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 12px rgba(37,99,235,0.5); font-weight: bold; font-size: 16px; cursor: grab;">
+                        <div style="background: #2563eb; color: white; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 14px rgba(37,99,235,0.6); font-weight: bold; font-size: 18px; cursor: grab;">
                             📍
                         </div>
                     `,
-                    iconSize: [36, 36],
-                    iconAnchor: [18, 18]
+                    iconSize: [38, 38],
+                    iconAnchor: [19, 19]
                 });
 
                 const marker = L.marker([startLocation.lat, startLocation.lng], {
@@ -158,31 +183,56 @@ export default function WorkshopMap({
                 workshopMarkersRef.current.push(marker);
             });
 
-            // Draw Route Polylines
+            // Draw Route Polylines following real road curvature
             if (mcPolylineRef.current) map.removeLayer(mcPolylineRef.current);
             if (basePolylineRef.current) map.removeLayer(basePolylineRef.current);
 
-            // Baseline polyline (Dashed Amber)
-            if (baselineWorkshop && baselineWorkshop.waypoints && baselineWorkshop.workshop_id !== recommendedWorkshop?.workshop_id) {
-                const baseLatLngs: [number, number][] = baselineWorkshop.waypoints.map(w => [w.lat, w.lng] as [number, number]);
-                basePolylineRef.current = L.polyline(baseLatLngs, {
-                    color: '#f59e0b',
-                    weight: 3.5,
-                    dashArray: '6, 8',
-                    opacity: 0.85
-                }).addTo(map);
-            }
+            if (recommendedWorkshop || baselineWorkshop) {
+                setSnappingToRoads(true);
 
-            // Recommended polyline (Solid Emerald Green)
-            if (recommendedWorkshop && recommendedWorkshop.waypoints) {
-                const recLatLngs: [number, number][] = recommendedWorkshop.waypoints.map(w => [w.lat, w.lng] as [number, number]);
-                mcPolylineRef.current = L.polyline(recLatLngs, {
-                    color: '#10b981',
-                    weight: 5,
-                    opacity: 0.95
-                }).addTo(map);
+                // Fetch real road curves for both routes in parallel
+                const [mcRoadCoords, baseRoadCoords] = await Promise.all([
+                    recommendedWorkshop?.waypoints ? fetchRoadGeometry(recommendedWorkshop.waypoints) : Promise.resolve(null),
+                    (baselineWorkshop?.waypoints && baselineWorkshop.workshop_id !== recommendedWorkshop?.workshop_id) 
+                        ? fetchRoadGeometry(baselineWorkshop.waypoints) 
+                        : Promise.resolve(null)
+                ]);
 
-                map.fitBounds(L.latLngBounds(recLatLngs as any), { padding: [40, 40] });
+                if (!isMounted) return;
+                setSnappingToRoads(false);
+
+                // 1. Draw Baseline Polyline (Dashed Amber)
+                if (baselineWorkshop && baselineWorkshop.workshop_id !== recommendedWorkshop?.workshop_id) {
+                    const fallbackCoords: [number, number][] = (baselineWorkshop.waypoints || []).map(w => [w.lat, w.lng] as [number, number]);
+                    const finalBaseCoords = baseRoadCoords || fallbackCoords;
+
+                    if (finalBaseCoords.length > 0) {
+                        basePolylineRef.current = L.polyline(finalBaseCoords, {
+                            color: '#f59e0b',
+                            weight: 3.5,
+                            dashArray: '6, 8',
+                            opacity: 0.85
+                        }).addTo(map);
+                    }
+                }
+
+                // 2. Draw Recommended Polyline (Solid Emerald Green)
+                if (recommendedWorkshop) {
+                    const fallbackCoords: [number, number][] = (recommendedWorkshop.waypoints || []).map(w => [w.lat, w.lng] as [number, number]);
+                    const finalMcCoords = mcRoadCoords || fallbackCoords;
+
+                    if (finalMcCoords.length > 0) {
+                        mcPolylineRef.current = L.polyline(finalMcCoords, {
+                            color: '#10b981',
+                            weight: 5.5,
+                            opacity: 0.95,
+                            lineJoin: 'round',
+                            lineCap: 'round'
+                        }).addTo(map);
+
+                        map.fitBounds(L.latLngBounds(finalMcCoords as any), { padding: [50, 50] });
+                    }
+                }
             }
         });
 
@@ -194,9 +244,19 @@ export default function WorkshopMap({
     return (
         <div className="relative w-full h-[540px] rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-lg">
             <div ref={mapContainerRef} className="w-full h-full" />
-            <div className="absolute bottom-3 left-3 z-[1000] bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-700 dark:text-zinc-300 shadow-md pointer-events-none flex items-center gap-2">
-                <span>📍</span>
-                <span>Drag the pin or click anywhere on the road network to relocate your vehicle</span>
+            
+            {/* Status & Helper Overlay */}
+            <div className="absolute bottom-3 left-3 z-[1000] flex items-center gap-2">
+                <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-700 dark:text-zinc-300 shadow-md flex items-center gap-2">
+                    <span>📍</span>
+                    <span>Drag the pin or click anywhere on the road network to change location</span>
+                </div>
+                {snappingToRoads && (
+                    <div className="bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md flex items-center gap-1.5 animate-pulse">
+                        <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                        Snapping A* path to roads...
+                    </div>
+                )}
             </div>
         </div>
     );
