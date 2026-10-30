@@ -13,12 +13,14 @@ interface WorkshopMapProps {
     onLocationChange: (lat: number, lng: number) => void;
 }
 
-// Fetch real road curvature from OSRM to follow actual streets
-async function fetchRoadGeometry(waypoints: Waypoint[]): Promise<[number, number][] | null> {
-    if (!waypoints || waypoints.length < 2) return null;
+// Fetch real road curvature from OSRM directly from vehicle pin to destination workshop
+// This avoids backtracking detours caused by discrete graph snap nodes (e.g. J_UITM gate)
+async function fetchRoadGeometry(
+    start: { lat: number; lng: number },
+    dest: { lat: number; lng: number }
+): Promise<[number, number][] | null> {
     try {
-        const coordStr = waypoints.map(w => `${w.lng},${w.lat}`).join(';');
-        const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
+        const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${dest.lng},${dest.lat}?overview=full&geometries=geojson`;
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 7000);
@@ -190,11 +192,13 @@ export default function WorkshopMap({
             if (recommendedWorkshop || baselineWorkshop) {
                 setSnappingToRoads(true);
 
-                // Fetch real road curves for both routes in parallel
+                // Fetch direct street routes from vehicle pin to workshops (avoids snap-node backtracking)
                 const [mcRoadCoords, baseRoadCoords] = await Promise.all([
-                    recommendedWorkshop?.waypoints ? fetchRoadGeometry(recommendedWorkshop.waypoints) : Promise.resolve(null),
-                    (baselineWorkshop?.waypoints && baselineWorkshop.workshop_id !== recommendedWorkshop?.workshop_id) 
-                        ? fetchRoadGeometry(baselineWorkshop.waypoints) 
+                    recommendedWorkshop 
+                        ? fetchRoadGeometry(startLocation, { lat: recommendedWorkshop.latitude, lng: recommendedWorkshop.longitude }) 
+                        : Promise.resolve(null),
+                    (baselineWorkshop && baselineWorkshop.workshop_id !== recommendedWorkshop?.workshop_id) 
+                        ? fetchRoadGeometry(startLocation, { lat: baselineWorkshop.latitude, lng: baselineWorkshop.longitude }) 
                         : Promise.resolve(null)
                 ]);
 
