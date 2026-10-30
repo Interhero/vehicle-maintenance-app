@@ -301,11 +301,11 @@ export class MultiCriteriaEngine {
             parts.push(`achieved a higher service quality rating (+${qualGain.toFixed(1)})`);
         }
 
+        let detail = parts.join(' and ');
         if (distAdded > 0) {
-            parts.push(`by travelling an additional ${distAdded.toFixed(2)} km`);
+            detail = detail ? `${detail} by travelling an additional ${distAdded.toFixed(2)} km` : `travelled an additional ${distAdded.toFixed(2)} km`;
         }
 
-        const detail = parts.join(', ');
-        return `Under ${urgency} urgency, Multi-Criteria A* prioritized optimal trade-offs: it ${detail} compared to single-criterion nearest-distance routing.`;
+        return `Under ${urgency} urgency, Multi-Criteria A* prioritised optimal trade-offs: it ${detail} compared to single-criterion nearest-distance routing.`;
     }
 }
